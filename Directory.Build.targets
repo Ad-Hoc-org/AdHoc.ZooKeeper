@@ -1,5 +1,12 @@
 <Project>
 
+  <ItemGroup Label="Analyzers">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup Label="Fody">
     <PackageReference Include="ConfigureAwait.Fody">
       <PrivateAssets>all</PrivateAssets>

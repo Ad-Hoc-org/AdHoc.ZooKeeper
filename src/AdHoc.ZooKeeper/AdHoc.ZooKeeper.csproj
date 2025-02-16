@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>0.1.0-beta</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Pipelines" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdHoc.ZooKeeper.Abstractions\AdHoc.ZooKeeper.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
