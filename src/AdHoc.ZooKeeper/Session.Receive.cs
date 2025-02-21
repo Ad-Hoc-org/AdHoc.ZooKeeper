@@ -13,15 +13,14 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
-    : IAsyncDisposable
 {
 
-    private Task _receiveTask;
+    private Task _receiving;
 
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<Watcher, WatchAsync>> _watchers;
 
     private readonly ConcurrentDictionary<int, TaskCompletionSource<Response>> _pending;
-    private readonly ConcurrentDictionary<int, Task> _receiving;
+    private readonly ConcurrentDictionary<int, Task> _responding;
 
     private readonly CancellationTokenSource _disposeSource;
 
@@ -40,9 +39,9 @@ internal sealed partial class Session
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            receiveTask = _receiveTask;
+            receiveTask = _receiving;
             if (receiveTask.IsCompleted)
-                _receiveTask = receiveTask = ReceivingAsync(stream);
+                _receiving = receiveTask = ReceivingAsync(stream);
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
             await Task.WhenAny(receiveTask, pending);
@@ -51,34 +50,14 @@ internal sealed partial class Session
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
         using var response = await pending;
+        var transaction = response.ToTransaction(root);
+        _lastTransaction = transaction.Transaction;
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         return operation.ReadResponse(
-            response.ToResponse(root),
+            transaction,
             watcher
         );
     }
-
-
-    private Task EnsureReceivingAsync(NetworkStream stream)
-    {
-        var receiveTask = _receiveTask;
-        if (receiveTask is not null && !receiveTask.IsCompleted)
-            return receiveTask;
-        return Task.Run(async () =>
-        {
-            await _lock.WaitAsync();
-            try
-            {
-                if (_receiveTask is not null && !_receiveTask.IsCompleted)
-                    receiveTask = _receiveTask;
-                else
-                    _receiveTask = receiveTask = ReceivingAsync(stream);
-            }
-            finally { _lock.Release(); }
-            await receiveTask;
-        });
-    }
-
 
     private async Task ReceivingAsync(NetworkStream stream)
     {
@@ -236,17 +215,5 @@ internal sealed partial class Session
             return ValueTask.CompletedTask;
         }
     }
-
-
-    public async ValueTask DisposeAsync()
-    {
-        await _disposeSource.CancelAsync();
-        var receiveTask = _receiveTask;
-        if (receiveTask is not null)
-            try { await receiveTask; } catch { }
-        _tcpClient?.Dispose();
-        _disposeSource.Dispose();
-    }
-
 
 }

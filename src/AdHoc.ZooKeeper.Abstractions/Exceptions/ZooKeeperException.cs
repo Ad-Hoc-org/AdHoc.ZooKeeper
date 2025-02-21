@@ -23,19 +23,34 @@ public class ZooKeeperException
 
     public static ConnectionLostException CreateLostConnection(
         Host host,
-        ReadOnlyMemory<byte> session,
-        ReadOnlyMemory<byte> password,
+        ZooKeeperSession session,
         long lastTransaction,
         long lastInteractionTimestamp,
         Exception? innerException = null
     ) => new(
-        $"Lost connection {SessionToString(session.Span)} to {host}.",
+        $"Lost connection {SessionToString(session.Session.Span)} to {host}.",
         innerException
     )
     {
         Host = host,
         Session = session,
-        Password = password,
+        LastTransaction = lastTransaction,
+        LastInteractionTimestamp = lastInteractionTimestamp
+    };
+
+    public static SessionExpiredException CreateSessionExpired(
+        Host host,
+        ZooKeeperSession session,
+        long lastTransaction,
+        long lastInteractionTimestamp,
+        Exception? innerException = null
+    ) => new(
+        $"Session {SessionToString(session.Session.Span)} expired.",
+        innerException
+    )
+    {
+        Host = host,
+        Session = session,
         LastTransaction = lastTransaction,
         LastInteractionTimestamp = lastInteractionTimestamp
     };

@@ -6,8 +6,7 @@ namespace AdHoc.ZooKeeper.Abstractions;
 [Serializable]
 public class ConnectionLostException : ConnectionException
 {
-    public ReadOnlyMemory<byte> Session { get; init; }
-    public ReadOnlyMemory<byte> Password { get; init; }
+    public ZooKeeperSession Session { get; init; }
     public long LastTransaction { get; init; }
     public long LastInteractionTimestamp { get; init; }
 

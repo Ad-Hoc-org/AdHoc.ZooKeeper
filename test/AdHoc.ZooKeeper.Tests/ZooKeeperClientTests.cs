@@ -15,7 +15,7 @@ public class ZooKeeperClientTests
 
         await using var client = new ZooKeeperClient("localhost/?sessionTimeout=35000");
 
-        //Console.WriteLine(await client.ExistsAsync("foo", LogEvents, cancellationToken));
+        Console.WriteLine(await client.ExistsAsync("foo", LogEvents, cancellationToken));
         Console.WriteLine(await client.GetChildrenAsync("foo", LogEvents, cancellationToken));
 
         Console.WriteLine(await client.CreateAsync("foo", "bar"u8.ToArray(), cancellationToken));

@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Collections.Frozen;
 using AdHoc.ZooKeeper.Abstractions;
 
 namespace AdHoc.ZooKeeper;
@@ -16,7 +17,6 @@ public class ZooKeeperClient
     {
         ArgumentNullException.ThrowIfNull(connection);
         _connection = connection;
-        _currentSession = new(connection.Hosts.First(), connection.Authentications, connection.ConnectionTimeout, connection.SessionTimeout, connection.ReadOnly);
     }
 
     public ZooKeeperClient(string connectionString)
@@ -26,9 +26,20 @@ public class ZooKeeperClient
     public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> operation, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(operation);
-        return _currentSession!.ExecuteAsync(operation, _connection.Root, cancellationToken);
+        return (_currentSession ??= new(
+            _connection.Hosts.First(),
+            _connection.Authentications.ToFrozenSet(),
+            _connection.ConnectionTimeout,
+            _connection.SessionTimeout,
+            _connection.ReadOnly
+        )).ExecuteAsync(operation, _connection.Root, cancellationToken);
     }
 
-    public ValueTask DisposeAsync() =>
-        _currentSession!.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        var session = _currentSession;
+        _currentSession = null;
+        if (session is not null)
+            await session.CloseAsync();
+    }
 }

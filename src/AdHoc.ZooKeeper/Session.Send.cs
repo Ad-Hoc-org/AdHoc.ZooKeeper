@@ -10,7 +10,6 @@ using static AdHoc.ZooKeeper.Abstractions.Operations;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
-    : IAsyncDisposable
 {
 
     private int _previousRequest;
@@ -94,7 +93,7 @@ internal sealed partial class Session
             _memory = memory;
         }
 
-        internal ZooKeeperResponse ToResponse(ZooKeeperPath root)
+        internal ZooKeeperResponse ToTransaction(ZooKeeperPath root)
         {
             var span = _memory.Span;
             return new(
@@ -122,7 +121,7 @@ internal sealed partial class Session
         bool released = false;
         TaskCompletionSource<Response> pending = new();
         int? request = null;
-        Task<TResult>? receiveTask = null;
+        Task<TResult>? receive = null;
         try
         {
             var stream = await EnsureSessionAsync(cancellationToken);
@@ -130,15 +129,15 @@ internal sealed partial class Session
             if (request is null)
                 return (default, false);
 
-            receiveTask = ReceiveAsync(operation, root, stream, pending.Task, watcher, cancellationToken);
-            _receiving[request.Value] = receiveTask;
+            receive = ReceiveAsync(operation, root, stream, pending.Task, watcher, cancellationToken);
+            _responding[request.Value] = receive;
 
             // release lock after writing and task management is done
             _lock.Release();
             released = true;
 
-            var result = await receiveTask;
-            _receiving.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receiveTask));
+            var result = await receive;
+            _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
             _pending.TryRemove(KeyValuePair.Create(request.Value, pending));
             return (result, true);
         }
@@ -148,8 +147,8 @@ internal sealed partial class Session
 
             if (request is not null)
             {
-                if (receiveTask is not null)
-                    _receiving.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receiveTask));
+                if (receive is not null)
+                    _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
                 if (_pending.TryRemove(KeyValuePair.Create(request.Value, pending)))
                     if (canceled)
                         pending.TrySetCanceled(cancellationToken);
