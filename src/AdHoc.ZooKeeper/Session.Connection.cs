@@ -50,12 +50,15 @@ internal sealed partial class Session
             await _tcpClient.ConnectAsync(_host.Address, _host.Port);
             var stream = _tcpClient.GetStream();
 
-            var operation = ConnectOperation.NewSession(_sessionTimeout, _readOnly);
-            var result = await SendAsync(stream, operation.WriteRequest, data => operation.ReadResponse(data.Span), cancellationToken);
-            _connectedSessionTimeout = result.SessionTimeout;
+            var session = await SendAsync(stream,
+                writer => WriteNewSession(writer, _sessionTimeout, _readOnly),
+                data => ReadSession(data.Span),
+                cancellationToken
+            );
+            _connectedSessionTimeout = session.SessionTimeout;
             _lastInteractionTimestamp = Stopwatch.GetTimestamp();
-            _session = result.Session;
-            _password = result.Password;
+            _session = session.Session;
+            _password = session.Password;
 
             //var operation = ConnectOperation.Reconnect(_sessionTimeout, _readOnly, _lastTransaction, _session.Value, _password!.Value);
             //var result = await SendAsync(stream, operation.WriteRequest, data => operation.ReadResponse(data.Span), cancellationToken);
