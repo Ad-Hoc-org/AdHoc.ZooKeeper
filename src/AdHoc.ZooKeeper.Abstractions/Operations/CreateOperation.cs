@@ -67,10 +67,8 @@ public sealed record CreateOperation
         // TODO ACL
         size += Write(buffer.Slice(size), 1);
         size += Write(buffer.Slice(size), (int)ZooKeeperPermission.All);
-        size += Write(buffer.Slice(size), "world".Length);
-        size += Encoding.UTF8.GetBytes("world", buffer.Slice(size));
-        size += Write(buffer.Slice(size), "anyone".Length);
-        size += Encoding.UTF8.GetBytes("anyone", buffer.Slice(size));
+        size += Write(buffer.Slice(size), "world");
+        size += Write(buffer.Slice(size), "anyone");
 
         size += Write(buffer.Slice(size), (int)_mode);
 

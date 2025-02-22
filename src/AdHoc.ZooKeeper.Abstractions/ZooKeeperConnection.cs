@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Collections.Frozen;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
@@ -131,9 +132,9 @@ public sealed record ZooKeeperConnection
                 switch (key.ToLowerInvariant())
                 {
                     case "auth":
-                        var authParts = value.Split(':');
+                        var authParts = value.Split(':', 2);
                         if (authParts.Length == 2)
-                            authentications.Add(new Authentication(authParts[0], Convert.FromBase64String(authParts[1])));
+                            authentications.Add(new Authentication(authParts[0], Encoding.UTF8.GetBytes(authParts[1])));
                         break;
                     case "sessiontimeout":
                         if (long.TryParse(value, out var ms))

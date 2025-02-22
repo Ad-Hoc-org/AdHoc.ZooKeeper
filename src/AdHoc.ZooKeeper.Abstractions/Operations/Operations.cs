@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers.Binary;
+using System.Text;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public static partial class Operations
@@ -59,6 +60,12 @@ public static partial class Operations
     {
         BinaryPrimitives.WriteInt64BigEndian(destination, value);
         return Int64Size;
+    }
+
+    public static int Write(Span<byte> destination, string value)
+    {
+        Write(destination, value.Length);
+        return LengthSize + Encoding.UTF8.GetBytes(value, destination.Slice(LengthSize));
     }
 
     public static int Write(Span<byte> destination, ReadOnlySpan<byte> buffer)

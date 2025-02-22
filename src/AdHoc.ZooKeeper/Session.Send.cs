@@ -15,6 +15,22 @@ internal sealed partial class Session
     private int _previousRequest;
 
 
+    private Task<TResult> SendAsync<TResult>(
+        NetworkStream stream,
+        IZooKeeperOperation<TResult> operation,
+        CancellationToken cancellationToken
+    ) => SendAsync(
+        stream,
+        writer => operation.WriteRequest(new ZooKeeperContext(
+            ZooKeeperPath.Root,
+            writer,
+            op => GetRequest(op, ref _previousRequest),
+            (_, _) => throw new InvalidOperationException()
+        )),
+        data => operation.ReadResponse(Response.ToTransaction(data.Span, ZooKeeperPath.Root), null),
+        cancellationToken
+    );
+
     private async Task<TResult> SendAsync<TResult>(
         NetworkStream stream,
         Action<IBufferWriter<byte>> write,
@@ -93,17 +109,16 @@ internal sealed partial class Session
             _memory = memory;
         }
 
-        internal ZooKeeperResponse ToTransaction(ZooKeeperPath root)
-        {
-            var span = _memory.Span;
-            return new(
-               root,
-               request: ReadInt32(span),
-               transaction: ReadInt64(span.Slice(RequestSize)),
-               status: (ZooKeeperStatus)ReadInt32(span.Slice(RequestSize + TransactionSize)),
-               data: span.Slice(RequestSize + TransactionSize + StatusSize)
-           );
-        }
+        internal ZooKeeperResponse ToTransaction(ZooKeeperPath root) =>
+            ToTransaction(_memory.Span, root);
+
+        internal static ZooKeeperResponse ToTransaction(ReadOnlySpan<byte> data, ZooKeeperPath root) => new(
+            root,
+            request: ReadInt32(data),
+            transaction: ReadInt64(data.Slice(RequestSize)),
+            status: (ZooKeeperStatus)ReadInt32(data.Slice(RequestSize + TransactionSize)),
+            data: data.Slice(RequestSize + TransactionSize + StatusSize)
+        );
 
         public void Dispose() =>
             _owner.Dispose();

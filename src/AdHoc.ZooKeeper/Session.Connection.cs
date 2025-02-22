@@ -47,7 +47,12 @@ internal sealed partial class Session
                 data => ReadSession(data.Span),
                 cancellationToken
             );
-            _lastInteractionTimestamp = Stopwatch.GetTimestamp();
+            foreach (var auth in _authentications)
+                await SendAsync(
+                    stream,
+                    AddAuthenticationOperation.Create(auth),
+                    cancellationToken
+                );
 
             return stream;
         }

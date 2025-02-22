@@ -96,7 +96,7 @@ public readonly record struct ZooKeeperPath
         {
             if (value.Length == 0)
             {
-                BinaryPrimitives.WriteInt32BigEndian(destination, 1);
+                Operations.Write(destination, 1);
                 destination[LengthSize] = (byte)'/';
                 return LengthSize + 1;
             }
@@ -105,7 +105,7 @@ public readonly record struct ZooKeeperPath
                 if (value[0] != '/')
                     destination[size++] = (byte)'/';
                 size += Encoding.UTF8.GetBytes(value, destination.Slice(size));
-                BinaryPrimitives.WriteInt32BigEndian(destination, size - LengthSize);
+                Operations.Write(destination, size - LengthSize);
                 return size;
             }
         }
@@ -116,7 +116,7 @@ public readonly record struct ZooKeeperPath
 
         if (value.Length == 0 || (value.Length == 1 && value[0] == '/'))
         {
-            BinaryPrimitives.WriteInt32BigEndian(destination, size - LengthSize);
+            Operations.Write(destination, size - LengthSize);
             return size;
         }
 
@@ -130,14 +130,14 @@ public readonly record struct ZooKeeperPath
 
         size += Encoding.UTF8.GetBytes(value, destination.Slice(size));
 
-        BinaryPrimitives.WriteInt32BigEndian(destination, size - LengthSize);
+        Operations.Write(destination, size - LengthSize);
         return size;
     }
 
 
     public static ZooKeeperPath Read(ReadOnlySpan<byte> source, out int size)
     {
-        int length = BinaryPrimitives.ReadInt32BigEndian(source);
+        int length = ReadInt32(source);
         size = LengthSize + length;
         return Encoding.UTF8.GetString(
             source.Slice(
