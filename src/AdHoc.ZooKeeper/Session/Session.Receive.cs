@@ -3,12 +3,8 @@
 
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Collections.Frozen;
-using System.Collections.Immutable;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
-using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
-using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 using static AdHoc.ZooKeeper.Abstractions.Operations;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent;
 
@@ -118,6 +114,8 @@ internal sealed partial class Session
                                     await ResponseWithAsync(new ObjectDisposedException(this.ToString(), ex));
                                 else
                                     await ResponseWithAsync(ex);
+                                if (_pending.IsEmpty && ex is ConnectionLostException)
+                                    return;
                             }
                         }
                     }
@@ -136,9 +134,6 @@ internal sealed partial class Session
         await _lock.WaitAsync();
         try
         {
-            _tcpClient?.Dispose();
-            _tcpClient = null;
-
             while (!_pending.IsEmpty)
                 if (_pending.TryRemove(_pending.Keys.First(), out var request))
                     request.TrySetException(exception);

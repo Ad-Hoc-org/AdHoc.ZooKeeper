@@ -16,7 +16,7 @@ internal sealed partial class Session
     private void DispatchEvent(Response response)
     {
         var @event = ZooKeeperEvent.Read(response._memory.Span, out _);
-        Console.WriteLine(@event);
+        _lastTransaction = @event.Trigger;
         var path = @event.Path;
         if (_watchers.TryGetValue(path, out var watchers))
         {
@@ -77,6 +77,7 @@ internal sealed partial class Session
 
         var stream = await EnsureSessionAsync(cancellationToken);
         await SendAsync(stream, SetWatcherOperations.Create(
+            _lastTransaction,
             children: paths.TryGetValue(Types.Children, out var children) ? children : null,
             data: paths.TryGetValue(Types.Children, out var data) ? data : null,
             exists: paths.TryGetValue(Types.Children, out var exists) ? exists : null

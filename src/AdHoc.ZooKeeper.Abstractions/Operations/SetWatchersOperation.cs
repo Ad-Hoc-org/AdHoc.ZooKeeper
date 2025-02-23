@@ -14,18 +14,20 @@ public sealed record SetWatcherOperations
     private static readonly ReadOnlyMemory<byte> _RequestBytes = new byte[] { 255, 255, 255, 247 };
     private static readonly ReadOnlyMemory<byte> _OperationBytes = new byte[] { 0, 0, 0, 101 };
 
-
+    public long LastTransaction { get; }
     public IReadOnlySet<ZooKeeperPath> Children { get; }
     public IReadOnlySet<ZooKeeperPath> Data { get; }
     public IReadOnlySet<ZooKeeperPath> Exists { get; }
 
 
     private SetWatcherOperations(
+        long lastTransaction,
         IReadOnlySet<ZooKeeperPath> children,
         IReadOnlySet<ZooKeeperPath> data,
         IReadOnlySet<ZooKeeperPath> exists
     )
     {
+        LastTransaction = lastTransaction;
         Children = children;
         Data = data;
         Exists = exists;
@@ -48,9 +50,14 @@ public sealed record SetWatcherOperations
         _OperationBytes.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
 
+        size += Write(buffer.Slice(size), LastTransaction);
+
         size += WritePaths(buffer.Slice(size), Children, context.Root);
         size += WritePaths(buffer.Slice(size), Data, context.Root);
         size += WritePaths(buffer.Slice(size), Exists, context.Root);
+        // TODO persistent
+        //size += WritePaths(buffer.Slice(size), FrozenSet<ZooKeeperPath>.Empty, context.Root);
+        //size += WritePaths(buffer.Slice(size), FrozenSet<ZooKeeperPath>.Empty, context.Root);
 
         Write(buffer, size - LengthSize);
         writer.Advance(size);
@@ -79,11 +86,13 @@ public sealed record SetWatcherOperations
     }
 
     public static SetWatcherOperations Create(
+        long lastTransaction,
         IEnumerable<ZooKeeperPath>? children = null,
         IEnumerable<ZooKeeperPath>? data = null,
         IEnumerable<ZooKeeperPath>? exists = null
     ) =>
         new SetWatcherOperations(
+            lastTransaction,
             children?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
             data?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
             exists?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty

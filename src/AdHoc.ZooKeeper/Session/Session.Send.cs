@@ -39,7 +39,7 @@ internal sealed partial class Session
     )
     {
 #if DEBUG
-        if (!_pending.IsEmpty || !_watchers.IsEmpty)
+        if (!_pending.IsEmpty)
             throw new InvalidOperationException();
 #endif
         var pipeWriter = PipeWriter.Create(stream);
