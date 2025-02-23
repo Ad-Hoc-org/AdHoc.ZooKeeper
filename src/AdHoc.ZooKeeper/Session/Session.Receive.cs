@@ -34,17 +34,17 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
-        Task receiveTask;
+        Task receiving;
         while (!pending.IsCompleted)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            receiveTask = _receiving;
-            if (receiveTask.IsCompleted)
-                _receiving = receiveTask = ReceivingAsync(stream);
+            receiving = _receiving;
+            if (receiving.IsCompleted)
+                _receiving = receiving = ReceivingAsync(stream);
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            await Task.WhenAny(receiveTask, pending);
+            await Task.WhenAny(receiving, pending);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         }
 
@@ -151,10 +151,7 @@ internal sealed partial class Session
         try
         {
             _tcpClient?.Dispose();
-
-            while (!_pending.IsEmpty)
-                if (_pending.TryRemove(_pending.Keys.First(), out var request))
-                    request.TrySetException(exception);
+            _tcpClient = null;
 
             while (!_watchers.IsEmpty)
                 if (_watchers.TryRemove(_watchers.Keys.First(), out var watchers))
@@ -166,6 +163,10 @@ internal sealed partial class Session
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         }
                         catch { }
+
+            while (!_pending.IsEmpty)
+                if (_pending.TryRemove(_pending.Keys.First(), out var request))
+                    request.TrySetException(exception);
         }
         finally
         {

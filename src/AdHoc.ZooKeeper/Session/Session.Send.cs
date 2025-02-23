@@ -38,6 +38,10 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
+#if DEBUG
+        if (!_pending.IsEmpty || !_watchers.IsEmpty)
+            throw new InvalidOperationException();
+#endif
         var pipeWriter = PipeWriter.Create(stream);
         write(pipeWriter);
         _lastInteractionTimestamp = Stopwatch.GetTimestamp();
@@ -137,6 +141,7 @@ internal sealed partial class Session
         TaskCompletionSource<Response> pending = new();
         int? request = null;
         Task<TResult>? receive = null;
+        CancellationTokenRegistration registration = default;
         try
         {
             var stream = await EnsureSessionAsync(cancellationToken);
@@ -144,6 +149,7 @@ internal sealed partial class Session
             if (request is null)
                 return (default, false);
 
+            registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
             receive = ReceiveAsync(operation, root, stream, pending.Task, watcher, cancellationToken);
             _responding[request.Value] = receive;
 
@@ -175,6 +181,7 @@ internal sealed partial class Session
         }
         finally
         {
+            await registration.DisposeAsync();
             if (!released)
                 _lock.Release();
         }

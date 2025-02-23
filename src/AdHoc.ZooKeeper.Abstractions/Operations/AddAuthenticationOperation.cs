@@ -9,7 +9,7 @@ namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record AddAuthenticationOperation
     : IZooKeeperOperation<Result>
 {
-    private const int _Request = -4;
+    public const int Request = -4;
 
     private static readonly ReadOnlyMemory<byte> _RequestBytes = new byte[] { 255, 255, 255, 252 };
     private static readonly ReadOnlyMemory<byte> _Operation = new byte[] { 0, 0, 0, 100 };

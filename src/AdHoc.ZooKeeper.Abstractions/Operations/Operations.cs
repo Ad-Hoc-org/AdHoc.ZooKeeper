@@ -29,7 +29,7 @@ public static partial class Operations
     public static void ValidateRequest(ReadOnlySpan<byte> request)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(request.Length, LengthSize + RequestSize + OperationSize);
-        var length = BinaryPrimitives.ReadInt32BigEndian(request);
+        var length = ReadInt32(request);
         ArgumentOutOfRangeException.ThrowIfNotEqual(length, request.Length - LengthSize);
     }
 
@@ -37,6 +37,8 @@ public static partial class Operations
     {
         if (operation == ZooKeeperOperation.Ping)
             return PingOperation.Request;
+        if (operation == ZooKeeperOperation.Authentication)
+            return AddAuthenticationOperation.Request;
 
         int oldValue, newValue;
         do

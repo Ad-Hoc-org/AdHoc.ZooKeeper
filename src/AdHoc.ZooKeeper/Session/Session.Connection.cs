@@ -37,7 +37,7 @@ internal sealed partial class Session
             await receiving; // wait until all pending request are canceled
 
             _tcpClient = new() { SendTimeout = (int)_connectionTimeout.TotalMilliseconds };
-            await _tcpClient.ConnectAsync(_host.Address, _host.Port);
+            await _tcpClient.ConnectAsync(Host.Address, Host.Port);
             var stream = _tcpClient.GetStream();
 
             _session = await SendAsync(stream,
@@ -75,11 +75,11 @@ internal sealed partial class Session
     private void ThrowConnection(Exception? exception = null)
     {
         if (_session is null)
-            throw ZooKeeperException.CreateNoConnection(_host, exception);
+            throw ZooKeeperException.CreateNoConnection(Host, exception);
         else if (Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout)
-            throw ZooKeeperException.CreateLostConnection(_host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
+            throw ZooKeeperException.CreateLostConnection(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
         else
-            throw ZooKeeperException.CreateSessionExpired(_host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
+            throw ZooKeeperException.CreateSessionExpired(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
     }
 
     private async Task KeepAliveAsync(CancellationToken cancellationToken)

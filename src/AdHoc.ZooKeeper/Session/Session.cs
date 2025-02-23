@@ -7,7 +7,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
-    private Host _host;
+    internal Host Host { get; private set; }
     private readonly FrozenSet<Authentication> _authentications;
     private readonly TimeSpan _connectionTimeout;
     private readonly TimeSpan _sessionTimeout;
@@ -21,7 +21,7 @@ internal sealed partial class Session
         bool readOnly
     )
     {
-        _host = host;
+        Host = host;
         _authentications = authentications;
         _connectionTimeout = connectionTimeout;
         _sessionTimeout = sessionTimeout;
@@ -35,13 +35,16 @@ internal sealed partial class Session
     }
 
 
-    public async ValueTask ReconnectAsync(Host host)
+    internal async ValueTask ReconnectAsync(Host host)
     {
         await _lock.WaitAsync();
         try
         {
-            _host = host;
+            Host = host;
+            _disposeSource.TryReset();
             _tcpClient?.Dispose();
+            _tcpClient = null;
+
             var receiving = _receiving;
             _receiving = Task.CompletedTask;
             await receiving;
@@ -49,16 +52,16 @@ internal sealed partial class Session
         finally { _lock.Release(); }
     }
 
-
-    public async ValueTask CloseAsync()
+    internal async ValueTask CloseAsync()
     {
         await _disposeSource.CancelAsync();
-        var receiveTask = _receiving;
-        _receiving = Task.CompletedTask;
-        if (receiveTask is not null)
-            try { await receiveTask; } catch { }
         _tcpClient?.Dispose();
         _tcpClient = null;
+
+        var receiving = _receiving;
+        _receiving = Task.CompletedTask;
+        if (receiving is not null)
+            try { await receiving; } catch { }
     }
 
 
