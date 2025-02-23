@@ -92,17 +92,6 @@ public class Zoo
             {
                 _watchers.TryAdd(watcher, watch);
                 return watch;
-
-                //return (watcher, @event, cancellationToken) =>
-                //{
-                //    if (@event.State == States.Disconnected)
-                //        return new ValueTask(Task.Run(async () =>
-                //        {
-
-                //            // TODO reconnect
-                //        }, cancellationToken));
-                //    return watch(watcher, @event, cancellationToken);
-                //};
             }, cancellationToken);
     }
 
@@ -135,7 +124,7 @@ public class Zoo
             await _lock.WaitAsync(cancellationToken);
             try
             {
-                await session.ReconnectAsync(_hosts[currentIndex]);
+                await session.ReconnectAsync(_hosts[currentIndex], cancellationToken);
             }
             finally { _lock.Release(); }
             try
@@ -158,7 +147,7 @@ public class Zoo
 
     public async ValueTask DisposeAsync()
     {
-        while (_watchers.Count > 0)
+        while (!_watchers.IsEmpty)
         {
             var watchPair = _watchers.FirstOrDefault();
             if (_watchers.TryRemove(watchPair))

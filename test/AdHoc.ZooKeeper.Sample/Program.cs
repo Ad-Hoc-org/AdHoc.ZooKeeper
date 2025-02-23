@@ -6,13 +6,17 @@ using AdHoc.ZooKeeper.Abstractions;
 
 CancellationToken cancellationToken = default;
 
-await using var client = new ZooKeeperClient("localhost:8181/?sessionTimeout=35000&auth=digest:super:superpwd");
+await using var client = new Zoo([
+    new("localhost", 8181),
+    new("localhost", 8182)
+]);
 
 Console.WriteLine(await client.ExistsAsync("foo", LogEvents, cancellationToken));
 Console.WriteLine(await client.GetChildrenAsync("foo", LogEvents, cancellationToken));
 
-await Task.Delay(40000);
+//await Task.Delay(40000);
 
+Console.WriteLine(await client.DeleteAsync("foo", cancellationToken));
 Console.WriteLine(await client.CreateAsync("foo", "bar"u8.ToArray(), cancellationToken));
 Console.WriteLine(await client.CreateAsync("foo", cancellationToken));
 

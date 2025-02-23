@@ -35,7 +35,7 @@ internal sealed partial class Session
     }
 
 
-    internal async ValueTask ReconnectAsync(Host host)
+    internal async ValueTask ReconnectAsync(Host host, CancellationToken cancellationToken)
     {
         await _lock.WaitAsync();
         try
@@ -48,6 +48,8 @@ internal sealed partial class Session
             var receiving = _receiving;
             _receiving = Task.CompletedTask;
             await receiving;
+
+            await ReregisterWatchersAsync(cancellationToken);
         }
         finally { _lock.Release(); }
     }

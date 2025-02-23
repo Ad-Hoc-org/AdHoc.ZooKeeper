@@ -62,6 +62,27 @@ internal sealed partial class Session
                     catch { }
     }
 
+    private async ValueTask ReregisterWatchersAsync(CancellationToken cancellationToken)
+    {
+        if (_watchers.IsEmpty)
+            return;
+
+        ConcurrentDictionary<Types, HashSet<ZooKeeperPath>> paths = new();
+        foreach (var (path, watchers) in _watchers)
+            foreach (var (watcher, _) in watchers)
+                paths.AddOrUpdate(watcher.Type,
+                    _ => [path],
+                    (_, paths) => { paths.Add(path); return paths; }
+                );
+
+        var stream = await EnsureSessionAsync(cancellationToken);
+        await SendAsync(stream, SetWatcherOperations.Create(
+            children: paths.TryGetValue(Types.Children, out var children) ? children : null,
+            data: paths.TryGetValue(Types.Children, out var data) ? data : null,
+            exists: paths.TryGetValue(Types.Children, out var exists) ? exists : null
+        ), cancellationToken);
+    }
+
     private Watcher RegisterWatcher(IEnumerable<ZooKeeperPath> paths, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
     {
         var watcherPaths = paths.Select(p => p.Absolute()).ToFrozenSet();
