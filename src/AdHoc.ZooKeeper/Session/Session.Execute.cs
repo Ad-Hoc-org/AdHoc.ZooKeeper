@@ -13,6 +13,7 @@ internal sealed partial class Session
     internal async Task<TResult> ExecuteAsync<TResult>(
         IZooKeeperOperation<TResult> operation,
         ZooKeeperPath root,
+        Func<Watcher, WatchAsync, WatchAsync>? registerWatcher,
         CancellationToken cancellationToken
     )
     {
@@ -42,8 +43,12 @@ internal sealed partial class Session
                         hasRequest = true;
                         return request;
                     },
-                    (IEnumerable<ZooKeeperPath> paths, WatchAsync watch) =>
-                        watcher = RegisterWatcher(paths, watch)
+                    (IEnumerable<ZooKeeperPath> paths, Types type, WatchAsync watch) =>
+                    {
+                        if (watcher is not null)
+                            throw new InvalidOperationException("Only one watcher per operation allowed");
+                        watcher = RegisterWatcher(paths, type, watch, registerWatcher);
+                    }
                 ));
 
                 if (writer.IsPing)

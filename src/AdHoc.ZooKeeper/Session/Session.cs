@@ -54,6 +54,8 @@ internal sealed partial class Session
 
     internal async ValueTask CloseAsync()
     {
+        DeregisterWatchers();
+
         await _disposeSource.CancelAsync();
         _tcpClient?.Dispose();
         _tcpClient = null;

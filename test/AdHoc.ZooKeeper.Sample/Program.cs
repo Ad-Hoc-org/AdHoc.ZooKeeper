@@ -8,7 +8,7 @@ CancellationToken cancellationToken = default;
 
 await using var client = new ZooKeeperClient("localhost:8181/?sessionTimeout=35000&auth=digest:super:superpwd");
 
-//Console.WriteLine(await client.ExistsAsync("foo", LogEvents, cancellationToken));
+Console.WriteLine(await client.ExistsAsync("foo", LogEvents, cancellationToken));
 Console.WriteLine(await client.GetChildrenAsync("foo", LogEvents, cancellationToken));
 
 await Task.Delay(40000);

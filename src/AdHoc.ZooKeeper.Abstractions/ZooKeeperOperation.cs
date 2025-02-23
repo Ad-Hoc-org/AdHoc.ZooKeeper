@@ -20,5 +20,5 @@ public enum ZooKeeperOperation
     //GetChildren2 = 12,
     //Multi = 14,
     Authentication = 100,
-    //SetWatches = 101,
+    SetWatches = 101,
 }

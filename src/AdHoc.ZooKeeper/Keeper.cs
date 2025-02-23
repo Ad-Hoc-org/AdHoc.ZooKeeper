@@ -1,9 +1,12 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using AdHoc.ZooKeeper.Abstractions;
+using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
+using static AdHoc.ZooKeeper.Session;
 
 namespace AdHoc.ZooKeeper;
 public class Keeper
@@ -13,6 +16,7 @@ public class Keeper
     private readonly bool _owned;
     private Session? _session;
 
+    private readonly ConcurrentDictionary<Watcher, WatchAsync> _watchers = new();
 
     internal Keeper(
         Session session,
@@ -53,16 +57,27 @@ public class Keeper
     }
 
 
-    public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> operation, CancellationToken cancellationToken)
+    public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> transaction, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(transaction);
         var session = _session;
         ObjectDisposedException.ThrowIf(session is null, this);
-        return session.ExecuteAsync(operation, _root, cancellationToken);
+        return session.ExecuteAsync(transaction, _root, (watcher, watch) =>
+        {
+            _watchers.TryAdd(watcher, watch);
+            return watch;
+        }, cancellationToken);
     }
 
     public async ValueTask DisposeAsync()
     {
+        while (_watchers.Count > 0)
+        {
+            var watchPair = _watchers.FirstOrDefault();
+            if (_watchers.TryRemove(watchPair))
+                await watchPair.Key.DisposeAsync();
+        }            
+
         if (_owned)
         {
             var session = _session;
@@ -71,5 +86,4 @@ public class Keeper
         }
         _session = null;
     }
-
 }

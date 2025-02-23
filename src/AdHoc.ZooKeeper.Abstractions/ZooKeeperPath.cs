@@ -1,7 +1,6 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using System.Buffers.Binary;
 using System.Text;
 using static AdHoc.ZooKeeper.Abstractions.Operations;
 

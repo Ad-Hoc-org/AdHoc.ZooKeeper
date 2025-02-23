@@ -8,6 +8,18 @@ namespace AdHoc.ZooKeeper.Abstractions;
 public interface IZooKeeperWatcher
     : IAsyncDisposable
 {
+    public enum Types : int
+    {
+        Children = 1,
+        Data = 2,
+        Exits = 3,
+        //Persistent = 4,
+        //RecursivePersistent = 5
+    }
+
+    Types Type { get; }
+    IReadOnlySet<ZooKeeperPath> Paths { get; }
+
     public delegate ValueTask WatchAsync(IZooKeeperWatcher watcher, ZooKeeperEvent @event, CancellationToken cancellationToken);
     public delegate void Watch(IZooKeeperWatcher watcher, ZooKeeperEvent @event);
 }

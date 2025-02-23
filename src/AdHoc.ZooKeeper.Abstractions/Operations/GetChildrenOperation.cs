@@ -36,7 +36,7 @@ public sealed record GetChildrenOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher([(context.Root + Path).Absolute()], Watch);
+            context.RegisterWatcher([(context.Root + Path).Absolute()], Types.Children, Watch);
             buffer[size++] = 1;
         }
         else

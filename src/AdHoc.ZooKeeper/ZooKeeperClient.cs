@@ -23,16 +23,16 @@ public class ZooKeeperClient
         : this(ZooKeeperConnection.Parse(connectionString)) { }
 
 
-    public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> operation, CancellationToken cancellationToken)
+    public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> transaction, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(transaction);
         return (_currentSession ??= new(
             _connection.Hosts.First(),
             _connection.Authentications.ToFrozenSet(),
             _connection.ConnectionTimeout,
             _connection.SessionTimeout,
             _connection.ReadOnly
-        )).ExecuteAsync(operation, _connection.Root, cancellationToken);
+        )).ExecuteAsync(transaction, _connection.Root, null, cancellationToken);
     }
 
     public async ValueTask DisposeAsync()

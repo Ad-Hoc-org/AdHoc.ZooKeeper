@@ -25,7 +25,7 @@ internal sealed partial class Session
             ZooKeeperPath.Root,
             writer,
             op => GetRequest(op, ref _previousRequest),
-            (_, _) => throw new InvalidOperationException()
+            (_, _, _) => throw new InvalidOperationException()
         )),
         data => operation.ReadResponse(Response.ToTransaction(data.Span, ZooKeeperPath.Root), null),
         cancellationToken
