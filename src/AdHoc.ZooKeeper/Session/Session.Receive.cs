@@ -38,10 +38,7 @@ internal sealed partial class Session
         while (!pending.IsCompleted)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            receiving = _receiving;
-            if (receiving.IsCompleted)
-                _receiving = receiving = ReceivingAsync(stream);
+            receiving = ReceivingAsync(stream);
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
             await Task.WhenAny(receiving, pending);
@@ -61,57 +58,74 @@ internal sealed partial class Session
 
     private async Task ReceivingAsync(NetworkStream stream)
     {
-        await Task.Yield();
-        CancellationToken cancellationToken = _disposeSource.Token;
+        var receiving = _receiving;
+        if (!receiving.IsCompleted)
+        {
+            await receiving;
+            return;
+        }
 
-        IMemoryOwner<byte>? owner = null;
+        CancellationToken cancellationToken = _disposeSource.Token;
+        await _lock.WaitAsync(cancellationToken);
         try
         {
-            while (!_pending.IsEmpty || !_watchers.IsEmpty)
-            {
-                if (cancellationToken.IsCancellationRequested)
+            if (!_receiving.IsCompleted)
+                receiving = _receiving;
+            else
+                _receiving = receiving = Task.Run(async () =>
                 {
-                    await DisconnectWithAsync(new ObjectDisposedException(this.ToString()));
-                    continue;
-                }
+                    IMemoryOwner<byte>? owner = null;
+                    try
+                    {
+                        while (!_pending.IsEmpty || !_watchers.IsEmpty)
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                await DisconnectWithAsync(new ObjectDisposedException(this.ToString()));
+                                continue;
+                            }
 
-                try
-                {
-                    var responseTask = ReadAsync(stream, owner, cancellationToken);
-                    while (!responseTask.IsCompleted)
-                    {
-                        await Task.WhenAny(
-                            responseTask,
-                            KeepAliveAsync(cancellationToken)
-                        );
-                    }
-                    var response = await responseTask;
-                    owner = response._owner;
+                            try
+                            {
+                                var responseTask = ReadAsync(stream, owner, cancellationToken);
+                                while (!responseTask.IsCompleted)
+                                {
+                                    await Task.WhenAny(
+                                        responseTask,
+                                        KeepAliveAsync(cancellationToken)
+                                    );
+                                }
+                                var response = await responseTask;
+                                owner = response._owner;
 
-                    var requestIdentifier = ReadInt32(response._memory.Span);
-                    if (_pending.TryRemove(requestIdentifier, out var request))
-                    {
-                        if (request.TrySetResult(response))
-                            owner = null;
+                                var requestIdentifier = ReadInt32(response._memory.Span);
+                                if (_pending.TryRemove(requestIdentifier, out var request))
+                                {
+                                    if (request.TrySetResult(response))
+                                        owner = null;
+                                }
+                                else if (requestIdentifier == NoRequest)
+                                {
+                                    DispatchEvent(response);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                if (cancellationToken.IsCancellationRequested)
+                                    await DisconnectWithAsync(new ObjectDisposedException(this.ToString(), ex));
+                                else
+                                    await DisconnectWithAsync(ex);
+                            }
+                        }
                     }
-                    else if (requestIdentifier == NoRequest)
+                    finally
                     {
-                        DispatchEvent(response);
+                        owner?.Dispose();
                     }
-                }
-                catch (Exception ex)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        await DisconnectWithAsync(new ObjectDisposedException(this.ToString(), ex));
-                    else
-                        await DisconnectWithAsync(ex);
-                }
-            }
+                }, cancellationToken);
         }
-        finally
-        {
-            owner?.Dispose();
-        }
+        finally { _lock.Release(); }
+        await receiving;
     }
 
     private void DispatchEvent(Response response)
