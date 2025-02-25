@@ -79,39 +79,53 @@ public class Zoo
         }
         catch (ConnectionException ex)
         {
-            return await TryReconnectAsync(
-                session,
-                ex,
-                ExecutingAsync,
-                cancellationToken
-            );
+            var result = await TryReconnectAsync(session, ex.Host, ex, ExecutingAsync, cancellationToken);
+            if (result.Item2 is not null)
+                throw result.Item2;
+            return result.Item1!;
         }
 
         Task<TResult> ExecutingAsync(Session session, CancellationToken cancellationToken) =>
             session.ExecuteAsync(transaction, _root, (watcher, watch) =>
             {
                 _watchers.TryAdd(watcher, watch);
-                return watch;
+                return async (watcher, @event, cancellationToken) =>
+                {
+                    if (@event.State != States.Disconnected)
+                    {
+                        await watch(watcher, @event, cancellationToken);
+                        return;
+                    }
+
+                    var result = await TryReconnectAsync<object?>(session, ((Watcher)watcher)._host, null, null, cancellationToken);
+                    if (result.Item2 is not null)
+                        await watch(watcher, @event, cancellationToken);
+                };
             }, cancellationToken);
     }
 
 
-    private async Task<TResult> TryReconnectAsync<TResult>(
+    private async Task<(TResult?, ConnectionException?)> TryReconnectAsync<TResult>(
         Session session,
-        ConnectionException exception,
-        Func<Session, CancellationToken, Task<TResult>> executeAsync,
+        Host host,
+        ConnectionException? exception,
+        Func<Session, CancellationToken, Task<TResult>>? executeAsync,
         CancellationToken cancellationToken
     )
     {
         int length = _hosts.Length;
-        int usedIndex = _hosts.IndexOf(exception.Host);
+        int usedIndex = _hosts.IndexOf(host);
         int currentIndex = _hosts.IndexOf(session.Host);
-        var exceptions = new List<Exception>(length) { exception };
+        var exceptions = new List<Exception>(length);
+        if (exception is not null)
+            exceptions.Add(exception);
 
         if (usedIndex != currentIndex)
             try
             {
-                return await executeAsync(session, cancellationToken);
+                if (executeAsync is null)
+                    return default;
+                return (await executeAsync(session, cancellationToken), null);
             }
             catch (ConnectionException ex)
             {
@@ -122,26 +136,34 @@ public class Zoo
         while (usedIndex != currentIndex)
         {
             await _lock.WaitAsync(cancellationToken);
+            bool locked = true;
             try
             {
                 await session.ReconnectAsync(_hosts[currentIndex], cancellationToken);
-            }
-            finally { _lock.Release(); }
-            try
-            {
-                return await executeAsync(session, cancellationToken);
+
+                _lock.Release();
+                locked = false;
+
+                if (executeAsync is null)
+                    return default;
+                return (await executeAsync(session, cancellationToken), null);
             }
             catch (ConnectionException ex)
             {
                 exceptions.Add(ex);
             }
+            finally
+            {
+                if (locked)
+                    _lock.Release();
+            }
             currentIndex = (currentIndex + 1) % length;
         }
 
-        throw new ConnectionException($"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions))
+        return (default, new ConnectionException($"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions))
         {
-            Host = exception.Host
-        };
+            Host = host
+        });
     }
 
 

@@ -21,7 +21,7 @@ internal sealed partial class Session
     private Task _keepAlive = Task.CompletedTask;
 
     [MemberNotNullWhen(true, nameof(_tcpClient))]
-    private bool IsConnected =>
+    internal bool IsConnected =>
         _tcpClient is not null && _tcpClient.Connected
         && _tcpClient.Client.Poll(0, SelectMode.SelectWrite);
 
