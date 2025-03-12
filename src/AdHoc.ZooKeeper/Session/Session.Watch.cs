@@ -89,7 +89,7 @@ internal sealed partial class Session
     private Watcher RegisterWatcher(IEnumerable<ZooKeeperPath> paths, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
     {
         var watcherPaths = paths.Select(p => p.Absolute()).ToFrozenSet();
-        var watcher = new Watcher(this, Host, watcherPaths, type);
+        var watcher = new Watcher(this, watcherPaths, type);
         if (registerWatch is not null)
             watch = registerWatch(watcher, watch);
         foreach (var path in watcherPaths)
@@ -111,7 +111,6 @@ internal sealed partial class Session
 
     internal class Watcher(
         Session session,
-        Host host,
         FrozenSet<ZooKeeperPath> paths,
         Types type
     )
@@ -119,8 +118,6 @@ internal sealed partial class Session
     {
         public Types Type => type;
         public IReadOnlySet<ZooKeeperPath> Paths => paths;
-
-        internal Host _host = host;
 
         public ValueTask DisposeAsync()
         {

@@ -88,6 +88,7 @@ public class Zoo
         Task<TResult> ExecutingAsync(Session session, CancellationToken cancellationToken) =>
             session.ExecuteAsync(transaction, _root, (watcher, watch) =>
             {
+                Host host = session.Host;
                 _watchers.TryAdd(watcher, watch);
                 return async (watcher, @event, cancellationToken) =>
                 {
@@ -97,7 +98,8 @@ public class Zoo
                         return;
                     }
 
-                    var result = await TryReconnectAsync<object?>(session, ((Watcher)watcher)._host, null, null, cancellationToken);
+                    var result = await TryReconnectAsync<object?>(session, host, null, null, cancellationToken);
+                    host = session.Host;
                     if (result.Item2 is not null)
                         await watch(watcher, @event, cancellationToken);
                 };
