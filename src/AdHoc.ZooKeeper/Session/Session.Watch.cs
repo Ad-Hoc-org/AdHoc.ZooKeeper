@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 using System.Collections.Concurrent;
-using System.Collections.Frozen;
 using AdHoc.ZooKeeper.Abstractions;
-using Microsoft.VisualBasic;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
-using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
@@ -25,13 +22,12 @@ internal sealed partial class Session
             foreach (var watchPair in watchers)
                 try
                 {
-                    if (watchers.TryRemove(watchPair))
+                    if (((IZooKeeperWatcher)watchPair.Key).IsPersistent || watchers.TryRemove(watchPair))
 #pragma warning disable VSTHRD110 // Observe result of async calls
                         watchPair.Value(watchPair.Key, @event, _disposeSource.Token);
 #pragma warning restore VSTHRD110 // Observe result of async calls
                 }
                 catch { }
-
 
             if (watchers.IsEmpty && _watchers.TryRemove(KeyValuePair.Create(path, watchers)))
             {
@@ -86,44 +82,44 @@ internal sealed partial class Session
         ), cancellationToken);
     }
 
-    private Watcher RegisterWatcher(IEnumerable<ZooKeeperPath> paths, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
+    private Watcher RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
     {
-        var watcherPaths = paths.Select(p => p.Absolute()).ToFrozenSet();
+        var watcherPaths = path.Absolute();
         var watcher = new Watcher(this, watcherPaths, type);
+
         if (registerWatch is not null)
             watch = registerWatch(watcher, watch);
-        foreach (var path in watcherPaths)
-            _watchers.AddOrUpdate(path,
-                _ =>
-                {
-                    ConcurrentDictionary<Watcher, WatchAsync> watchers = new();
-                    watchers[watcher] = watch;
-                    return watchers;
-                },
-                (_, watchers) =>
-                {
-                    watchers.TryAdd(watcher, watch);
-                    return watchers;
-                }
-            );
+
+        _watchers.AddOrUpdate(path,
+            _ =>
+            {
+                ConcurrentDictionary<Watcher, WatchAsync> watchers = new();
+                watchers[watcher] = watch;
+                return watchers;
+            },
+            (_, watchers) =>
+            {
+                watchers.TryAdd(watcher, watch);
+                return watchers;
+            }
+        );
         return watcher;
     }
 
     internal class Watcher(
         Session session,
-        FrozenSet<ZooKeeperPath> paths,
+        ZooKeeperPath path,
         Types type
     )
         : IZooKeeperWatcher
     {
         public Types Type => type;
-        public IReadOnlySet<ZooKeeperPath> Paths => paths;
+        public ZooKeeperPath Path => path;
 
         public ValueTask DisposeAsync()
         {
-            foreach (var path in paths)
-                if (session._watchers.TryGetValue(path, out var watchers))
-                    watchers.TryRemove(this, out _);
+            if (session._watchers.TryGetValue(path, out var watchers))
+                watchers.TryRemove(this, out _);
             return ValueTask.CompletedTask;
         }
     }

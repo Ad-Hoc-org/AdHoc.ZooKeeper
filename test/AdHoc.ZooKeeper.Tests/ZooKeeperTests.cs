@@ -2,7 +2,7 @@ using AdHoc.ZooKeeper.Abstractions;
 
 namespace AdHoc.ZooKeeper.Tests;
 
-public abstract class ZooKeeperTests
+public abstract partial class ZooKeeperTests
 {
 
     protected abstract IZooKeeper ZooKeeper { get; }
@@ -13,10 +13,8 @@ public abstract class ZooKeeperTests
 
 
     [Test]
-    public async Task PingAsync_WithConnection(CancellationToken cancellationToken)
-    {
-        await ZooKeeper.PingAsync(cancellationToken);
-    }
+    public Task PingAsync_WithConnection(CancellationToken cancellationToken) =>
+        ZooKeeper.PingAsync(cancellationToken);
 
     [Test]
     public async Task PingAsync_WithNoConnection(CancellationToken cancellationToken)
@@ -26,6 +24,7 @@ public abstract class ZooKeeperTests
     }
 
     [Test]
+    [DependsOn(nameof(PingAsync_WithConnection))]
     public async Task PingAsync_WithLostConnection(CancellationToken cancellationToken)
     {
         await ZooKeeper.PingAsync(cancellationToken);
@@ -34,11 +33,12 @@ public abstract class ZooKeeperTests
     }
 
     [Test]
+    [DependsOn(nameof(PingAsync_WithLostConnection))]
     public async Task PingAsync_WithReconnect(CancellationToken cancellationToken)
     {
         await ZooKeeper.PingAsync(cancellationToken);
         await StopInstancesAsync(cancellationToken);
-        await Assert.ThrowsAsync<ConnectionException>(() => ZooKeeper.PingAsync(cancellationToken));
+        await Assert.ThrowsAsync<ConnectionLostException>(() => ZooKeeper.PingAsync(cancellationToken));
         await StartInstancesAsync(cancellationToken);
         await ZooKeeper.PingAsync(cancellationToken);
     }

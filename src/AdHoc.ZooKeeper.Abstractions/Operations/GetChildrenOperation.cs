@@ -36,7 +36,7 @@ public sealed record GetChildrenOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher([(context.Root + Path).Absolute()], Types.Children, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Children, Watch);
             buffer[size++] = 1;
         }
         else
@@ -92,7 +92,7 @@ public static partial class Operations
         Watch watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ExecuteAsync(Create(path, watch.ToWatchAsync()), cancellationToken);
+        zooKeeper.ExecuteAsync(Create(path, watch.ToAsyncWatch()), cancellationToken);
 
     public static Task<Result> GetChildrenAsync(
         this IZooKeeper zooKeeper,

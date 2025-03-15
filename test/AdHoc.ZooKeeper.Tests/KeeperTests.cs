@@ -18,13 +18,16 @@ public class KeeperTests
     [Before(Test)]
     public async Task BuildContainerAsync(CancellationToken cancellationToken)
     {
-        _container = new ContainerBuilder()
+        _container = CreateContainer();
+        await StartInstancesAsync(cancellationToken);
+    }
+
+    public static IContainer CreateContainer() =>
+        new ContainerBuilder()
             .WithImage("zookeeper:latest")
             .WithPortBinding(2181, true)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(2181))
             .Build();
-        await StartInstancesAsync(cancellationToken);
-    }
 
     [After(Test)]
     public async Task DisposeContainerAsync(CancellationToken cancellationToken)

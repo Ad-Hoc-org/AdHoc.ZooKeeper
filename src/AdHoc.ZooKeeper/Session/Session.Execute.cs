@@ -43,11 +43,11 @@ internal sealed partial class Session
                         hasRequest = true;
                         return request;
                     },
-                    (IEnumerable<ZooKeeperPath> paths, Types type, WatchAsync watch) =>
+                    (ZooKeeperPath path, Types type, WatchAsync watch) =>
                     {
                         if (watcher is not null)
                             throw new InvalidOperationException("Only one watcher per operation allowed");
-                        watcher = RegisterWatcher(paths, type, watch, registerWatcher);
+                        watcher = RegisterWatcher(path, type, watch, registerWatcher);
                     }
                 ));
 

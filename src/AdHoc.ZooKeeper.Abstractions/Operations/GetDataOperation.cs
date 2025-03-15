@@ -40,7 +40,7 @@ public sealed record GetDataOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher([(context.Root + Path).Absolute()], Types.Data, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Data, Watch);
             buffer[size++] = 1;
         }
         else
@@ -99,7 +99,7 @@ public static partial class Operations
         Watch watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ExecuteAsync(Create(path, watch.ToWatchAsync()), cancellationToken);
+        zooKeeper.ExecuteAsync(Create(path, watch.ToAsyncWatch()), cancellationToken);
 
     public static Task<Result> GetDataAsync(
         this IZooKeeper zooKeeper,

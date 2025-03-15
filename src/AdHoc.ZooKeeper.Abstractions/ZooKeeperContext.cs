@@ -14,14 +14,14 @@ public readonly struct ZooKeeperContext
     public Func<ZooKeeperOperation, int> GetRequest { get; }
 
 
-    public Action<IEnumerable<ZooKeeperPath>, Types, WatchAsync> RegisterWatcher { get; }
+    public Action<ZooKeeperPath, Types, WatchAsync> RegisterWatcher { get; }
 
 
     public ZooKeeperContext(
         ZooKeeperPath root,
         IBufferWriter<byte> writer,
         Func<ZooKeeperOperation, int> getRequest,
-        Action<IEnumerable<ZooKeeperPath>, Types, WatchAsync> registerWatcher
+        Action<ZooKeeperPath, Types, WatchAsync> registerWatcher
     )
     {
         Root = root;

@@ -52,6 +52,12 @@ public static partial class Operations
     }
 
 
+    public static int Write(Span<byte> destination, bool value)
+    {
+        destination[0] = value ? (byte)1 : (byte)0;
+        return BooleanSize;
+    }
+
     public static int Write(Span<byte> destination, int value)
     {
         BinaryPrimitives.WriteInt32BigEndian(destination, value);

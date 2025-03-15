@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Runtime.CompilerServices;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 
 namespace AdHoc.ZooKeeper.Abstractions;
@@ -12,13 +13,17 @@ public interface IZooKeeperWatcher
     {
         Children = 1,
         Data = 2,
-        Exits = 3,
-        //Persistent = 4,
-        //RecursivePersistent = 5
+        Any = 3,
+        Persistent = 4,
+        RecursivePersistent = 5
     }
 
     Types Type { get; }
-    IReadOnlySet<ZooKeeperPath> Paths { get; }
+
+    ZooKeeperPath Path { get; }
+
+    bool IsPersistent => Type is Types.Persistent or Types.RecursivePersistent;
+    bool IsRecursive => Type is Types.RecursivePersistent;
 
     public delegate ValueTask WatchAsync(IZooKeeperWatcher watcher, ZooKeeperEvent @event, CancellationToken cancellationToken);
     public delegate void Watch(IZooKeeperWatcher watcher, ZooKeeperEvent @event);
@@ -27,12 +32,13 @@ public interface IZooKeeperWatcher
 
 public static partial class Operations
 {
-#pragma warning disable VSTHRD200 // Use "Async" suffix for async methods
-    public static WatchAsync ToWatchAsync(this Watch watch) =>
-#pragma warning restore VSTHRD200 // Use "Async" suffix for async methods
-        (watcher, @event, cancellationToken) =>
+    public static WatchAsync ToAsyncWatch(this Watch watch, [CallerArgumentExpression(nameof(watch))] string? watchName = null)
+    {
+        ArgumentNullException.ThrowIfNull(watch, watchName);
+        return (watcher, @event, cancellationToken) =>
         {
             watch(watcher, @event);
             return ValueTask.CompletedTask;
         };
+    }
 }
