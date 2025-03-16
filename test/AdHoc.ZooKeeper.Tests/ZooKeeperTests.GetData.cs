@@ -6,6 +6,14 @@ public abstract partial class ZooKeeperTests
 {
 
     [Test]
+    public async Task GetDataAsync_MissingNode(CancellationToken cancellationToken)
+    {
+        var result = await ZooKeeper.GetDataAsync(_NewNode, cancellationToken);
+        await Assert.That(result.Node).IsNull();
+        await Assert.That(result.Data.IsEmpty).IsTrue();
+    }
+
+    [Test]
     [DependsOn(nameof(CreateAsync_NewNode))]
     public async Task GetDataAsync_ExistingNode(CancellationToken cancellationToken)
     {

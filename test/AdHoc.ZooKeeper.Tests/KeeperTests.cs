@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Collections.Frozen;
 using AdHoc.ZooKeeper.Abstractions;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -13,6 +14,7 @@ public class KeeperTests
 {
 
     private IContainer? _container;
+    private readonly Session _session = new Session(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
     private Keeper? _keeper;
 
     [Before(Test)]
@@ -43,7 +45,8 @@ public class KeeperTests
     protected override async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         await _container!.StartAsync(cancellationToken);
-        _keeper = new Keeper(new Host(_container.Hostname, _container.GetMappedPublicPort(2181)));
+        await _session.ReconnectAsync(new Host(_container.Hostname, _container.GetMappedPublicPort(2181)), cancellationToken);
+        _keeper = new Keeper(_session, ZooKeeperPath.Root);
     }
 
     protected override Task StopInstanceAsync(CancellationToken cancellationToken) =>

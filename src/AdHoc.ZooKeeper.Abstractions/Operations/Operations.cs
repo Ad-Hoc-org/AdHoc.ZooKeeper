@@ -1,9 +1,6 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using System.Buffers.Binary;
-using System.Text;
-
 namespace AdHoc.ZooKeeper.Abstractions;
 public static partial class Operations
 {
@@ -24,6 +21,11 @@ public static partial class Operations
     public const int NoVersion = -1;
 
     public const int TimestampSize = Int64Size;
+
+    public const int ProtocolVersionSize = Int32Size;
+    public const int TimeoutSize = Int32Size;
+    public const int SessionSize = Int64Size;
+    public const int ReadOnlySize = BooleanSize;
 
 
     public static void ValidateRequest(ReadOnlySpan<byte> request)
@@ -51,53 +53,10 @@ public static partial class Operations
         return newValue;
     }
 
-
-    public static int Write(Span<byte> destination, bool value)
-    {
-        destination[0] = value ? (byte)1 : (byte)0;
-        return BooleanSize;
-    }
-
-    public static int Write(Span<byte> destination, int value)
-    {
-        BinaryPrimitives.WriteInt32BigEndian(destination, value);
-        return Int32Size;
-    }
-
-    public static int Write(Span<byte> destination, long value)
-    {
-        BinaryPrimitives.WriteInt64BigEndian(destination, value);
-        return Int64Size;
-    }
-
-    public static int Write(Span<byte> destination, string value)
-    {
-        Write(destination, value.Length);
-        return LengthSize + Encoding.UTF8.GetBytes(value, destination.Slice(LengthSize));
-    }
-
-    public static int Write(Span<byte> destination, ReadOnlySpan<byte> buffer)
-    {
-        Write(destination, buffer.Length);
-        buffer.CopyTo(destination.Slice(LengthSize));
-        return LengthSize + buffer.Length;
-    }
-
-
-    public static int ReadInt32(ReadOnlySpan<byte> source) =>
-        BinaryPrimitives.ReadInt32BigEndian(source);
-
-    public static long ReadInt64(ReadOnlySpan<byte> source) =>
-        BinaryPrimitives.ReadInt64BigEndian(source);
-
-    public static ReadOnlySpan<byte> ReadBuffer(ReadOnlySpan<byte> source, out int size)
-    {
-        int length = ReadInt32(source);
-        size = length + LengthSize;
-        return source.Slice(LengthSize, length);
-    }
-
-    public static DateTimeOffset ReadTimestamp(ReadOnlySpan<byte> source) =>
-        DateTimeOffset.FromUnixTimeMilliseconds(ReadInt64(source));
-
+    public static string SessionToString(ReadOnlySpan<byte> session) =>
+#if NET9_0_OR_GREATER
+        "0x" + Convert.ToHexStringLower(session);
+#else
+        "0x" + Convert.ToHexString(session).ToLower();
+#endif
 }

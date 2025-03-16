@@ -2,18 +2,15 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
+using static AdHoc.ZooKeeper.Abstractions.Operations;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static partial class Operations
+public static class ConnectOperation
 {
-    public const int ProtocolVersionSize = Int32Size;
-    public const int TimeoutSize = Int32Size;
-    public const int SessionSize = Int64Size;
-    public const int ReadOnlySize = BooleanSize;
     private const int NewSessionSize = LengthSize + ProtocolVersionSize + TransactionSize + TimeoutSize + SessionSize + LengthSize + ReadOnlySize;
 
-    public const int DefaultPasswordSize = 16;
-    public const int DefaultSessionResponseSize = LengthSize + RequestSize + TimeoutSize + SessionSize + LengthSize + DefaultPasswordSize + ReadOnlySize;
+    private const int DefaultPasswordSize = 16;
+    private const int DefaultSessionResponseSize = LengthSize + RequestSize + TimeoutSize + SessionSize + LengthSize + DefaultPasswordSize + ReadOnlySize;
 
     public static string SessionToString(ReadOnlySpan<byte> session) =>
 #if NET9_0_OR_GREATER
@@ -70,7 +67,7 @@ public static partial class Operations
 
         size += Write(buffer.Slice(size), lastTransaction);
 
-        size += Write(buffer.Slice(size), (int)session.SessionTimeout.TotalMilliseconds);
+        size += Write(buffer.Slice(size), session.SessionTimeout);
 
         session.Session.Span.CopyTo(buffer.Slice(size));
         size += SessionSize;
@@ -83,13 +80,13 @@ public static partial class Operations
         writer.Advance(size);
     }
 
-    public static ZooKeeperSession ReadSession(in ReadOnlySpan<byte> data) => new(
+    public static ZooKeeperSession Read(in ReadOnlySpan<byte> data) => new(
         data.Slice(ProtocolVersionSize + TimeoutSize, SessionSize).ToArray(),
         data.Slice(
             ProtocolVersionSize + TimeoutSize + SessionSize + LengthSize,
             ReadInt32(data.Slice(ProtocolVersionSize + TimeoutSize + SessionSize))
         ).ToArray(),
-        TimeSpan.FromMilliseconds(ReadInt32(data.Slice(ProtocolVersionSize))),
+        ReadTimeSpan(data.Slice(ProtocolVersionSize)),
         data[data.Length - 1] == 1
     );
 

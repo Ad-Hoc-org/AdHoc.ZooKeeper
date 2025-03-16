@@ -14,9 +14,9 @@
 
   <PropertyGroup Label="PackageProperties">
     <Description>Handles internal and distributed locks for efficient resource synchronization.</Description>
-    <PackageTags>AdHoc;lock;locking;distributed;semaphore</PackageTags>
+    <PackageTags>AdHoc;ZooKeeper</PackageTags>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/Ad-Hoc-org/AdHoc.Locking</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Ad-Hoc-org/AdHoc.ZooKeeper</RepositoryUrl>
     <PackageIcon>icon-512.png</PackageIcon>
     <Authors>AdHoc Authors</Authors>
     <Company>AdHoc</Company>

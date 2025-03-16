@@ -1,46 +1,45 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Buffers;
 using System.Collections.Frozen;
 using static AdHoc.ZooKeeper.Abstractions.Operations;
-using static AdHoc.ZooKeeper.Abstractions.SetWatcherOperations;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public sealed record SetWatcherOperations
-    : IZooKeeperOperation<Result>
+public static class SetWatcherOperations
 {
     public const int Request = -4;
 
     private static readonly ReadOnlyMemory<byte> _RequestBytes = new byte[] { 255, 255, 255, 247 };
     private static readonly ReadOnlyMemory<byte> _OperationBytes = new byte[] { 0, 0, 0, 101 };
 
-    public long LastTransaction { get; }
-    public IReadOnlySet<ZooKeeperPath> Children { get; }
-    public IReadOnlySet<ZooKeeperPath> Data { get; }
-    public IReadOnlySet<ZooKeeperPath> Exists { get; }
-
-
-    private SetWatcherOperations(
+    public static void Write(
+        IBufferWriter<byte> writer,
         long lastTransaction,
-        IReadOnlySet<ZooKeeperPath> children,
-        IReadOnlySet<ZooKeeperPath> data,
-        IReadOnlySet<ZooKeeperPath> exists
+        IReadOnlySet<ZooKeeperPath>? data = null,
+        IReadOnlySet<ZooKeeperPath>? exists = null,
+        IReadOnlySet<ZooKeeperPath>? children = null,
+        IReadOnlySet<ZooKeeperPath>? persistent = null,
+        IReadOnlySet<ZooKeeperPath>? recursivePersistent = null
     )
     {
-        LastTransaction = lastTransaction;
-        Children = children;
-        Data = data;
-        Exists = exists;
-    }
+        data ??= FrozenSet<ZooKeeperPath>.Empty;
+        exists ??= FrozenSet<ZooKeeperPath>.Empty;
+        children ??= FrozenSet<ZooKeeperPath>.Empty;
+        persistent ??= FrozenSet<ZooKeeperPath>.Empty;
+        recursivePersistent ??= FrozenSet<ZooKeeperPath>.Empty;
+        var hasPersistent = persistent.Any() || recursivePersistent.Any();
 
-    public void WriteRequest(in ZooKeeperContext context)
-    {
-        var writer = context.Writer;
         var buffer = writer.GetSpan(RequestHeaderSize
             + Int32Size
-            + GetMaxPathsSize(Children, context.Root)
-            + GetMaxPathsSize(Data, context.Root)
-            + GetMaxPathsSize(Exists, context.Root)
+            + GetMaxPathsSize(children)
+            + GetMaxPathsSize(data)
+            + GetMaxPathsSize(exists)
+            + (hasPersistent ?
+                GetMaxPathsSize(persistent)
+                    + GetMaxPathsSize(recursivePersistent)
+                : 0
+            )
         );
         int size = LengthSize;
 
@@ -50,53 +49,42 @@ public sealed record SetWatcherOperations
         _OperationBytes.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
 
-        size += Write(buffer.Slice(size), LastTransaction);
+        size += Operations.Write(buffer.Slice(size), lastTransaction);
 
-        size += WritePaths(buffer.Slice(size), Children, context.Root);
-        size += WritePaths(buffer.Slice(size), Data, context.Root);
-        size += WritePaths(buffer.Slice(size), Exists, context.Root);
-        // TODO persistent
-        //size += WritePaths(buffer.Slice(size), FrozenSet<ZooKeeperPath>.Empty, context.Root);
-        //size += WritePaths(buffer.Slice(size), FrozenSet<ZooKeeperPath>.Empty, context.Root);
+        size += WritePaths(buffer.Slice(size), data);
+        size += WritePaths(buffer.Slice(size), exists);
+        size += WritePaths(buffer.Slice(size), children);
+        if (hasPersistent)
+        {
+            size += WritePaths(buffer.Slice(size), persistent);
+            size += WritePaths(buffer.Slice(size), recursivePersistent);
+        }
 
-        Write(buffer, size - LengthSize);
+        Operations.Write(buffer, size - LengthSize);
         writer.Advance(size);
     }
 
-    private static int GetMaxPathsSize(IReadOnlySet<ZooKeeperPath> paths, ZooKeeperPath root)
+    private static int GetMaxPathsSize(IReadOnlySet<ZooKeeperPath> paths)
     {
         int size = LengthSize;
         foreach (var path in paths)
-            size += path.GetMaxSize(root);
+            size += path.GetMaxSize();
         return size;
     }
 
-    private static int WritePaths(Span<byte> buffer, IReadOnlySet<ZooKeeperPath> paths, ZooKeeperPath root)
+    private static int WritePaths(Span<byte> buffer, IReadOnlySet<ZooKeeperPath> paths)
     {
-        int size = Write(buffer, paths.Count);
+        int size = Operations.Write(buffer, paths.Count);
         foreach (var path in paths)
-            size += path.Write(buffer.Slice(size), root);
+            size += path.Write(buffer.Slice(size));
         return size;
     }
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
+    public static Result Read(in ZooKeeperResponse response)
     {
         response.ThrowIfError();
-        return new Result();
+        return new(response.Transaction);
     }
 
-    public static SetWatcherOperations Create(
-        long lastTransaction,
-        IEnumerable<ZooKeeperPath>? children = null,
-        IEnumerable<ZooKeeperPath>? data = null,
-        IEnumerable<ZooKeeperPath>? exists = null
-    ) =>
-        new SetWatcherOperations(
-            lastTransaction,
-            children?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
-            data?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
-            exists?.Select(p => p.Absolute()).ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty
-        );
-
-    public readonly record struct Result();
+    public readonly record struct Result(long Transaction);
 }

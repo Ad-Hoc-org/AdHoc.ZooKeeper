@@ -40,7 +40,7 @@ public sealed record ExistsOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Any, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Exist, Watch);
             buffer[size++] = 1;
         }
         else

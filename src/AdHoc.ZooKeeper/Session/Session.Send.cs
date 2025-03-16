@@ -14,22 +14,24 @@ internal sealed partial class Session
 
     private int _previousRequest;
 
+    public int GetRequest(ZooKeeperOperation operation) =>
+        Operations.GetRequest(operation, ref _previousRequest);
 
-    private Task<TResult> SendAsync<TResult>(
-        NetworkStream stream,
-        IZooKeeperOperation<TResult> operation,
-        CancellationToken cancellationToken
-    ) => SendAsync(
-        stream,
-        writer => operation.WriteRequest(new ZooKeeperContext(
-            ZooKeeperPath.Root,
-            writer,
-            op => GetRequest(op, ref _previousRequest),
-            (_, _, _) => throw new InvalidOperationException()
-        )),
-        data => operation.ReadResponse(Response.ToTransaction(data.Span, ZooKeeperPath.Root), null),
-        cancellationToken
-    );
+    //private Task<TResult> SendAsync<TResult>(
+    //    NetworkStream stream,
+    //    IZooKeeperOperation<TResult> operation,
+    //    CancellationToken cancellationToken
+    //) => SendAsync(
+    //    stream,
+    //    writer => operation.WriteRequest(new ZooKeeperContext(
+    //        ZooKeeperPath.Root,
+    //        writer,
+    //        op => GetRequest(op, ref _previousRequest),
+    //        (_, _, _) => throw new InvalidOperationException()
+    //    )),
+    //    data => operation.ReadResponse(Response.ToTransaction(data.Span, ZooKeeperPath.Root), null),
+    //    cancellationToken
+    //);
 
     private async Task<TResult> SendAsync<TResult>(
         NetworkStream stream,

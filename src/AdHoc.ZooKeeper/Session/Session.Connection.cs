@@ -42,15 +42,16 @@ internal sealed partial class Session
 
             _session = await SendAsync(stream,
                 _session is not null && Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout
-                    ? writer => WriteReconnectSession(writer, _session.Value, _lastTransaction)
-                    : writer => WriteNewSession(writer, _sessionTimeout, _readOnly),
-                data => ReadSession(data.Span),
+                    ? writer => ConnectOperation.WriteReconnectSession(writer, _session.Value, _lastTransaction)
+                    : writer => ConnectOperation.WriteNewSession(writer, _sessionTimeout, _readOnly),
+                data => ConnectOperation.Read(data.Span),
                 cancellationToken
             );
             foreach (var auth in _authentications)
                 await SendAsync(
                     stream,
-                    AddAuthenticationOperation.Create(auth),
+                    writer => AddAuthenticationOperation.Write(writer, auth),
+                    data => AddAuthenticationOperation.Read(Response.ToTransaction(data.Span, default)),
                     cancellationToken
                 );
 

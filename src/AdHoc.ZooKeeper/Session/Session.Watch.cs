@@ -22,9 +22,12 @@ internal sealed partial class Session
             foreach (var watchPair in watchers)
                 try
                 {
-                    if (((IZooKeeperWatcher)watchPair.Key).IsPersistent || watchers.TryRemove(watchPair))
+                    var (watcher, watch) = watchPair;
+                    if (watcher.Type.IsHandling(@event.Type)
+                        && (watcher.Type.IsPersistent || watchers.TryRemove(watchPair))
+                    )
 #pragma warning disable VSTHRD110 // Observe result of async calls
-                        watchPair.Value(watchPair.Key, @event, _disposeSource.Token);
+                        watch(watcher, @event, _disposeSource.Token);
 #pragma warning restore VSTHRD110 // Observe result of async calls
                 }
                 catch { }
@@ -74,12 +77,19 @@ internal sealed partial class Session
                 );
 
         var stream = await EnsureSessionAsync(cancellationToken);
-        await SendAsync(stream, SetWatcherOperations.Create(
-            _lastTransaction,
-            children: paths.TryGetValue(Types.Children, out var children) ? children : null,
-            data: paths.TryGetValue(Types.Children, out var data) ? data : null,
-            exists: paths.TryGetValue(Types.Children, out var exists) ? exists : null
-        ), cancellationToken);
+        await SendAsync(stream,
+            writer => SetWatcherOperations.Write(
+                writer,
+                _lastTransaction,
+                data: paths.TryGetValue(Types.Data, out var data) ? data : null,
+                exists: paths.TryGetValue(Types.Exist, out var exists) ? exists : null,
+                children: paths.TryGetValue(Types.Children, out var children) ? children : null,
+                persistent: paths.TryGetValue(Types.Persistent, out var persistent) ? persistent : null,
+                recursivePersistent: paths.TryGetValue(Types.RecursivePersistent, out var persistentRecursive) ? persistentRecursive : null
+            ),
+            data => SetWatcherOperations.Read(Response.ToTransaction(data.Span, default)),
+            cancellationToken
+        );
     }
 
     private Watcher RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
@@ -116,11 +126,18 @@ internal sealed partial class Session
         public Types Type => type;
         public ZooKeeperPath Path => path;
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             if (session._watchers.TryGetValue(path, out var watchers))
-                watchers.TryRemove(this, out _);
-            return ValueTask.CompletedTask;
+                if (watchers.TryRemove(this, out _))
+                {
+                    try
+                    {
+                        if (watchers.IsEmpty || watchers.All(p => p.Key.Type != Type))
+                            await session.ExecuteAsync(RemoveWatchOperation.Create(this), default, null, default);
+                    }
+                    catch { }
+                }
         }
     }
 

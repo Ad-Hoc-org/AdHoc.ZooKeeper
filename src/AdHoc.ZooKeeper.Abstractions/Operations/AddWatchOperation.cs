@@ -33,7 +33,7 @@ public sealed record AddWatchOperation
     public void WriteRequest(in ZooKeeperContext context)
     {
         var writer = context.Writer;
-        var buffer = writer.GetSpan(RequestHeaderSize + Path.GetMaxSize(context.Root) + sizeof(int));
+        var buffer = writer.GetSpan(RequestHeaderSize + Path.GetMaxSize(context.Root) + Int32Size);
         int size = LengthSize;
 
         size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperation.AddWatch));

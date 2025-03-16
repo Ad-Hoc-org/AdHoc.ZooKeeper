@@ -79,13 +79,13 @@ public readonly record struct ZooKeeperPath
     }
 
 
-    public int GetMaxSize(ZooKeeperPath root) =>
+    public int GetMaxSize(ZooKeeperPath root = default) =>
         LengthSize
         + (Value is null ? 0 : Encoding.UTF8.GetMaxByteCount(Value.Length))
         + (root.Value is null ? 0 : Encoding.UTF8.GetMaxByteCount(root.Value.Length))
         + 2; // root '/' if missing and join '/'
 
-    public int Write(Span<byte> destination, ZooKeeperPath root)
+    public int Write(Span<byte> destination, ZooKeeperPath root = default)
     {
         var value = Value is null ? [] : Value.AsSpan();
         var rootValue = root.Value is null ? [] : root.Value.AsSpan();

@@ -19,6 +19,7 @@ public enum ZooKeeperOperation
     Ping = 11,
     //GetChildren2 = 12,
     //Multi = 14,
+    RemoveWatch = 18,
     Authentication = 100,
     SetWatches = 101,
     AddWatch = 106,

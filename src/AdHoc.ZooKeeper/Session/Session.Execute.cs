@@ -36,7 +36,7 @@ internal sealed partial class Session
                         int request;
                         do
                         {
-                            request = GetRequest(operation, ref _previousRequest);
+                            request = GetRequest(operation);
                             if (request == PingOperation.Request)
                                 break;
                         } while (!_pending.TryAdd(request, pending));

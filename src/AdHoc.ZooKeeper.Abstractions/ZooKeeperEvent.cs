@@ -21,9 +21,9 @@ public readonly record struct ZooKeeperEvent(
         NodeDeleted = 2,
         DataChanged = 3,
         ChildrenChanged = 4,
-        DataWatchRemoved = 5,
-        ChildWatchRemove = 6,
-        PersistentWatchRemoved = 7,
+        //DataWatchRemoved = 5,
+        //ChildWatchRemove = 6,
+        //PersistentWatchRemoved = 7,
     }
 
     public const int NoRequest = -1;

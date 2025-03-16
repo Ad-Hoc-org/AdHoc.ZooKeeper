@@ -1,33 +1,27 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using static AdHoc.ZooKeeper.Abstractions.AddAuthenticationOperation;
+using System.Buffers;
 using static AdHoc.ZooKeeper.Abstractions.Operations;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public sealed record AddAuthenticationOperation
-    : IZooKeeperOperation<Result>
+public static class AddAuthenticationOperation
 {
     public const int Request = -4;
 
     private static readonly ReadOnlyMemory<byte> _RequestBytes = new byte[] { 255, 255, 255, 252 };
     private static readonly ReadOnlyMemory<byte> _Operation = new byte[] { 0, 0, 0, 100 };
 
-    public Authentication Authentication { get; }
-
-    private AddAuthenticationOperation(
+    public static void Write(
+        IBufferWriter<byte> writer,
         Authentication authentication
-    ) =>
-        Authentication = authentication;
-
-    public void WriteRequest(in ZooKeeperContext context)
+    )
     {
-        var writer = context.Writer;
         var buffer = writer.GetSpan(RequestHeaderSize
             + Int32Size
-            + LengthSize + Authentication.Scheme.Length
-            + LengthSize + Authentication.Data.Length
+            + LengthSize + authentication.Scheme.Length
+            + LengthSize + authentication.Data.Length
         );
         int size = LengthSize;
 
@@ -37,33 +31,21 @@ public sealed record AddAuthenticationOperation
         _Operation.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
 
-        size += Write(buffer.Slice(size), 0); // type
+        size += Operations.Write(buffer.Slice(size), 0); // type
 
-        size += Write(buffer.Slice(size), Authentication.Scheme);
+        size += Operations.Write(buffer.Slice(size), authentication.Scheme);
 
-        size += Write(buffer.Slice(size), Authentication.Data.Span);
+        size += Operations.Write(buffer.Slice(size), authentication.Data.Span);
 
-        Write(buffer, size - LengthSize);
+        Operations.Write(buffer, size - LengthSize);
         writer.Advance(size);
     }
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
+    public static Result Read(in ZooKeeperResponse response)
     {
         response.ThrowIfError();
-        return new Result(response.Transaction);
+        return new(response.Transaction);
     }
-
-
-    public static AddAuthenticationOperation Create(
-        Authentication authentication
-    )
-    {
-        if (authentication == default)
-            throw new ArgumentNullException(nameof(authentication));
-        ArgumentNullException.ThrowIfNull(authentication.Scheme);
-        return new AddAuthenticationOperation(authentication);
-    }
-
 
     public readonly record struct Result(long Transaction);
 }
