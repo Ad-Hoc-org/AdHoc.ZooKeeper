@@ -55,6 +55,8 @@ internal sealed partial class Session
                     cancellationToken
                 );
 
+            await ReregisterWatchersAsync(stream, cancellationToken);
+
             return stream;
         }
         catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)

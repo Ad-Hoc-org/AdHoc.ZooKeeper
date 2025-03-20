@@ -49,7 +49,7 @@ internal sealed partial class Session
             _receiving = Task.CompletedTask;
             await receiving;
 
-            await ReregisterWatchersAsync(cancellationToken);
+            await EnsureSessionAsync(cancellationToken);
         }
         finally { _lock.Release(); }
     }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Collections.Concurrent;
+using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
@@ -63,7 +64,7 @@ internal sealed partial class Session
                     catch { }
     }
 
-    private async ValueTask ReregisterWatchersAsync(CancellationToken cancellationToken)
+    private async ValueTask ReregisterWatchersAsync(NetworkStream stream, CancellationToken cancellationToken)
     {
         if (_watchers.IsEmpty)
             return;
@@ -76,7 +77,6 @@ internal sealed partial class Session
                     (_, paths) => { paths.Add(path); return paths; }
                 );
 
-        var stream = await EnsureSessionAsync(cancellationToken);
         await SendAsync(stream,
             writer => SetWatcherOperations.Write(
                 writer,
@@ -90,6 +90,10 @@ internal sealed partial class Session
             data => SetWatcherOperations.Read(Response.ToTransaction(data.Span, default)),
             cancellationToken
         );
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        ReceivingAsync(stream);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     }
 
     private Watcher RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
