@@ -18,6 +18,18 @@ public abstract partial class ZooKeeperTests
     }
 
     [Test]
+    public async Task CreateAsync_CaseSensitivity(CancellationToken cancellationToken)
+    {
+        var result = await ZooKeeper.CreateAsync(_NewNode, _NewData, cancellationToken);
+        await Assert.That(result.AlreadyExisted).IsFalse();
+        await Assert.That(result.ContainerMissing).IsFalse();
+
+        result = await ZooKeeper.CreateAsync(_NewNode.Value.ToUpper(), _NewData, cancellationToken);
+        await Assert.That(result.AlreadyExisted).IsFalse();
+        await Assert.That(result.ContainerMissing).IsFalse();
+    }
+
+    [Test]
     public async Task CreateAsync_MissingContainer(CancellationToken cancellationToken)
     {
         var result = await ZooKeeper.CreateAsync(_ChildNode, _NewData, cancellationToken);
