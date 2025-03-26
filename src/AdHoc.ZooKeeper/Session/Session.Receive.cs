@@ -106,12 +106,12 @@ internal sealed partial class Session
                                 }
                                 else
                                 {
-                                    //Debug.Assert(false);
+                                    Debug.Assert(false);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                if (cancellationToken.IsCancellationRequested)
+                                if (_disposeSource.IsCancellationRequested)
                                     await ResponseWithAsync(new ObjectDisposedException(this.ToString(), ex));
                                 else
                                     await ResponseWithAsync(ex);

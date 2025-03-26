@@ -37,7 +37,7 @@ internal sealed partial class Session
             await receiving; // wait until all pending request are canceled
 
             _tcpClient = new() { SendTimeout = (int)_connectionTimeout.TotalMilliseconds };
-            await _tcpClient.ConnectAsync(Host.Address, Host.Port);
+            await _tcpClient.ConnectAsync(Host.Address, Host.Port, cancellationToken);
             var stream = _tcpClient.GetStream();
 
             _session = await SendAsync(stream,

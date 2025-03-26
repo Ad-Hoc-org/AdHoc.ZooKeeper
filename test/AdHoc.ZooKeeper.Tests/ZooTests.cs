@@ -11,23 +11,23 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Tests;
 [InheritsTests]
-[NotInParallel]
 public class ZooTests
     : ZooKeeperTests
 {
 
     private const int _Instances = 3;
-    private INetwork? _network;
-    private List<IContainer> _containers = [];
+    private static INetwork? _network;
+    private static List<IContainer> _containers = [];
 
-    private readonly SemaphoreSlim _lock = new(1, 1);
-    private readonly Session _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
+    private static readonly SemaphoreSlim _lock = new(1, 1);
+    private static readonly Session _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
 
+    private ZooKeeperPath _root;
     private Zoo? _zoo;
+    protected override IZooKeeper ZooKeeper => _zoo!;
 
-
-    [Before(Test)]
-    public async Task BuildContainersAsync(CancellationToken cancellationToken)
+    [Before(Class)]
+    public static async Task CreateZooAsync(CancellationToken cancellationToken)
     {
         _network = new NetworkBuilder()
             .Build();
@@ -35,11 +35,9 @@ public class ZooTests
 
         for (var i = 0; i < _Instances; i++)
             _containers.Add(CreateContainer(i + 1));
-
-        await StartInstancesAsync(cancellationToken);
     }
 
-    public IContainer CreateContainer(int i) =>
+    private static IContainer CreateContainer(int i) =>
         new ContainerBuilder()
             .WithImage("zookeeper:latest")
             .WithName($"{_network!.Name}-keeper{i}")
@@ -51,32 +49,44 @@ public class ZooTests
             .WithNetwork(_network)
             .Build();
 
+    [Before(Test)]
+    public async Task PrepareContainerAsync(TestContext context, CancellationToken cancellationToken)
+    {
+        _root = context.TestDetails.TestMethod.Name;
+        await StartInstancesAsync(cancellationToken);
+        await ZooKeeper.CreateAsync("/", cancellationToken);
+    }
+
     [After(Test)]
-    public async Task DisposeContainerAsync(CancellationToken cancellationToken)
+    public async Task DisposeZooKeeperAsync(CancellationToken cancellationToken)
+    {
+        if (_zoo is not null)
+            await _zoo.DisposeAsync();
+    }
+
+    [After(Class)]
+    public static async Task DisposeZooAsync(CancellationToken cancellationToken)
     {
         foreach (var container in _containers)
             await container.DisposeAsync();
 
         if (_network is not null)
             await _network.DisposeAsync();
-
-        if (_zoo is not null)
-            await _zoo.DisposeAsync();
     }
 
-    protected override IZooKeeper ZooKeeper => _zoo!;
 
     protected override async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         await Task.WhenAll(_containers.Select(c => c.StartAsync(cancellationToken)));
 
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host("localhost", c.GetMappedPublicPort(2181)))];
-        _zoo = new Zoo(_session, hosts, ZooKeeperPath.Root, _lock);
+        _zoo = new Zoo(_session, hosts, _root, _lock);
         int i = 0;
         while (i++ < 10)
             try
             {
-                await _session.ReconnectAsync(hosts[0], cancellationToken);
+                if (!_session.IsConnected)
+                    await _session.ReconnectAsync(hosts[0], cancellationToken);
                 break;
             }
             catch

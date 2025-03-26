@@ -9,49 +9,64 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Tests;
 [InheritsTests]
-[NotInParallel]
 public class KeeperTests
     : ZooKeeperTests
 {
 
-    private IContainer? _container;
-    private readonly Session _session = new Session(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
-    private Keeper? _keeper;
+    private static IContainer? _container;
+    private static Session _session = new Session(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
 
-    [Before(Test)]
-    public async Task BuildContainerAsync(CancellationToken cancellationToken)
+    private Keeper? _keeper;
+    protected override IZooKeeper ZooKeeper => _keeper!;
+    private ZooKeeperPath _root;
+
+    [Before(Class)]
+    public static Task CreateContainerAsync(CancellationToken cancellationToken)
     {
         _container = CreateContainer();
-        await StartInstancesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
-    public static IContainer CreateContainer() =>
+    private static IContainer CreateContainer() =>
         new ContainerBuilder()
             .WithImage("zookeeper:latest")
             .WithPortBinding(2181, true)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(2181))
             .Build();
 
-    [After(Test)]
-    public async Task DisposeContainerAsync(CancellationToken cancellationToken)
+    [Before(Test)]
+    public async Task PrepareContainerAsync(TestContext context, CancellationToken cancellationToken)
     {
-        if (_container is not null)
-            await _container.DisposeAsync();
+        _root = context.TestDetails.TestMethod.Name;
+        await StartInstancesAsync(cancellationToken);
+        await ZooKeeper.CreateAsync("/", cancellationToken);
+    }
+
+    [After(Test)]
+    public async Task DisposeZooKeeperAsync(CancellationToken cancellationToken)
+    {
         if (_keeper is not null)
             await _keeper.DisposeAsync();
     }
 
-    protected override IZooKeeper ZooKeeper => _keeper!;
+    [After(Class)]
+    public static async Task DisposeContainerAsync(CancellationToken cancellationToken)
+    {
+        if (_container is not null)
+            await _container.DisposeAsync();
+    }
+
 
     protected override async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         await _container!.StartAsync(cancellationToken);
-        _keeper = new Keeper(_session, ZooKeeperPath.Root);
+        _keeper = new Keeper(_session, _root);
         int i = 0;
         while (i++ < 10)
             try
             {
-                await _session.ReconnectAsync(new Host("localhost", _container.GetMappedPublicPort(2181)), cancellationToken);
+                if (!_session.IsConnected)
+                    await _session.ReconnectAsync(new Host("localhost", _container.GetMappedPublicPort(2181)), cancellationToken);
                 break;
             }
             catch

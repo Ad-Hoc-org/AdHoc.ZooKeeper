@@ -2,6 +2,7 @@ using AdHoc.ZooKeeper.Abstractions;
 
 namespace AdHoc.ZooKeeper.Tests;
 
+[NotInParallel]
 public abstract partial class ZooKeeperTests
 {
 

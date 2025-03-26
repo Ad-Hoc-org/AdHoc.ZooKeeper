@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
@@ -118,7 +117,6 @@ public class Zoo
     {
         int length = _hosts.Length;
         int usedIndex = _hosts.IndexOf(host);
-        Debug.Assert(usedIndex != -1);
         int currentIndex = _hosts.IndexOf(session.Host);
         var exceptions = new List<Exception>(length);
         if (exception is not null)
@@ -155,6 +153,8 @@ public class Zoo
                     exceptions.Add(ex);
                 }
 
+                if (usedIndex == -1)
+                    usedIndex = currentIndex;
                 currentIndex = (currentIndex + 1) % length;
             }
         }

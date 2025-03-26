@@ -41,7 +41,6 @@ internal sealed partial class Session
         try
         {
             Host = host;
-            _disposeSource.TryReset();
             _tcpClient?.Dispose();
             _tcpClient = null;
 
@@ -57,6 +56,8 @@ internal sealed partial class Session
     internal async ValueTask CloseAsync()
     {
         DeregisterWatchers();
+
+
 
         await _disposeSource.CancelAsync();
         _tcpClient?.Dispose();
