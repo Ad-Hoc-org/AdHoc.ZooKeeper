@@ -8,10 +8,11 @@ using static AdHoc.ZooKeeper.Abstractions.Operations;
 namespace AdHoc.ZooKeeper.Abstractions;
 public static class SetWatcherOperations
 {
-    public const int Request = -4;
+    public const int Request = -9;
 
     private static readonly ReadOnlyMemory<byte> _RequestBytes = new byte[] { 255, 255, 255, 247 };
     private static readonly ReadOnlyMemory<byte> _OperationBytes = new byte[] { 0, 0, 0, 101 };
+    private static readonly ReadOnlyMemory<byte> _OperationWithPersistentBytes = new byte[] { 0, 0, 0, 105 };
 
     public static void Write(
         IBufferWriter<byte> writer,
@@ -46,7 +47,7 @@ public static class SetWatcherOperations
         _RequestBytes.Span.CopyTo(buffer.Slice(size));
         size += RequestSize;
 
-        _OperationBytes.Span.CopyTo(buffer.Slice(size));
+        (hasPersistent ? _OperationWithPersistentBytes : _OperationBytes).Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
 
         size += Operations.Write(buffer.Slice(size), lastTransaction);

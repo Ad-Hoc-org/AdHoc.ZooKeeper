@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
@@ -117,6 +118,7 @@ public class Zoo
     {
         int length = _hosts.Length;
         int usedIndex = _hosts.IndexOf(host);
+        Debug.Assert(usedIndex != -1);
         int currentIndex = _hosts.IndexOf(session.Host);
         var exceptions = new List<Exception>(length);
         if (exception is not null)
@@ -134,39 +136,44 @@ public class Zoo
                 exceptions.Add(ex);
             }
 
-        currentIndex = (currentIndex + 1) % length;
-        while (usedIndex != currentIndex)
+        await _lock.WaitAsync(cancellationToken);
+        try
         {
-            await _lock.WaitAsync(cancellationToken);
-            bool locked = true;
-            try
-            {
-                await session.ReconnectAsync(_hosts[currentIndex], cancellationToken);
-
-                _lock.Release();
-                locked = false;
-
-                if (executeAsync is null)
-                    return default;
-                return (await executeAsync(session, cancellationToken), null);
-            }
-            catch (ConnectionException ex)
-            {
-                exceptions.Add(ex);
-            }
-            finally
-            {
-                if (locked)
-                    _lock.Release();
-            }
             currentIndex = (currentIndex + 1) % length;
+            while (usedIndex != currentIndex)
+            {
+                try
+                {
+                    await session.ReconnectAsync(_hosts[currentIndex], cancellationToken);
+
+                    if (executeAsync is null)
+                        return default;
+                    return (await executeAsync(session, cancellationToken), null);
+                }
+                catch (ConnectionException ex)
+                {
+                    exceptions.Add(ex);
+                }
+
+                currentIndex = (currentIndex + 1) % length;
+            }
+        }
+        finally
+        {
+            _lock.Release();
         }
 
-        return (default, new ConnectionException($"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions))
-        {
-            Host = host
-        });
+        return (default, CreateConnectionException(host, $"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions)));
     }
+
+    private static ConnectionException CreateConnectionException(
+        Host host,
+        string message,
+        AggregateException exception
+    ) =>
+        exception.InnerExceptions.Any(e => e is ConnectionLostException)
+            ? new ConnectionLostException(message, exception) { Host = host }
+            : new ConnectionException(message, exception) { Host = host };
 
 
     public async ValueTask DisposeAsync()

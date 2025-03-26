@@ -51,6 +51,13 @@ public interface IZooKeeperWatcher
 
 public static partial class Operations
 {
+    public static bool IsHandling(this IZooKeeperWatcher watcher, ZooKeeperEvent @event) =>
+        watcher.Type.IsHandling(@event.Type)
+        && (
+            watcher.Type.IsRecursive ? @event.Path.Value.StartsWith(watcher.Path)
+            : watcher.Path == @event.Path
+        );
+
     public static WatchAsync ToAsyncWatch(this Watch watch, [CallerArgumentExpression(nameof(watch))] string? watchName = null)
     {
         ArgumentNullException.ThrowIfNull(watch, watchName);

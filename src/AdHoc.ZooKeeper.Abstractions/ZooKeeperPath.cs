@@ -12,7 +12,8 @@ public readonly record struct ZooKeeperPath
     public string Value { get; }
 
     public bool IsAbsolute => Value?.StartsWith('/') ?? false;
-    public bool IsNode => !Value?.EndsWith('/') ?? false;
+
+    public ZooKeeperPath() => Value = "/";
 
     public ZooKeeperPath(string value) =>
         Value = value;
@@ -184,6 +185,9 @@ public readonly record struct ZooKeeperPath
         }
         return builder.ToString();
     }
+
+
+    public override string? ToString() => Value;
 
 
     /// <summary>

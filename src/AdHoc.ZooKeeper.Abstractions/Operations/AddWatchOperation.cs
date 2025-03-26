@@ -84,4 +84,19 @@ public static partial class Operations
         CancellationToken cancellationToken
     ) =>
         zooKeeper.ExecuteAsync(Create(path, recursive, watch.ToAsyncWatch()), cancellationToken);
+    public static Task<IZooKeeperWatcher> AddWatchAsync(
+        this IZooKeeper zooKeeper,
+        ZooKeeperPath path,
+        WatchAsync watch,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ExecuteAsync(Create(path, false, watch), cancellationToken);
+
+    public static Task<IZooKeeperWatcher> AddWatchAsync(
+        this IZooKeeper zooKeeper,
+        ZooKeeperPath path,
+        Watch watch,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ExecuteAsync(Create(path, false, watch.ToAsyncWatch()), cancellationToken);
 }

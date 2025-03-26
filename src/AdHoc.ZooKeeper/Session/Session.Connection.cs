@@ -47,6 +47,7 @@ internal sealed partial class Session
                 data => ConnectOperation.Read(data.Span),
                 cancellationToken
             );
+
             foreach (var auth in _authentications)
                 await SendAsync(
                     stream,

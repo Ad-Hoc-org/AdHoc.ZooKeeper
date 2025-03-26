@@ -3,6 +3,7 @@
 
 using System.Buffers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.Operations;
@@ -105,7 +106,7 @@ internal sealed partial class Session
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Received: " + string.Join(",", response._memory.ToArray()));
+                                    //Debug.Assert(false);
                                 }
                             }
                             catch (Exception ex)

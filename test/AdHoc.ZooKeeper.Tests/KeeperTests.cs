@@ -9,6 +9,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Tests;
 [InheritsTests]
+[NotInParallel]
 public class KeeperTests
     : ZooKeeperTests
 {
@@ -45,8 +46,18 @@ public class KeeperTests
     protected override async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         await _container!.StartAsync(cancellationToken);
-        await _session.ReconnectAsync(new Host(_container.Hostname, _container.GetMappedPublicPort(2181)), cancellationToken);
         _keeper = new Keeper(_session, ZooKeeperPath.Root);
+        int i = 0;
+        while (i++ < 10)
+            try
+            {
+                await _session.ReconnectAsync(new Host("localhost", _container.GetMappedPublicPort(2181)), cancellationToken);
+                break;
+            }
+            catch
+            {
+                await Task.Delay(100);
+            }
     }
 
     protected override Task StopInstanceAsync(CancellationToken cancellationToken) =>

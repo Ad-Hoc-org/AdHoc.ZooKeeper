@@ -64,22 +64,22 @@ public abstract partial class ZooKeeperTests
     }
 
     [Test]
-    //[DependsOn(nameof(AddWatchAsync_Persistent))]
+    [DependsOn(nameof(AddWatchAsync_Persistent))]
     public async Task AddWatchAsync_Reconnect(CancellationToken cancellationToken)
     {
         bool dispatched;
-        await using var watcher = await ZooKeeper.AddWatchAsync(_NewNode, false, (_, _) => dispatched = true, cancellationToken);
+        await using var watcher = await ZooKeeper.AddWatchAsync(_NewNode, true, (_, _) => dispatched = true, cancellationToken);
 
         dispatched = false;
         await ZooKeeper.CreateAsync(_NewNode, _NewData, cancellationToken);
         await Assert.That(dispatched).IsTrue();
 
-        await StopInstanceAsync(cancellationToken);
+        await StopInstancesAsync(cancellationToken);
         await Assert.ThrowsAsync<ConnectionLostException>(() => ZooKeeper.PingAsync(cancellationToken));
         await StartInstancesAsync(cancellationToken);
 
         dispatched = false;
-        var result = await ZooKeeper.SetDataAsync(_NewNode, _SetData, cancellationToken);
+        await ZooKeeper.SetDataAsync(_NewNode, _SetData, cancellationToken);
         await Assert.That(dispatched).IsTrue();
     }
 
