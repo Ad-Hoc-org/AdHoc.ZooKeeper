@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record ZooKeeperConnection
+    : IEquatable<ZooKeeperConnection>
 {
     public const int DefaultPort = 2181;
     public static TimeSpan DefaultSessionTimeout { get; } = TimeSpan.FromSeconds(30);
@@ -19,7 +20,16 @@ public sealed record ZooKeeperConnection
         public override string ToString() => $"{Address}:{Port}";
     }
 
-    public readonly record struct Authentication(string Scheme, ReadOnlyMemory<byte> Data);
+    public readonly record struct Authentication(string Scheme, ReadOnlyMemory<byte> Data)
+        : IEquatable<Authentication>
+    {
+        public override int GetHashCode() =>
+            HashCode.Combine(Scheme, Data.Length);
+
+        public bool Equals(Authentication other) =>
+            Scheme == other.Scheme
+            && Data.Span.SequenceEqual(other.Data.Span);
+    }
 
 
     public IReadOnlySet<Host> Hosts { get; }
@@ -165,4 +175,27 @@ public sealed record ZooKeeperConnection
         };
     }
 
+
+    public bool Equals(ZooKeeperConnection? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Hosts.SetEquals(other.Hosts) &&
+               Authentications.SetEquals(other.Authentications) &&
+               SessionTimeout == other.SessionTimeout &&
+               ConnectionTimeout == other.ConnectionTimeout &&
+               Root == other.Root &&
+               ReadOnly == other.ReadOnly;
+    }
+
+    public override int GetHashCode() =>
+        HashCode.Combine(
+            unchecked((uint)Hosts.Sum(h => (uint)h.GetHashCode())),
+            unchecked((uint)Authentications.Sum(a => (uint)a.GetHashCode())),
+            SessionTimeout,
+            ConnectionTimeout,
+            Root,
+            ReadOnly
+        );
 }

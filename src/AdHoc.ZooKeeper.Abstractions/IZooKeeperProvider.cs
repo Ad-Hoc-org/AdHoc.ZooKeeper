@@ -7,3 +7,9 @@ public interface IZooKeeperProvider
 {
     public IZooKeeper GetZooKeeper(ZooKeeperConnection connection);
 }
+
+public static partial class ZooKeeperProviders
+{
+    public static IZooKeeper GetZooKeeper(this IZooKeeperProvider provider, string connectionString) =>
+        provider.GetZooKeeper(ZooKeeperConnection.Parse(connectionString));
+}

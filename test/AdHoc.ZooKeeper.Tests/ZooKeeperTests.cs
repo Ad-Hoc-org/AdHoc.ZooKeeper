@@ -74,7 +74,11 @@ public partial class ZooKeeperTests
 
     private async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
-        await Task.WhenAll(_containers.Select(c => c.StartAsync(cancellationToken)));
+        await Task.WhenAll(_containers.Select(async c =>
+        {
+            if (c.State != TestcontainersStates.Running)
+                await c.StartAsync(cancellationToken);
+        }));
 
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host("localhost", c.GetMappedPublicPort(2181)))];
         _zoo = new ZooKeeper(_session, hosts, _root, _lock);
@@ -88,7 +92,7 @@ public partial class ZooKeeperTests
             }
             catch
             {
-                await Task.Delay(100);
+                await Task.Delay(100, cancellationToken);
             }
     }
 
