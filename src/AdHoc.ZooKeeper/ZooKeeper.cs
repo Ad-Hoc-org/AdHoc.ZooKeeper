@@ -11,7 +11,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 using static AdHoc.ZooKeeper.Session;
 
 namespace AdHoc.ZooKeeper;
-public class Zoo
+public class ZooKeeper
     : IZooKeeper
 {
     private readonly ZooKeeperPath _root;
@@ -23,7 +23,7 @@ public class Zoo
 
     private readonly ConcurrentDictionary<Watcher, WatchAsync> _watchers = new();
 
-    internal Zoo(
+    internal ZooKeeper(
         Session session,
         ImmutableArray<Host> hosts,
         ZooKeeperPath root,
@@ -36,37 +36,26 @@ public class Zoo
         _lock = @lock;
     }
 
-    public Zoo(
-        IEnumerable<Host> hosts,
-        ZooKeeperPath root = default,
-        IReadOnlySet<Authentication>? authentications = null,
-        TimeSpan? connectionTimeout = default,
-        TimeSpan? sessionTimeout = default,
-        bool readOnly = false
-    )
+    public ZooKeeper(ZooKeeperConnection connection)
     {
-        ArgumentNullException.ThrowIfNull(hosts);
-        _hosts = hosts.Where(h => h != default).ToImmutableArray();
-        if (_hosts.Length < 2)
-            throw new ArgumentException($"A zoo should have at least two hosts.", nameof(hosts));
+        ArgumentNullException.ThrowIfNull(connection);
 
-        connectionTimeout ??= DefaultConnectionTimeout;
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(connectionTimeout.Value, TimeSpan.Zero);
-
-        sessionTimeout ??= DefaultSessionTimeout;
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(sessionTimeout.Value, TimeSpan.Zero);
-
-        _root = root;
+        _root = connection.Root;
+        _hosts = [.. connection.Hosts];
         _session = new(
             _hosts[Random.Shared.Next(0, _hosts.Length)],
-            authentications?.ToFrozenSet() ?? FrozenSet<Authentication>.Empty,
-            connectionTimeout.Value,
-            sessionTimeout.Value,
-            readOnly
+            connection.Authentications.ToFrozenSet(),
+            connection.ConnectionTimeout,
+            connection.SessionTimeout,
+            connection.ReadOnly
         );
         _lock = new SemaphoreSlim(1, 1);
         _owned = true;
     }
+
+    public ZooKeeper(string connectionString)
+        : this(Parse(connectionString)) { }
+
 
     public async Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> transaction, CancellationToken cancellationToken)
     {

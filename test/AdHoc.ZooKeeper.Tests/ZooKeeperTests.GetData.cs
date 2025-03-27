@@ -2,7 +2,7 @@ using AdHoc.ZooKeeper.Abstractions;
 
 namespace AdHoc.ZooKeeper.Tests;
 
-public abstract partial class ZooKeeperTests
+public partial class ZooKeeperTests
 {
 
     [Test]

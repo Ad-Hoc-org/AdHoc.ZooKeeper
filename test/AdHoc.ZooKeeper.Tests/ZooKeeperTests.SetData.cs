@@ -2,7 +2,7 @@ using AdHoc.ZooKeeper.Abstractions;
 
 namespace AdHoc.ZooKeeper.Tests;
 
-public abstract partial class ZooKeeperTests
+public partial class ZooKeeperTests
 {
 
     private static byte[] _SetData = [4, 3, 2, 1];
