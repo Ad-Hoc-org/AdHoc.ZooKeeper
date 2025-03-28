@@ -78,7 +78,7 @@ internal sealed partial class Session
                 );
 
         await SendAsync(stream,
-            writer => SetWatcherTransaction.Write(
+            writer => SetWatchersTransaction.Write(
                 writer,
                 _lastTransaction,
                 data: paths.TryGetValue(Types.Data, out var data) ? data : null,
@@ -87,7 +87,7 @@ internal sealed partial class Session
                 persistent: paths.TryGetValue(Types.Persistent, out var persistent) ? persistent : null,
                 recursivePersistent: paths.TryGetValue(Types.RecursivePersistent, out var persistentRecursive) ? persistentRecursive : null
             ),
-            data => SetWatcherTransaction.Read(Response.ToTransaction(data.Span, default)),
+            data => SetWatchersTransaction.Read(Response.ToTransaction(data.Span, default)),
             cancellationToken
         );
 

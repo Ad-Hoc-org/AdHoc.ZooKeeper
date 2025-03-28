@@ -3,11 +3,11 @@
 
 using System.Collections.Frozen;
 using System.Diagnostics;
-using static AdHoc.ZooKeeper.Abstractions.SetWatcherTransaction;
+using static AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public sealed record SetWatcherTransaction
+public sealed record SetWatchersTransaction
     : IZooKeeperTransaction<Response>
 {
     public const int Request = -9;
@@ -25,7 +25,7 @@ public sealed record SetWatcherTransaction
 
     private readonly int _maxSize;
 
-    private SetWatcherTransaction(
+    private SetWatchersTransaction(
         long lastTransaction,
         IReadOnlySet<ZooKeeperPath> data,
         IReadOnlySet<ZooKeeperPath> children,
@@ -54,7 +54,7 @@ public sealed record SetWatcherTransaction
             Operation = ZooKeeperOperations.SetWatches;
     }
 
-    public static SetWatcherTransaction Create(
+    public static SetWatchersTransaction Create(
         long lastTransaction,
         IEnumerable<ZooKeeperPath>? data = null,
         IEnumerable<ZooKeeperPath>? children = null,

@@ -39,7 +39,7 @@ public static partial class ZooKeeperTransactions
         if (operation == ZooKeeperOperations.Authentication)
             return AddAuthenticationTransaction.Request;
         if (operation is ZooKeeperOperations.SetWatches or ZooKeeperOperations.SetWatchesWithPersistent)
-            return SetWatcherTransaction.Request;
+            return SetWatchersTransaction.Request;
 
         int oldValue, newValue;
         do
