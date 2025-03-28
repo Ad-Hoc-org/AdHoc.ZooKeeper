@@ -3,7 +3,7 @@
 
 using System.Buffers;
 using System.Collections.Frozen;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public static class SetWatcherOperations
@@ -50,7 +50,7 @@ public static class SetWatcherOperations
         (hasPersistent ? _OperationWithPersistentBytes : _OperationBytes).Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
 
-        size += Operations.Write(buffer.Slice(size), lastTransaction);
+        size += ZooKeeperTransactions.Write(buffer.Slice(size), lastTransaction);
 
         size += WritePaths(buffer.Slice(size), data);
         size += WritePaths(buffer.Slice(size), exists);
@@ -61,7 +61,7 @@ public static class SetWatcherOperations
             size += WritePaths(buffer.Slice(size), recursivePersistent);
         }
 
-        Operations.Write(buffer, size - LengthSize);
+        ZooKeeperTransactions.Write(buffer, size - LengthSize);
         writer.Advance(size);
     }
 
@@ -75,13 +75,13 @@ public static class SetWatcherOperations
 
     private static int WritePaths(Span<byte> buffer, IReadOnlySet<ZooKeeperPath> paths)
     {
-        int size = Operations.Write(buffer, paths.Count);
+        int size = ZooKeeperTransactions.Write(buffer, paths.Count);
         foreach (var path in paths)
             size += path.Write(buffer.Slice(size));
         return size;
     }
 
-    public static Result Read(in ZooKeeperResponse response)
+    public static Result Read(in ZooKeeperReadContext response)
     {
         response.ThrowIfError();
         return new(response.Transaction);

@@ -2,14 +2,17 @@
 // SPDX-License-Identifier: MIT
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public const int BooleanSize = 1;
     public const int Int32Size = 4;
     public const int Int64Size = 8;
 
     public const int LengthSize = Int32Size;
+
     public const int RequestSize = Int32Size;
+    public const int NoRequest = -1;
+
     public const int OperationSize = Int32Size;
     public const int RequestHeaderSize = LengthSize + RequestSize + OperationSize;
 
@@ -28,19 +31,15 @@ public static partial class Operations
     public const int ReadOnlySize = BooleanSize;
 
 
-    public static void ValidateRequest(ReadOnlySpan<byte> request)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(request.Length, LengthSize + RequestSize + OperationSize);
-        var length = ReadInt32(request);
-        ArgumentOutOfRangeException.ThrowIfNotEqual(length, request.Length - LengthSize);
-    }
 
-    public static int GetRequest(ZooKeeperOperation operation, ref int previousRequest)
+    public static int GetRequest(this ZooKeeperOperations operation, ref int previousRequest)
     {
-        if (operation == ZooKeeperOperation.Ping)
+        if (operation == ZooKeeperOperations.Ping)
             return PingOperation.Request;
-        if (operation == ZooKeeperOperation.Authentication)
-            return AddAuthenticationOperation.Request;
+        if (operation == ZooKeeperOperations.Authentication)
+            return AddAuthenticationTransaction.Request;
+        if (operation is ZooKeeperOperations.SetWatches or ZooKeeperOperations.SetWatches2)
+            return SetWatcherOperations.Request;
 
         int oldValue, newValue;
         do
@@ -53,10 +52,4 @@ public static partial class Operations
         return newValue;
     }
 
-    public static string SessionToString(ReadOnlySpan<byte> session) =>
-#if NET9_0_OR_GREATER
-        "0x" + Convert.ToHexStringLower(session);
-#else
-        "0x" + Convert.ToHexString(session).ToLower();
-#endif
 }

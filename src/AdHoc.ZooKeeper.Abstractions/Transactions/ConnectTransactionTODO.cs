@@ -2,22 +2,15 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static class ConnectOperation
+public static class ConnectTransactionTODO
 {
     private const int NewSessionSize = LengthSize + ProtocolVersionSize + TransactionSize + TimeoutSize + SessionSize + LengthSize + ReadOnlySize;
 
     private const int DefaultPasswordSize = 16;
     private const int DefaultSessionResponseSize = LengthSize + RequestSize + TimeoutSize + SessionSize + LengthSize + DefaultPasswordSize + ReadOnlySize;
-
-    public static string SessionToString(ReadOnlySpan<byte> session) =>
-#if NET9_0_OR_GREATER
-        "0x" + Convert.ToHexStringLower(session);
-#else
-        "0x" + Convert.ToHexString(session).ToLower();
-#endif
 
 
     public static void WriteNewSession(

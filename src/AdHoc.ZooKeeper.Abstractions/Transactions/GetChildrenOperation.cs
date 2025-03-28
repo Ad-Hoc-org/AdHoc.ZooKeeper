@@ -3,11 +3,11 @@
 
 using static AdHoc.ZooKeeper.Abstractions.GetChildrenOperation;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record GetChildrenOperation
-    : IZooKeeperOperation<Result>
+    : IZooKeeperTransaction<Result>
 {
     private static readonly ReadOnlyMemory<byte> _Operation = new byte[] { 0, 0, 0, 8 };
 
@@ -21,13 +21,13 @@ public sealed record GetChildrenOperation
         Watch = watch;
     }
 
-    public void WriteRequest(in ZooKeeperContext context)
+    public void WriteRequest(in ZooKeeperWriteContext context)
     {
         var writer = context.Writer;
         var buffer = writer.GetSpan(RequestHeaderSize + Path.GetMaxSize(context.Root));
         int size = LengthSize;
 
-        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperation.GetChildren));
+        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperations.GetChildren));
 
         _Operation.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
@@ -46,7 +46,7 @@ public sealed record GetChildrenOperation
         writer.Advance(size);
     }
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
+    public Result ReadResponse(in ZooKeeperReadContext response, IZooKeeperWatcher? watcher)
     {
         if (response.Status == ZooKeeperStatus.NoNode)
             return new(response.Transaction, default, watcher);
@@ -76,7 +76,7 @@ public sealed record GetChildrenOperation
     );
 }
 
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public static Task<Result> GetChildrenAsync(
         this IZooKeeper zooKeeper,

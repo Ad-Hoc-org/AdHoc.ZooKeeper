@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers.Binary;
-using System.Text;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public static int ReadInt32(ReadOnlySpan<byte> source) =>
         BinaryPrimitives.ReadInt32BigEndian(source);

@@ -10,5 +10,12 @@ public readonly record struct ZooKeeperSession(
 )
 {
     public override string ToString() =>
-        $$"""{{nameof(ZooKeeperSession)}} { Session = {{Operations.SessionToString(Session.Span)}}}""";
+        $$"""{{nameof(ZooKeeperSession)}} { Session = {{ToString(Session.Span)}}}""";
+
+    public static string ToString(ReadOnlySpan<byte> session) =>
+#if NET9_0_OR_GREATER
+        "0x" + Convert.ToHexStringLower(session);
+#else
+        "0x" + Convert.ToHexString(session).ToLower();
+#endif
 }

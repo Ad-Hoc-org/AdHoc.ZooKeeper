@@ -27,3 +27,12 @@ public enum ZooKeeperStatus
     AuthenticationFailed = -115,
     SessionMoved = -118
 }
+
+public static partial class ZooKeeperTransactions
+{
+    public static void ThrowIfError(this ZooKeeperStatus status)
+    {
+        if (status != ZooKeeperStatus.Ok)
+            throw ZooKeeperException.CreateResponseError(status);
+    }
+}

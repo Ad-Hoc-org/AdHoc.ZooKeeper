@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
     internal async Task<TResult> ExecuteAsync<TResult>(
-        IZooKeeperOperation<TResult> operation,
+        IZooKeeperTransaction<TResult> operation,
         ZooKeeperPath root,
         Func<Watcher, WatchAsync, WatchAsync>? registerWatcher,
         CancellationToken cancellationToken
@@ -74,7 +74,7 @@ internal sealed partial class Session
 
     private async Task<TResult> ExecutePingAsync<TResult>(
         ZooKeeperPath root,
-        IZooKeeperOperation<TResult> operation,
+        IZooKeeperTransaction<TResult> operation,
         CancellationToken cancellationToken
     )
     {

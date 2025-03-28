@@ -29,6 +29,8 @@ public sealed record ZooKeeperConnection
         public bool Equals(Authentication other) =>
             Scheme == other.Scheme
             && Data.Span.SequenceEqual(other.Data.Span);
+
+        public override string ToString() => $"{Scheme}:{Encoding.UTF8.GetString(Data.Span)}";
     }
 
 
@@ -198,4 +200,13 @@ public sealed record ZooKeeperConnection
             Root,
             ReadOnly
         );
+
+    public override string ToString() =>
+        $"zookeeper://{string.Join(',', Hosts)}{Root}" +
+        $"?sessionTimeout={SessionTimeout.Milliseconds}" +
+        $"&connectionTimeout={ConnectionTimeout.Milliseconds}" +
+        $"&readOnly={ReadOnly}" +
+        $"{(Authentications.Count == 0 ? string.Empty
+            : '&' + string.Join('&', Authentications.Select(a => $"auth={a}"))
+        )}";
 }

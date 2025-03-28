@@ -82,7 +82,7 @@ internal sealed partial class Session
                 writer,
                 _lastTransaction,
                 data: paths.TryGetValue(Types.Data, out var data) ? data : null,
-                exists: paths.TryGetValue(Types.Exist, out var exists) ? exists : null,
+                exists: paths.TryGetValue(Types.Any, out var exists) ? exists : null,
                 children: paths.TryGetValue(Types.Children, out var children) ? children : null,
                 persistent: paths.TryGetValue(Types.Persistent, out var persistent) ? persistent : null,
                 recursivePersistent: paths.TryGetValue(Types.RecursivePersistent, out var persistentRecursive) ? persistentRecursive : null

@@ -1,7 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public readonly record struct ZooKeeperNode(

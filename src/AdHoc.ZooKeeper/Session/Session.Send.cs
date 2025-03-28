@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
@@ -14,8 +14,8 @@ internal sealed partial class Session
 
     private int _previousRequest;
 
-    public int GetRequest(ZooKeeperOperation operation) =>
-        Operations.GetRequest(operation, ref _previousRequest);
+    public int GetRequest(ZooKeeperOperations operation) =>
+        ZooKeeperTransactions.GetRequest(operation, ref _previousRequest);
 
     //private Task<TResult> SendAsync<TResult>(
     //    NetworkStream stream,
@@ -115,10 +115,10 @@ internal sealed partial class Session
             _memory = memory;
         }
 
-        internal ZooKeeperResponse ToTransaction(ZooKeeperPath root) =>
+        internal ZooKeeperReadContext ToTransaction(ZooKeeperPath root) =>
             ToTransaction(_memory.Span, root);
 
-        internal static ZooKeeperResponse ToTransaction(ReadOnlySpan<byte> data, ZooKeeperPath root) => new(
+        internal static ZooKeeperReadContext ToTransaction(ReadOnlySpan<byte> data, ZooKeeperPath root) => new(
             root,
             request: ReadInt32(data),
             transaction: ReadInt64(data.Slice(RequestSize)),
@@ -132,7 +132,7 @@ internal sealed partial class Session
 
 
     private async Task<(TResult?, bool)> DispatchAsync<TResult>(
-        IZooKeeperOperation<TResult> operation,
+        IZooKeeperTransaction<TResult> operation,
         ZooKeeperPath root,
         Func<NetworkStream, TaskCompletionSource<Response>, CancellationToken, ValueTask<(int?, Watcher?)>> writeAsync,
         CancellationToken cancellationToken

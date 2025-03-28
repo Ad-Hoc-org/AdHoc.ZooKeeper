@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeper;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public readonly record struct ZooKeeperEvent(
@@ -25,8 +25,6 @@ public readonly record struct ZooKeeperEvent(
         //ChildWatchRemove = 6,
         //PersistentWatchRemoved = 7,
     }
-
-    public const int NoRequest = -1;
 
     private const int _EventHeaderSize = RequestSize + TransactionSize + StatusSize + Int32Size + Int32Size;
     private static readonly ReadOnlyMemory<byte> _NoRequest = new byte[] { 255, 255, 255, 255 };

@@ -10,7 +10,7 @@ public partial class ZooKeeperTests
     {
         var result = await ZooKeeper.DeleteAsync(_NewNode, cancellationToken);
         await Assert.That(result.Deleted).IsFalse();
-        await Assert.That(result.Existed).IsFalse();
+        await Assert.That(result.NotEmpty).IsFalse();
     }
 
     [Test]
@@ -20,7 +20,7 @@ public partial class ZooKeeperTests
         await ZooKeeper.CreateAsync(_NewNode, _NewData, cancellationToken);
         var result = await ZooKeeper.DeleteAsync(_NewNode, cancellationToken);
         await Assert.That(result.Deleted).IsTrue();
-        await Assert.That(result.Existed).IsTrue();
+        await Assert.That(result.NotEmpty).IsTrue();
     }
 
     [Test]
@@ -31,7 +31,7 @@ public partial class ZooKeeperTests
         await ZooKeeper.CreateAsync(_ChildNode, _NewData, cancellationToken);
         var result = await ZooKeeper.DeleteAsync(_NewNode, cancellationToken);
         await Assert.That(result.Deleted).IsFalse();
-        await Assert.That(result.Existed).IsTrue();
+        await Assert.That(result.NotEmpty).IsTrue();
     }
 
 }

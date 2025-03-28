@@ -5,7 +5,7 @@ using System.Buffers.Binary;
 using System.Text;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public static int Write(Span<byte> destination, bool value)
     {

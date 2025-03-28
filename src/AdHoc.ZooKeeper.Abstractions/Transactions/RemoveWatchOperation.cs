@@ -1,13 +1,13 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 using static AdHoc.ZooKeeper.Abstractions.RemoveWatchOperation;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 
 public sealed record RemoveWatchOperation
-    : IZooKeeperOperation<Result>
+    : IZooKeeperTransaction<Result>
 {
     private static readonly ReadOnlyMemory<byte> _Operation = new byte[] { 0, 0, 0, 18 };
 
@@ -18,13 +18,13 @@ public sealed record RemoveWatchOperation
         Watcher = watcher;
 
 
-    public void WriteRequest(in ZooKeeperContext context)
+    public void WriteRequest(in ZooKeeperWriteContext context)
     {
         var writer = context.Writer;
         var buffer = writer.GetSpan(RequestHeaderSize + Watcher.Path.GetMaxBufferSize() + Int32Size);
         int size = LengthSize;
 
-        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperation.RemoveWatch));
+        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperations.RemoveWatch));
 
         _Operation.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
@@ -37,7 +37,7 @@ public sealed record RemoveWatchOperation
         writer.Advance(size);
     }
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
+    public Result ReadResponse(in ZooKeeperReadContext response, IZooKeeperWatcher? watcher)
     {
         response.ThrowIfError();
         return new(response.Transaction);

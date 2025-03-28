@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent;
 
 namespace AdHoc.ZooKeeper;
@@ -22,7 +22,7 @@ internal sealed partial class Session
 
 
     private async Task<TResult> ReceiveAsync<TResult>(
-        IZooKeeperOperation<TResult> operation,
+        IZooKeeperTransaction<TResult> operation,
         ZooKeeperPath root,
         NetworkStream stream,
         Task<Response> pending,

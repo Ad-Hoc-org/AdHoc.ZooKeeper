@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public readonly struct ZooKeeperPath
@@ -46,6 +46,15 @@ public readonly struct ZooKeeperPath
         }
     }
 
+    /// <summary>
+    /// Converts the current <see cref="ZooKeeperPath"/> to an absolute path if it is not already.
+    /// If the path is not absolute, it uses the specified root to make it absolute.
+    /// </summary>
+    /// <param name="root">The root <see cref="ZooKeeperPath"/> to use if the current path is not absolute.</param>
+    /// <returns>An absolute <see cref="ZooKeeperPath"/>.</returns>
+    public ZooKeeperPath ToAbsolute(ZooKeeperPath root) =>
+        IsAbsolute ? this : ZooKeeperPath.Combine(root.Absolute, this);
+
 
     public bool IsContainer =>
         !Memory.IsEmpty && Memory.Span[Memory.Length - 1] == Separator;
@@ -72,8 +81,9 @@ public readonly struct ZooKeeperPath
     }
 
 
-    public int GetMaxBufferSize() =>
-        LengthSize + Encoding.UTF8.GetMaxByteCount(Memory.Length);
+    public int GetMaxBufferSize(ZooKeeperPath root = default) =>
+        LengthSize + Encoding.UTF8.GetMaxByteCount(root.Memory.Length) + 1 // separator if needed
+            + Encoding.UTF8.GetMaxByteCount(Memory.Length);
 
     public static ZooKeeperPath Read(ReadOnlySpan<byte> source, out int size)
     {
@@ -90,7 +100,7 @@ public readonly struct ZooKeeperPath
     public int Write(Span<byte> destination)
     {
         int size = Encoding.UTF8.GetBytes(Memory.Span, destination.Slice(LengthSize));
-        return Operations.Write(destination, size) + size;
+        return ZooKeeperTransactions.Write(destination, size) + size;
     }
 
 

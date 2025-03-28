@@ -3,9 +3,10 @@
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public interface IZooKeeper
-    : IAsyncDisposable
+    : IZooKeeperTransactable,
+        IAsyncDisposable
 {
-    public enum States : int
+    enum States : int
     {
         Disconnected = 0,
         SyncConnected = 3,
@@ -15,6 +16,4 @@ public interface IZooKeeper
         Expired = -112,
         Closed = 7
     }
-
-    public Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> transaction, CancellationToken cancellationToken);
 }

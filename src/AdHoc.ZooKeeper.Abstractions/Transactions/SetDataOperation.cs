@@ -1,12 +1,12 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 using static AdHoc.ZooKeeper.Abstractions.SetDataOperation;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record SetDataOperation
-    : IZooKeeperOperation<Result>
+    : IZooKeeperTransaction<Result>
 {
     private static readonly ReadOnlyMemory<byte> _Operation = new byte[] { 0, 0, 0, 5 };
 
@@ -22,13 +22,13 @@ public sealed record SetDataOperation
         Version = version;
     }
 
-    public void WriteRequest(in ZooKeeperContext context)
+    public void WriteRequest(in ZooKeeperWriteContext context)
     {
         var writer = context.Writer;
         var buffer = writer.GetSpan(RequestHeaderSize + Path.GetMaxSize(context.Root) + Data.Length);
         int size = LengthSize;
 
-        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperation.SetData));
+        size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperations.SetData));
 
         _Operation.Span.CopyTo(buffer.Slice(size));
         size += OperationSize;
@@ -43,7 +43,7 @@ public sealed record SetDataOperation
         writer.Advance(size);
     }
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
+    public Result ReadResponse(in ZooKeeperReadContext response, IZooKeeperWatcher? watcher)
     {
         if (response.Status == ZooKeeperStatus.NoNode)
             return new(response.Transaction, default);
@@ -63,7 +63,7 @@ public sealed record SetDataOperation
     );
 }
 
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public static Task<Result> SetDataAsync(
         this IZooKeeper zooKeeper,

@@ -4,7 +4,7 @@
 namespace AdHoc.ZooKeeper.Abstractions;
 
 [Flags]
-public enum ZooKeeperPermission : int
+public enum ZooKeeperPermissions : int
 {
     None = 0,
     Read = 1 << 0,       // 1

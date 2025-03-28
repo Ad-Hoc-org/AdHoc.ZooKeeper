@@ -57,7 +57,7 @@ public class ZooKeeper
         : this(Parse(connectionString)) { }
 
 
-    public async Task<TResult> ExecuteAsync<TResult>(IZooKeeperOperation<TResult> transaction, CancellationToken cancellationToken)
+    public async Task<TResult> ExecuteAsync<TResult>(IZooKeeperTransaction<TResult> transaction, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(transaction);
         var session = _session;

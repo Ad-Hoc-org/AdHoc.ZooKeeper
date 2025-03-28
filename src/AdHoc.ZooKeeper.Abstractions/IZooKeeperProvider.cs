@@ -5,7 +5,7 @@ namespace AdHoc.ZooKeeper.Abstractions;
 public interface IZooKeeperProvider
     : IAsyncDisposable
 {
-    public IZooKeeper GetZooKeeper(ZooKeeperConnection connection);
+    IZooKeeper GetZooKeeper(ZooKeeperConnection connection);
 }
 
 public static partial class ZooKeeperProviders

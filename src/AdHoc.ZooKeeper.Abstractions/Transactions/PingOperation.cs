@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 using static AdHoc.ZooKeeper.Abstractions.PingOperation;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record PingOperation
-    : IZooKeeperOperation<Result>
+    : IZooKeeperTransaction<Result>
 {
     public const int Request = -2;
 
@@ -25,10 +25,10 @@ public sealed record PingOperation
     internal PingOperation() { }
 
 
-    public void WriteRequest(in ZooKeeperContext context) =>
+    public void WriteRequest(in ZooKeeperWriteContext context) =>
         context.Writer.Write(Bytes.Span);
 
-    public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher) =>
+    public Result ReadResponse(in ZooKeeperReadContext response, IZooKeeperWatcher? watcher) =>
         new(response.Transaction, response.Status);
 
 
@@ -38,7 +38,7 @@ public sealed record PingOperation
     );
 }
 
-public static partial class Operations
+public static partial class ZooKeeperTransactions
 {
     public static PingOperation Ping { get; } = new PingOperation();
 

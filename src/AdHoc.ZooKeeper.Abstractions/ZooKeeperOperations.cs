@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public enum ZooKeeperOperation
+public enum ZooKeeperOperations
     : int
 {
     //Error = -1,
@@ -22,5 +22,6 @@ public enum ZooKeeperOperation
     RemoveWatch = 18,
     Authentication = 100,
     SetWatches = 101,
+    SetWatches2 = 105,
     AddWatch = 106,
 }

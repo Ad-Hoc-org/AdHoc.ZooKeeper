@@ -4,7 +4,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using AdHoc.ZooKeeper.Abstractions;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal class SafeRequestWriter

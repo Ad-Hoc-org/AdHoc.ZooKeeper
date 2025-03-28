@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
-using static AdHoc.ZooKeeper.Abstractions.Operations;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
@@ -42,17 +42,17 @@ internal sealed partial class Session
 
             _session = await SendAsync(stream,
                 _session is not null && Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout
-                    ? writer => ConnectOperation.WriteReconnectSession(writer, _session.Value, _lastTransaction)
-                    : writer => ConnectOperation.WriteNewSession(writer, _sessionTimeout, _readOnly),
-                data => ConnectOperation.Read(data.Span),
+                    ? writer => ConnectTransactionTODO.WriteReconnectSession(writer, _session.Value, _lastTransaction)
+                    : writer => ConnectTransactionTODO.WriteNewSession(writer, _sessionTimeout, _readOnly),
+                data => ConnectTransactionTODO.Read(data.Span),
                 cancellationToken
             );
 
             foreach (var auth in _authentications)
                 await SendAsync(
                     stream,
-                    writer => AddAuthenticationOperation.Write(writer, auth),
-                    data => AddAuthenticationOperation.Read(Response.ToTransaction(data.Span, default)),
+                    writer => AddAuthenticationTransaction.Write(writer, auth),
+                    data => AddAuthenticationTransaction.Read(Response.ToTransaction(data.Span, default)),
                     cancellationToken
                 );
 
