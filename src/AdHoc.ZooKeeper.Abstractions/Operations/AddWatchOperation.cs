@@ -23,7 +23,7 @@ public sealed record AddWatchOperation
 
     private AddWatchOperation(ZooKeeperPath path, bool recursive, WatchAsync watch)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Recursive = recursive;
         Watch = watch;
@@ -47,7 +47,7 @@ public sealed record AddWatchOperation
 
         Write(buffer, size - LengthSize);
 
-        context.RegisterWatcher((context.Root + Path).Absolute(), Recursive ? Types.RecursivePersistent : Types.Persistent, Watch);
+        context.RegisterWatcher((context.Root + Path).Absolute, Recursive ? Types.RecursivePersistent : Types.Persistent, Watch);
 
         writer.Advance(size);
     }

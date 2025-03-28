@@ -98,7 +98,7 @@ internal sealed partial class Session
 
     private Watcher RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
     {
-        var watcherPaths = path.Absolute();
+        var watcherPaths = path.Absolute;
         var watcher = new Watcher(this, watcherPaths, type);
 
         if (registerWatch is not null)

@@ -24,7 +24,7 @@ public partial class ZooKeeperTests
         await Assert.That(result.AlreadyExisted).IsFalse();
         await Assert.That(result.ContainerMissing).IsFalse();
 
-        result = await ZooKeeper.CreateAsync(_NewNode.Value.ToUpper(), _NewData, cancellationToken);
+        result = await ZooKeeper.CreateAsync(_NewNode.ToString().ToUpper(), _NewData, cancellationToken);
         await Assert.That(result.AlreadyExisted).IsFalse();
         await Assert.That(result.ContainerMissing).IsFalse();
     }

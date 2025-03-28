@@ -69,7 +69,7 @@ public static class SetWatcherOperations
     {
         int size = LengthSize;
         foreach (var path in paths)
-            size += path.GetMaxSize();
+            size += path.GetMaxBufferSize();
         return size;
     }
 

@@ -54,7 +54,7 @@ public static partial class Operations
     public static bool IsHandling(this IZooKeeperWatcher watcher, ZooKeeperEvent @event) =>
         watcher.Type.IsHandling(@event.Type)
         && (
-            watcher.Type.IsRecursive ? @event.Path.Value.StartsWith(watcher.Path)
+            watcher.Type.IsRecursive ? @event.Path.Memory.Span.StartsWith(watcher.Path.Memory.Span)
             : watcher.Path == @event.Path
         );
 

@@ -16,7 +16,7 @@ public sealed record GetChildrenOperation
 
     private GetChildrenOperation(ZooKeeperPath path, WatchAsync? watch)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Watch = watch;
     }
@@ -36,7 +36,7 @@ public sealed record GetChildrenOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Children, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute, Types.Children, Watch);
             buffer[size++] = 1;
         }
         else

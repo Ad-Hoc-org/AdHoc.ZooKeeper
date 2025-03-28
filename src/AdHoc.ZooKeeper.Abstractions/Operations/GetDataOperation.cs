@@ -19,7 +19,7 @@ public sealed record GetDataOperation
 
     private GetDataOperation(ZooKeeperPath path, WatchAsync? watch)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Watch = watch;
     }
@@ -40,7 +40,7 @@ public sealed record GetDataOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Data, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute, Types.Data, Watch);
             buffer[size++] = 1;
         }
         else
@@ -63,7 +63,7 @@ public sealed record GetDataOperation
             data.ToArray(),
             ZooKeeperNode.Read(
                 response.Data.Slice(pos),
-                (response.Root + Path).Absolute(),
+                (response.Root + Path).Absolute,
                 out _
             ),
             watcher

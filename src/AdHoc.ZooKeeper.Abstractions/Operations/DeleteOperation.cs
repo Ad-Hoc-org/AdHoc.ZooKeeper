@@ -16,7 +16,7 @@ public sealed record DeleteOperation
 
     private DeleteOperation(ZooKeeperPath path, int version)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Version = version;
     }

@@ -19,7 +19,7 @@ public sealed record ExistsOperation
 
     private ExistsOperation(ZooKeeperPath path, WatchAsync? watch)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Watch = watch;
     }
@@ -40,7 +40,7 @@ public sealed record ExistsOperation
 
         if (Watch is not null)
         {
-            context.RegisterWatcher((context.Root + Path).Absolute(), Types.Exist, Watch);
+            context.RegisterWatcher((context.Root + Path).Absolute, Types.Exist, Watch);
             buffer[size++] = 1;
         }
         else
@@ -59,7 +59,7 @@ public sealed record ExistsOperation
 
         var node = ZooKeeperNode.Read(
             response.Data,
-            (response.Root + Path).Absolute(),
+            (response.Root + Path).Absolute,
             out _
         );
         return new(response.Transaction, node, watcher);

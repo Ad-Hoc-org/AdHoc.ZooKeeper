@@ -65,7 +65,7 @@ public sealed record ZooKeeperConnection
     public ZooKeeperPath Root
     {
         get;
-        init => field = value.Absolute();
+        init => field = value.Absolute;
     } = ZooKeeperPath.Root;
 
 
@@ -120,7 +120,7 @@ public sealed record ZooKeeperConnection
         });
 
         var root = string.IsNullOrEmpty(rootGroup) ? ZooKeeperPath.Root : new ZooKeeperPath(rootGroup);
-        root.Validate();
+        root.ThrowIfInvalid();
 
         var authentications = new List<Authentication>();
         var sessionTimeout = DefaultSessionTimeout;

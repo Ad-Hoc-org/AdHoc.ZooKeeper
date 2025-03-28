@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="ZooKeeperPathTests.Container.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Testcontainers" />
     <PackageReference Include="TUnit" />
   </ItemGroup>

@@ -16,7 +16,7 @@ public sealed record SetDataOperation
 
     private SetDataOperation(ZooKeeperPath path, ReadOnlyMemory<byte> data, int version)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Data = data;
         Version = version;
@@ -50,7 +50,7 @@ public sealed record SetDataOperation
 
         response.ThrowIfError();
 
-        var node = ZooKeeperNode.Read(response.Data, (response.Root + Path).Absolute(), out _);
+        var node = ZooKeeperNode.Read(response.Data, (response.Root + Path).Absolute, out _);
         return new(response.Transaction, node);
     }
 

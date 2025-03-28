@@ -21,7 +21,7 @@ public sealed record RemoveWatchOperation
     public void WriteRequest(in ZooKeeperContext context)
     {
         var writer = context.Writer;
-        var buffer = writer.GetSpan(RequestHeaderSize + Watcher.Path.GetMaxSize() + Int32Size);
+        var buffer = writer.GetSpan(RequestHeaderSize + Watcher.Path.GetMaxBufferSize() + Int32Size);
         int size = LengthSize;
 
         size += Write(buffer.Slice(size), context.GetRequest(ZooKeeperOperation.RemoveWatch));

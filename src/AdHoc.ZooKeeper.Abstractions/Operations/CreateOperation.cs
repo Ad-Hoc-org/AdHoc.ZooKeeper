@@ -43,7 +43,7 @@ public sealed record CreateOperation
 
     private CreateOperation(ZooKeeperPath path, ReadOnlyMemory<byte> data, ModeFlag mode)
     {
-        path.Validate();
+        path.ThrowIfInvalid();
         Path = path;
         Data = data;
         _mode = mode;
@@ -79,10 +79,10 @@ public sealed record CreateOperation
     public Result ReadResponse(in ZooKeeperResponse response, IZooKeeperWatcher? watcher)
     {
         if (response.Status == ZooKeeperStatus.NodeExists)
-            return new(response.Transaction, (response.Root + Path).Absolute(), true, false);
+            return new(response.Transaction, (response.Root + Path).Absolute, true, false);
 
         if (response.Status == ZooKeeperStatus.NoNode)
-            return new(response.Transaction, (response.Root + Path).Absolute(), false, true);
+            return new(response.Transaction, (response.Root + Path).Absolute, false, true);
 
         response.ThrowIfError();
 
