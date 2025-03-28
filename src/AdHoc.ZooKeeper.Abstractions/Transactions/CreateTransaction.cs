@@ -42,7 +42,7 @@ public sealed record CreateTransaction
 
     private CreateTransaction(ZooKeeperPath path, ReadOnlyMemory<byte> data, ModeFlag mode)
     {
-        path.ThrowIfInvalid();
+        path.ThrowIfEmptyOrInvalid();
         Path = path;
         Data = data;
         _mode = mode;

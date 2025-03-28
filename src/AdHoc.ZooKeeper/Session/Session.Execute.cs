@@ -20,7 +20,7 @@ internal sealed partial class Session
         ObjectDisposedException.ThrowIf(_disposeSource.IsCancellationRequested, this);
 
         bool dispatched;
-        if (operation is not PingOperation)
+        if (operation is not PingTransaction)
         {
             (var result, dispatched) = await DispatchAsync(operation, root, async (stream, pending, cancellationToken) =>
             {
@@ -37,7 +37,7 @@ internal sealed partial class Session
                         do
                         {
                             request = GetRequest(operation);
-                            if (request == PingOperation.Request)
+                            if (request == PingTransaction.Request)
                                 break;
                         } while (!_pending.TryAdd(request, pending));
                         hasRequest = true;
@@ -81,13 +81,13 @@ internal sealed partial class Session
         Task<TResult>? ping = null;
         var (pingResult, dispatched) = await DispatchAsync(operation, root, async (stream, pending, cancellationToken) =>
         {
-            if (_responding.TryGetValue(PingOperation.Request, out var task))
+            if (_responding.TryGetValue(PingTransaction.Request, out var task))
             {
-                if (operation is PingOperation)
+                if (operation is PingTransaction)
                     ping = Task.Run(async () => await (Task<TResult>)task, cancellationToken);
                 else
                 {
-                    if (!_pending.TryGetValue(PingOperation.Request, out var response))
+                    if (!_pending.TryGetValue(PingTransaction.Request, out var response))
                         throw new InvalidOperationException();
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
                     ping = Task.Run(async () => operation.ReadResponse((await response.Task).ToTransaction(root), null), cancellationToken);
@@ -96,11 +96,11 @@ internal sealed partial class Session
                 return default;
             }
 
-            _pending[PingOperation.Request] = pending;
-            await stream.WriteAsync(PingOperation.Bytes, cancellationToken);
+            _pending[PingTransaction.Request] = pending;
+            await stream.WriteAsync(PingTransaction.Bytes, cancellationToken);
             _lastInteractionTimestamp = Stopwatch.GetTimestamp();
             await stream.FlushAsync(cancellationToken);
-            return (PingOperation.Request, null);
+            return (PingTransaction.Request, null);
         }, cancellationToken);
         return dispatched ? pingResult! : await ping!;
     }

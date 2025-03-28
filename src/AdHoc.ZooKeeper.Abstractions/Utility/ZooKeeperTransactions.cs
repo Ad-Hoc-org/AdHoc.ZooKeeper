@@ -35,11 +35,11 @@ public static partial class ZooKeeperTransactions
     public static int GetRequest(this ZooKeeperOperations operation, ref int previousRequest)
     {
         if (operation == ZooKeeperOperations.Ping)
-            return PingOperation.Request;
+            return PingTransaction.Request;
         if (operation == ZooKeeperOperations.Authentication)
             return AddAuthenticationTransaction.Request;
-        if (operation is ZooKeeperOperations.SetWatches or ZooKeeperOperations.SetWatches2)
-            return SetWatcherOperations.Request;
+        if (operation is ZooKeeperOperations.SetWatches or ZooKeeperOperations.SetWatchesWithPersistent)
+            return SetWatcherTransaction.Request;
 
         int oldValue, newValue;
         do

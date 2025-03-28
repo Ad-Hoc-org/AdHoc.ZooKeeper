@@ -38,11 +38,11 @@ internal class SafeRequestWriter
                 throw ZooKeeperException.CreateInvalidRequestSize(Length, Size);
 
             if (Length == RequestHeaderSize
-                && header.Slice(LengthSize + RequestSize).SequenceEqual(PingOperation.OperationBytes.Span)
+                && header.Slice(LengthSize + RequestSize).SequenceEqual(PingTransaction.OperationBytes.Span)
             )
             {
                 IsPing = true;
-                Request = PingOperation.Request;
+                Request = PingTransaction.Request;
                 return; // don't flush ping
             }
 

@@ -37,9 +37,9 @@ public static partial class ZooKeeperWatchers
     };
 
 
-    public static WatchAsync ToAsyncWatch(this Watch watch, [CallerArgumentExpression(nameof(watch))] string? watchName = null)
+    public static WatchAsync ToAsyncWatch(this Watch watch, [CallerArgumentExpression(nameof(watch))] string? watchExpression = null)
     {
-        ArgumentNullException.ThrowIfNull(watch, watchName);
+        ArgumentNullException.ThrowIfNull(watch, watchExpression);
         return (watcher, @event, cancellationToken) =>
         {
             watch(watcher, @event);

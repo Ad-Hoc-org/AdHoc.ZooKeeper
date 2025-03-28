@@ -1,81 +1,85 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using static AdHoc.ZooKeeper.Abstractions.DeleteTransaction;
+using static AdHoc.ZooKeeper.Abstractions.SetDataTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public sealed record DeleteTransaction
+public sealed record SetDataTransaction
     : IZooKeeperTransaction<Response>
 {
-
-    public ZooKeeperOperations Operation => ZooKeeperOperations.Delete;
+    public ZooKeeperOperations Operation => ZooKeeperOperations.SetData;
 
 
     public ZooKeeperPath Path { get; }
 
+    public ReadOnlyMemory<byte> Data { get; }
+
     public int Version { get; }
 
 
-    private DeleteTransaction(ZooKeeperPath path, int version)
+    private SetDataTransaction(ZooKeeperPath path, ReadOnlyMemory<byte> data, int version)
     {
-        path.ThrowIfEmptyOrInvalid();
+        path.ThrowIfInvalid();
         Path = path;
+        Data = data;
         Version = version;
     }
 
-    public static DeleteTransaction Create(ZooKeeperPath path, int version = NoVersion) =>
-        new(path, version);
+    public static SetDataTransaction Create(ZooKeeperPath path, ReadOnlyMemory<byte> data, int version = NoVersion) =>
+        new(path, data, version);
 
 
     public int GetMaxRequestSize(in ZooKeeperPath root) =>
-        Path.GetMaxBufferSize(root) + VersionSize;
-
+        Path.GetMaxBufferSize(root) + Data.Length + Int32Size;
 
     public int WriteRequest(in ZooKeeperWriteContext context)
     {
         var buffer = context.Buffer;
 
         var path = Path.ToAbsolute(context.Root);
-        int size = Path.Write(buffer);
+        int size = path.Write(buffer);
+
+        size += Write(buffer.Slice(size), Data.Span);
 
         size += Write(buffer.Slice(size), Version);
+
         return size;
     }
 
     public Response ReadResponse(in ZooKeeperReadContext context)
     {
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, false, false);
-        if (context.Status == ZooKeeperStatus.NotEmpty)
-            return new(context.Transaction, false, true);
+            return new(context.Transaction, default);
 
         context.Status.ThrowIfError();
 
-        return new(context.Transaction, true, false);
+        return new(context.Transaction, ZooKeeperNode.Read(context.Data, (context.Root + Path).Absolute, out _));
     }
+
 
     public readonly record struct Response(
         long Transaction,
-        bool Deleted,
-        bool NotEmpty
+        ZooKeeperNode? Node
     ) : IZooKeeperResponse;
 }
 
 public static partial class ZooKeeperTransactions
 {
-    public static Task<Response> DeleteAsync(
+    public static Task<Response> SetDataAsync(
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
         int version,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, version), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, data, version), cancellationToken);
 
-    public static Task<Response> DeleteAsync(
+    public static Task<Response> SetDataAsync(
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, data), cancellationToken);
 }

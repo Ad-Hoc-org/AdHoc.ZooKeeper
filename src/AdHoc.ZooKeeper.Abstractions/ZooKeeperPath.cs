@@ -53,7 +53,7 @@ public readonly struct ZooKeeperPath
     /// <param name="root">The root <see cref="ZooKeeperPath"/> to use if the current path is not absolute.</param>
     /// <returns>An absolute <see cref="ZooKeeperPath"/>.</returns>
     public ZooKeeperPath ToAbsolute(ZooKeeperPath root) =>
-        IsAbsolute ? this : ZooKeeperPath.Combine(root.Absolute, this);
+        IsAbsolute ? this : Combine(root.Absolute, this);
 
 
     public bool IsContainer =>
@@ -252,17 +252,16 @@ public static class ZooKeepers
         ZooKeeperPath.Combine([path, .. paths]);
 
 
-    public static ZooKeeperPath ThrowIfEmpty(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null)
+    public static void ThrowIfEmpty(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null)
     {
         if (path.IsEmpty)
             throw new ArgumentException($"Path '{pathExpression}' can't be empty.", nameof(pathExpression));
-        return path;
     }
 
-    public static ZooKeeperPath ThrowIfInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null)
+    public static void ThrowIfInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null)
     {
         if (path.IsEmpty)
-            return path;
+            return;
 
         ReadOnlySpan<char> span = path.Memory.Span;
         int length = span.Length;
@@ -295,11 +294,9 @@ public static class ZooKeepers
                         throw new ArgumentException($"Path '{pathExpression}' has a not allowed relative path specified at {i}: {path}");
                 }
         }
-
-        return path;
     }
 
-    public static ZooKeeperPath ThrowIfEmptyOrInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null) =>
+    public static void ThrowIfEmptyOrInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null) =>
         path.ThrowIfEmpty(pathExpression)
             .ThrowIfInvalid(pathExpression);
 }

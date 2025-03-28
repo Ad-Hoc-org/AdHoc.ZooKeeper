@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using System.Text;
 using static AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
@@ -41,10 +42,14 @@ public sealed record AddAuthenticationTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext response) => new(
-        response.Transaction
-    );
-
+    public Response ReadResponse(in ZooKeeperReadContext context)
+    {
+        Debug.Assert(context.Request != Request);
+        context.Status.ThrowIfError();
+        return new(
+            context.Transaction
+        );
+    }
 
     public readonly record struct Response(long Transaction) : IZooKeeperResponse;
 }

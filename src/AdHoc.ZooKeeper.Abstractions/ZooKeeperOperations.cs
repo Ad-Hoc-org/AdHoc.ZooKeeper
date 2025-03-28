@@ -22,6 +22,6 @@ public enum ZooKeeperOperations
     RemoveWatch = 18,
     Authentication = 100,
     SetWatches = 101,
-    SetWatches2 = 105,
+    SetWatchesWithPersistent = 105,
     AddWatch = 106,
 }
