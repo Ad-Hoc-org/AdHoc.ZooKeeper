@@ -10,8 +10,8 @@ using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
-
-    private readonly ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> _watchers;
+    private readonly ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> _watchers = new();
+    private readonly ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> _recursiveWatchers = new();
 
     private void DispatchEvent(Response response)
     {
@@ -57,7 +57,7 @@ internal sealed partial class Session
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 #pragma warning disable VSTHRD110 // Observe result of async calls
-                        var task = watch(watcher, new(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, state, default), CancellationToken.None);
+                        var task = watch(watcher, new(0, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, state, default), CancellationToken.None);
 #pragma warning restore VSTHRD110 // Observe result of async calls
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     }
@@ -77,17 +77,16 @@ internal sealed partial class Session
                     (_, paths) => { paths.Add(path); return paths; }
                 );
 
-        await SendAsync(stream,
-            writer => SetWatchersTransaction.Write(
-                writer,
+        await SendAsync(
+            stream,
+            SetWatchersTransaction.Create(
                 _lastTransaction,
                 data: paths.TryGetValue(Types.Data, out var data) ? data : null,
-                exists: paths.TryGetValue(Types.Any, out var exists) ? exists : null,
+                any: paths.TryGetValue(Types.Any, out var any) ? any : null,
                 children: paths.TryGetValue(Types.Children, out var children) ? children : null,
                 persistent: paths.TryGetValue(Types.Persistent, out var persistent) ? persistent : null,
                 recursivePersistent: paths.TryGetValue(Types.RecursivePersistent, out var persistentRecursive) ? persistentRecursive : null
             ),
-            data => SetWatchersTransaction.Read(Response.ToTransaction(data.Span, default)),
             cancellationToken
         );
 
@@ -104,7 +103,7 @@ internal sealed partial class Session
         if (registerWatch is not null)
             watch = registerWatch(watcher, watch);
 
-        _watchers.AddOrUpdate(path,
+        (type is Types.RecursivePersistent ? _recursiveWatchers : _watchers).AddOrUpdate(path,
             _ =>
             {
                 ConcurrentDictionary<Watcher, WatchAsync> watchers = new();
@@ -138,7 +137,11 @@ internal sealed partial class Session
                     try
                     {
                         if (watchers.IsEmpty || watchers.All(p => p.Key.Type != Type))
-                            await session.ExecuteAsync(RemoveWatchTransaction.Create(this), default, null, default);
+                            try
+                            {
+                                await session.ExecuteAsync(RemoveWatchTransaction.Create(this), default, null, default);
+                            }
+                            catch { }
                     }
                     catch { }
                 }

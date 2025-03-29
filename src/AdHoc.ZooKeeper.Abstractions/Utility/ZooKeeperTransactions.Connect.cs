@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
-using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
-public static class ConnectTransactionTODO
+public static partial class ZooKeeperTransactions
 {
-    private const int NewSessionSize = LengthSize + ProtocolVersionSize + TransactionSize + TimeoutSize + SessionSize + LengthSize + ReadOnlySize;
+    public const int NewSessionSize = LengthSize + ProtocolVersionSize + TransactionSize + TimeoutSize + SessionSize + LengthSize + ReadOnlySize;
 
-    private const int DefaultPasswordSize = 16;
-    private const int DefaultSessionResponseSize = LengthSize + RequestSize + TimeoutSize + SessionSize + LengthSize + DefaultPasswordSize + ReadOnlySize;
-
+    public const int DefaultPasswordSize = 16;
+    public const int DefaultSessionResponseSize = LengthSize + RequestSize + TimeoutSize + SessionSize + LengthSize + DefaultPasswordSize + ReadOnlySize;
 
     public static void WriteNewSession(
         IBufferWriter<byte> writer,
@@ -73,7 +71,7 @@ public static class ConnectTransactionTODO
         writer.Advance(size);
     }
 
-    public static ZooKeeperSession Read(in ReadOnlySpan<byte> data) => new(
+    public static ZooKeeperSession ReadSession(in ReadOnlySpan<byte> data) => new(
         data.Slice(ProtocolVersionSize + TimeoutSize, SessionSize).ToArray(),
         data.Slice(
             ProtocolVersionSize + TimeoutSize + SessionSize + LengthSize,

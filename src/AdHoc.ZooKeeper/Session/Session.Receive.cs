@@ -7,50 +7,12 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
-using static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
 
-    private Task _receiving;
-
-    private readonly ConcurrentDictionary<int, TaskCompletionSource<Response>> _pending;
-    private readonly ConcurrentDictionary<int, Task> _responding;
-
-    private readonly CancellationTokenSource _disposeSource;
-
-
-    private async Task<TResult> ReceiveAsync<TResult>(
-        IZooKeeperTransaction<TResult> operation,
-        ZooKeeperPath root,
-        NetworkStream stream,
-        Task<Response> pending,
-        IZooKeeperWatcher? watcher,
-        CancellationToken cancellationToken
-    )
-    {
-        Task receiving;
-        while (!pending.IsCompleted)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            receiving = ReceivingAsync(stream);
-
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            await Task.WhenAny(receiving, pending);
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-        }
-
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-        using var response = await pending;
-        var transaction = response.ToTransaction(root);
-        _lastTransaction = transaction.Transaction;
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-        return operation.ReadResponse(
-            transaction,
-            watcher
-        );
-    }
+    private Task _receiving = Task.CompletedTask;
 
     private async Task ReceivingAsync(NetworkStream stream)
     {

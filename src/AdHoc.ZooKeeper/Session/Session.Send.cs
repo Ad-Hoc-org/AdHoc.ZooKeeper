@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
+using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
@@ -17,40 +18,31 @@ internal sealed partial class Session
     public int GetRequest(ZooKeeperOperations operation) =>
         ZooKeeperTransactions.GetRequest(operation, ref _previousRequest);
 
-    //private Task<TResult> SendAsync<TResult>(
-    //    NetworkStream stream,
-    //    IZooKeeperOperation<TResult> operation,
-    //    CancellationToken cancellationToken
-    //) => SendAsync(
-    //    stream,
-    //    writer => operation.WriteRequest(new ZooKeeperContext(
-    //        ZooKeeperPath.Root,
-    //        writer,
-    //        op => GetRequest(op, ref _previousRequest),
-    //        (_, _, _) => throw new InvalidOperationException()
-    //    )),
-    //    data => operation.ReadResponse(Response.ToTransaction(data.Span, ZooKeeperPath.Root), null),
-    //    cancellationToken
-    //);
 
-    private async Task<TResult> SendAsync<TResult>(
+    private async Task<TResponse> SendAsync<TResponse>(
         NetworkStream stream,
         Action<IBufferWriter<byte>> write,
-        Func<ReadOnlyMemory<byte>, TResult> read,
+        Func<ReadOnlyMemory<byte>, TResponse> read,
         CancellationToken cancellationToken
     )
     {
-#if DEBUG
-        if (!_pending.IsEmpty)
-            throw new InvalidOperationException();
-#endif
-        var pipeWriter = PipeWriter.Create(stream);
+        Debug.Assert(_pending.IsEmpty);
+
+        await WriteAsync(stream, write, cancellationToken);
+        using var response = await ReadAsync(stream, null, cancellationToken);
+        return read(response._memory);
+    }
+
+    private async ValueTask WriteAsync(
+        NetworkStream stream,
+        Action<IBufferWriter<byte>> write,
+        CancellationToken cancellationToken
+    )
+    {
+        var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));
         write(pipeWriter);
         _lastInteractionTimestamp = Stopwatch.GetTimestamp();
         await pipeWriter.FlushAsync(cancellationToken);
-
-        using var response = await ReadAsync(stream, null, cancellationToken);
-        return read(response._memory);
     }
 
     private async Task<Response> ReadAsync(
@@ -102,6 +94,66 @@ internal sealed partial class Session
         }
     }
 
+    private Task<TResponse> SendAsync<TResponse>(
+        NetworkStream stream,
+        IZooKeeperTransaction<TResponse> transaction,
+        CancellationToken cancellationToken
+    )
+        where TResponse : IZooKeeperResponse
+    {
+        int request = GetRequest(transaction.Operation);
+        Debug.Assert(request < 0); // only connections request are sync allowed
+        return SendAsync(
+            stream,
+            writer => WriteTransaction(
+                writer,
+                ZooKeeperPath.Root,
+                request,
+                transaction,
+                (_, _, _) => throw new InvalidOperationException()
+            ),
+            data => ReadTransaction(data, ZooKeeperPath.Root, transaction, null),
+            cancellationToken
+        );
+    }
+
+    private static void WriteTransaction<TResponse>(
+        IBufferWriter<byte> writer,
+        ZooKeeperPath root,
+        int request,
+        IZooKeeperTransaction<TResponse> transaction,
+        Action<ZooKeeperPath, Types, WatchAsync> registerWatcher
+    ) where TResponse : IZooKeeperResponse
+    {
+        var buffer = writer.GetSpan(RequestHeaderSize + transaction.GetMaxRequestSize(root));
+
+        Write(buffer.Slice(LengthSize), request);
+        Write(buffer.Slice(LengthSize + RequestSize), (int)transaction.Operation);
+
+        int size = transaction.WriteRequest(new(
+            root,
+            buffer.Slice(LengthSize + RequestSize + OperationSize),
+            registerWatcher
+        ));
+
+        Write(buffer, LengthSize + RequestSize + size);
+
+        writer.Advance(RequestHeaderSize + size);
+    }
+
+    private TResponse ReadTransaction<TResponse>(
+        ReadOnlyMemory<byte> data,
+        ZooKeeperPath root,
+        IZooKeeperTransaction<TResponse> transaction,
+        IZooKeeperWatcher? watcher
+    )
+        where TResponse : IZooKeeperResponse
+    {
+        var context = Response.ToContext(data.Span, root, watcher);
+        _lastTransaction = context.Transaction;
+        return transaction.ReadResponse(context);
+    }
+
     private readonly struct Response
         : IDisposable
     {
@@ -115,78 +167,19 @@ internal sealed partial class Session
             _memory = memory;
         }
 
-        internal ZooKeeperReadContext ToTransaction(ZooKeeperPath root) =>
-            ToTransaction(_memory.Span, root);
+        internal ZooKeeperReadContext ToContext(ZooKeeperPath root, IZooKeeperWatcher? watcher) =>
+            ToContext(_memory.Span, root, watcher);
 
-        internal static ZooKeeperReadContext ToTransaction(ReadOnlySpan<byte> data, ZooKeeperPath root) => new(
+        internal static ZooKeeperReadContext ToContext(ReadOnlySpan<byte> data, ZooKeeperPath root, IZooKeeperWatcher? watcher) => new(
             root,
             request: ReadInt32(data),
             transaction: ReadInt64(data.Slice(RequestSize)),
             status: (ZooKeeperStatus)ReadInt32(data.Slice(RequestSize + TransactionSize)),
-            data: data.Slice(RequestSize + TransactionSize + StatusSize)
+            data: data.Slice(RequestSize + TransactionSize + StatusSize),
+            watcher: watcher
         );
 
         public void Dispose() =>
             _owner.Dispose();
     }
-
-
-    private async Task<(TResult?, bool)> DispatchAsync<TResult>(
-        IZooKeeperTransaction<TResult> operation,
-        ZooKeeperPath root,
-        Func<NetworkStream, TaskCompletionSource<Response>, CancellationToken, ValueTask<(int?, Watcher?)>> writeAsync,
-        CancellationToken cancellationToken
-    )
-    {
-        await _lock.WaitAsync(cancellationToken);
-        bool released = false;
-        TaskCompletionSource<Response> pending = new();
-        int? request = null;
-        Task<TResult>? receive = null;
-        CancellationTokenRegistration registration = default;
-        try
-        {
-            var stream = await EnsureSessionAsync(cancellationToken);
-            (request, var watcher) = await writeAsync(stream, pending, cancellationToken);
-            if (request is null)
-                return (default, false);
-
-            registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
-            receive = ReceiveAsync(operation, root, stream, pending.Task, watcher, cancellationToken);
-            _responding[request.Value] = receive;
-
-            // release lock after writing and task management is done
-            _lock.Release();
-            released = true;
-
-            var result = await receive;
-            _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
-            _pending.TryRemove(KeyValuePair.Create(request.Value, pending));
-            return (result, true);
-        }
-        catch (Exception ex)
-        {
-            bool canceled = ex is OperationCanceledException canceledEx && canceledEx.CancellationToken == cancellationToken;
-
-            if (request is not null)
-            {
-                if (receive is not null)
-                    _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
-                if (_pending.TryRemove(KeyValuePair.Create(request.Value, pending)))
-                    if (canceled)
-                        pending.TrySetCanceled(cancellationToken);
-                    else
-                        pending.TrySetException(ex);
-            }
-
-            throw;
-        }
-        finally
-        {
-            await registration.DisposeAsync();
-            if (!released)
-                _lock.Release();
-        }
-    }
-
 }

@@ -42,19 +42,14 @@ internal sealed partial class Session
 
             _session = await SendAsync(stream,
                 _session is not null && Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout
-                    ? writer => ConnectTransactionTODO.WriteReconnectSession(writer, _session.Value, _lastTransaction)
-                    : writer => ConnectTransactionTODO.WriteNewSession(writer, _sessionTimeout, _readOnly),
-                data => ConnectTransactionTODO.Read(data.Span),
+                    ? writer => WriteReconnectSession(writer, _session.Value, _lastTransaction)
+                    : writer => WriteNewSession(writer, _sessionTimeout, _readOnly),
+                data => ReadSession(data.Span),
                 cancellationToken
             );
 
             foreach (var auth in _authentications)
-                await SendAsync(
-                    stream,
-                    writer => AddAuthenticationTransaction.Write(writer, auth),
-                    data => AddAuthenticationTransaction.Read(Response.ToTransaction(data.Span, default)),
-                    cancellationToken
-                );
+                await SendAsync(stream, AddAuthenticationTransaction.Create(auth), cancellationToken);
 
             await ReregisterWatchersAsync(stream, cancellationToken);
 

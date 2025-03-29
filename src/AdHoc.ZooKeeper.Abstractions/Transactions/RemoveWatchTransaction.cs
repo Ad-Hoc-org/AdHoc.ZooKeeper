@@ -46,5 +46,5 @@ public sealed record RemoveWatchTransaction
     }
 
 
-    public readonly record struct Response(long Transaction);
+    public readonly record struct Response(long Transaction) : IZooKeeperResponse;
 }

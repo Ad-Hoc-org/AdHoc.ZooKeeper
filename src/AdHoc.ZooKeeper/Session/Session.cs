@@ -13,6 +13,10 @@ internal sealed partial class Session
     private readonly TimeSpan _sessionTimeout;
     private readonly bool _readOnly;
 
+
+    private readonly CancellationTokenSource _disposeSource = new();
+
+
     internal Session(
         Host host,
         FrozenSet<Authentication> authentications,
@@ -26,12 +30,6 @@ internal sealed partial class Session
         _connectionTimeout = connectionTimeout;
         _sessionTimeout = sessionTimeout;
         _readOnly = readOnly;
-
-        _pending = new();
-        _responding = new();
-        _watchers = new();
-        _receiving = Task.CompletedTask;
-        _disposeSource = new();
     }
 
 
@@ -46,7 +44,7 @@ internal sealed partial class Session
 
             var receiving = _receiving;
             _receiving = Task.CompletedTask;
-            await receiving;
+            try { await receiving; } catch { }
 
             await EnsureSessionAsync(cancellationToken);
         }
@@ -56,8 +54,6 @@ internal sealed partial class Session
     internal async ValueTask CloseAsync()
     {
         DeregisterWatchers();
-
-
 
         await _disposeSource.CancelAsync();
         _tcpClient?.Dispose();

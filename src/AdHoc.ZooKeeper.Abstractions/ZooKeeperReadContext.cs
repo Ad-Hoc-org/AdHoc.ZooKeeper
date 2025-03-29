@@ -20,7 +20,7 @@ public readonly ref struct ZooKeeperReadContext
         long transaction,
         ZooKeeperStatus status,
         ReadOnlySpan<byte> data,
-        IZooKeeperWatcher watcher
+        IZooKeeperWatcher? watcher
     )
     {
         Root = root;

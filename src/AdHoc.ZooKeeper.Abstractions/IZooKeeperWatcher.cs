@@ -36,6 +36,8 @@ public static partial class ZooKeeperWatchers
         _ => true
     };
 
+    //internal static bool IsRecursive(this Types type) => type is Types.RecursivePersistent;
+    //internal static bool IsPersistent(this Types type) => type is Types.Persistent or Types.RecursivePersistent;
 
     public static WatchAsync ToAsyncWatch(this Watch watch, [CallerArgumentExpression(nameof(watch))] string? watchExpression = null)
     {
