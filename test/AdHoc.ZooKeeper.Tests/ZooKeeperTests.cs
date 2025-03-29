@@ -18,7 +18,7 @@ public partial class ZooKeeperTests
     private static List<IContainer> _containers = [];
 
     private static readonly SemaphoreSlim _lock = new(1, 1);
-    private static readonly Session _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
+    private static Session _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
 
     private ZooKeeperPath _root;
     private ZooKeeper? _zoo;
@@ -39,6 +39,7 @@ public partial class ZooKeeperTests
         new ContainerBuilder()
             .WithImage("zookeeper:latest")
             .WithName($"{_network!.Name}-keeper{i}")
+            .WithEnvironment("ZOO_CFG_EXTRA", "extendedTypesEnabled=true")
             .WithEnvironment("ZOO_STANDALONE_ENABLED", "false")
             .WithEnvironment("ZOO_MY_ID", i.ToString())
             .WithEnvironment("ZOO_SERVERS", string.Join(' ', Enumerable.Range(1, _Instances).Select(j => $"server.{j}={_network!.Name}-keeper{j}:2888:3888;2181")))
@@ -54,6 +55,13 @@ public partial class ZooKeeperTests
         _root = _root.Absolute;
         await StartInstancesAsync(cancellationToken);
         await ZooKeeper.CreateAsync("/", cancellationToken);
+    }
+
+    private async Task NewSessionAsync(CancellationToken cancellationToken)
+    {
+        await _session.CloseAsync();
+        _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
+        await StartInstancesAsync(cancellationToken);
     }
 
     [After(Test)]

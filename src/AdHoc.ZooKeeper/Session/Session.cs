@@ -3,6 +3,7 @@
 
 using System.Collections.Frozen;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
+using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
@@ -56,13 +57,26 @@ internal sealed partial class Session
         DeregisterWatchers();
 
         await _disposeSource.CancelAsync();
-        _tcpClient?.Dispose();
-        _tcpClient = null;
 
         var receiving = _receiving;
         _receiving = Task.CompletedTask;
         if (receiving is not null)
             try { await receiving; } catch { }
+
+        var client = _tcpClient;
+        _tcpClient = null;
+        if (client is not null)
+        {
+            try
+            {
+                await WriteAsync(client.GetStream(),
+                    WriteCloseSession,
+                    CancellationToken.None
+                );
+            }
+            catch { }
+            client.Dispose();
+        }
     }
 
 

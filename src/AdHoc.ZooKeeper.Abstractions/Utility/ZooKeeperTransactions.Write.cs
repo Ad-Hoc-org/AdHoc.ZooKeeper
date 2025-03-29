@@ -38,7 +38,10 @@ public static partial class ZooKeeperTransactions
         return LengthSize + buffer.Length;
     }
 
-    public static int Write(Span<byte> destination, TimeSpan value) =>
+    public static int WriteTimeout(Span<byte> destination, TimeSpan value) =>
         Write(destination, (int)value.TotalMilliseconds);
+
+    public static int Write(Span<byte> destination, TimeSpan value) =>
+        Write(destination, (long)value.TotalMilliseconds);
 
 }

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
@@ -40,6 +39,7 @@ internal sealed partial class Session
                             if (cancellationToken.IsCancellationRequested)
                             {
                                 await ResponseWithAsync(new ObjectDisposedException(this.ToString()));
+                                DeregisterWatchers();
                                 continue;
                             }
 
@@ -73,12 +73,10 @@ internal sealed partial class Session
                             }
                             catch (Exception ex)
                             {
-                                if (_disposeSource.IsCancellationRequested)
+                                if (cancellationToken.IsCancellationRequested)
                                     await ResponseWithAsync(new ObjectDisposedException(this.ToString(), ex));
                                 else
                                     await ResponseWithAsync(ex);
-                                if (_pending.IsEmpty && ex is ConnectionLostException)
-                                    return;
                             }
                         }
                     }

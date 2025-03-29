@@ -24,6 +24,7 @@ public static partial class ZooKeeperTransactions
     public const int NoVersion = -1;
 
     public const int TimestampSize = Int64Size;
+    public const int TimeSpanSize = Int64Size;
 
     public const int ProtocolVersionSize = Int32Size;
     public const int TimeoutSize = Int32Size;

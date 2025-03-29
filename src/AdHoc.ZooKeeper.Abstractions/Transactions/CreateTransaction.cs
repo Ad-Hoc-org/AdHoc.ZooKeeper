@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using static AdHoc.ZooKeeper.Abstractions.CreateTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
@@ -8,6 +9,7 @@ namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record CreateTransaction
     : IZooKeeperTransaction<Response>
 {
+    private const long _MaxTimeToLive = 1099511627775L; // feature masked
     private enum ModeFlag : int
     {
         Persistent = 0,
@@ -16,13 +18,12 @@ public sealed record CreateTransaction
         PersistentSequential = Persistent | Sequential,
         EphemeralSequential = Ephemeral | Sequential,
         Container = 1 << 2,
-        TimeToLive = 5,
-        PersistentWithTimeToLive = Persistent | TimeToLive,
-        EphemeralWithTimeToLive = Ephemeral | TimeToLive,
+        WithTimeToLive = 5,
+        SequentialWithTimeToLive = Sequential | WithTimeToLive
     }
 
     // TODO will be different depending on ttl and container
-    public ZooKeeperOperations Operation => ZooKeeperOperations.Create;
+    public ZooKeeperOperations Operation { get; }
 
 
     public ZooKeeperPath Path { get; }
@@ -36,30 +37,53 @@ public sealed record CreateTransaction
     public bool IsContainer => _mode.HasFlag(ModeFlag.Container);
     public bool IsSequential => _mode.HasFlag(ModeFlag.Sequential);
 
-    // TODO
-    public TimeSpan? TimeToLive { get; private init; }
+    public TimeSpan? TimeToLive { get; }
 
 
-    private CreateTransaction(ZooKeeperPath path, ReadOnlyMemory<byte> data, ModeFlag mode)
+    private CreateTransaction(ZooKeeperPath path, ReadOnlyMemory<byte> data, ModeFlag mode, TimeSpan? timeToLive)
     {
         path.ThrowIfEmptyOrInvalid();
         Path = path;
         Data = data;
         _mode = mode;
+        TimeToLive = timeToLive;
+        if (timeToLive is null)
+            Operation = ZooKeeperOperations.Create;
+        else
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(timeToLive.Value, TimeSpan.Zero);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(timeToLive.Value.TotalMilliseconds, _MaxTimeToLive);
+            Debug.Assert(_mode.HasFlag(ModeFlag.WithTimeToLive));
+            Operation = ZooKeeperOperations.CreateWithTimeToLive;
+        }
     }
 
-    public static CreateTransaction Create(ZooKeeperPath path, ReadOnlyMemory<byte> data) =>
-        new(path, data, ModeFlag.Persistent);
+    public static CreateTransaction Create(
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        new(path, data, ModeFlag.Persistent, null);
 
-    public static CreateTransaction CreateEphemeral(ZooKeeperPath path, ReadOnlyMemory<byte> data) =>
-        new(path, data, ModeFlag.Ephemeral);
+    public static CreateTransaction CreateEphemeral(
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        new(path, data, ModeFlag.Ephemeral, null);
+
+    public static CreateTransaction Create(
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        TimeSpan timeToLive
+    ) =>
+        new(path, data, ModeFlag.WithTimeToLive, timeToLive);
 
 
     public int GetMaxRequestSize(in ZooKeeperPath root) =>
         Path.GetMaxBufferSize(root)
         + LengthSize + Data.Length
         + LengthSize + Int32Size + LengthSize + "world".Length + LengthSize + "anyone".Length
-        + Int32Size;
+        + Int32Size
+        + (TimeToLive is null ? 0 : TimeSpanSize);
 
     public int WriteRequest(in ZooKeeperWriteContext context)
     {
@@ -77,6 +101,9 @@ public sealed record CreateTransaction
 
         size += Write(buffer.Slice(size), (int)_mode);
 
+        if (TimeToLive is not null)
+            size += Write(buffer.Slice(size), TimeToLive.Value);
+
         return size;
     }
 
@@ -87,6 +114,8 @@ public sealed record CreateTransaction
         if (context.Status == ZooKeeperStatus.NoNode)
             return new(context.Transaction, Path.Normalize(context.Root), false, true);
 
+        if (context.Status == ZooKeeperStatus.Unimplemented && TimeToLive is not null)
+            throw new ResponseException(ZooKeeperStatus.Unimplemented, "Nodes with time to live are not supported. Please enable extended types on the server to use this feature.");
         context.Status.ThrowIfError();
 
         return new(
@@ -123,7 +152,6 @@ public static partial class ZooKeeperTransactions
     ) =>
         zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
 
-
     public static Task<Response> CreateEphemeralAsync(
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
@@ -138,5 +166,22 @@ public static partial class ZooKeeperTransactions
         CancellationToken cancellationToken
     ) =>
         zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        TimeSpan timeToLive,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, data, timeToLive), cancellationToken);
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        TimeSpan timeToLive,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive), cancellationToken);
 
 }

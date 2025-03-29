@@ -101,7 +101,7 @@ public partial class ZooKeeperTests
     }
 
     [Test]
-    [DependsOn(nameof(AddWatchAsync_Persistent))]
+    [DependsOn(nameof(AddWatchAsync_Persistent)), DependsOn(nameof(PingAsync_WithReconnect))]
     public async Task AddWatchAsync_Reconnect(CancellationToken cancellationToken)
     {
         bool dispatched;

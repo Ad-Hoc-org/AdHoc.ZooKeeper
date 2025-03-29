@@ -15,7 +15,7 @@ public readonly record struct ZooKeeperNode(
     int AccessControlListVersion,
     long EphemeralOwner,
     int Length,
-    int NumberOfChildren,
+    int ChildrenCount,
     long ChildrenLastModifier
 )
 {

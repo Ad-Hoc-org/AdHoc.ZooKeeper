@@ -58,7 +58,7 @@ public static partial class ZooKeeperTransactions
 
         size += Write(buffer.Slice(size), lastTransaction);
 
-        size += Write(buffer.Slice(size), session.SessionTimeout);
+        size += WriteTimeout(buffer.Slice(size), session.SessionTimeout);
 
         session.Session.Span.CopyTo(buffer.Slice(size));
         size += SessionSize;
@@ -80,5 +80,9 @@ public static partial class ZooKeeperTransactions
         ReadTimeSpan(data.Slice(ProtocolVersionSize)),
         data[data.Length - 1] == 1
     );
+
+
+    public static void WriteCloseSession(IBufferWriter<byte> writer) =>
+        writer.Write(stackalloc byte[] { 0, 0, 0, 8, 0, 0, 0, 0, 255, 255, 255, 245 });
 
 }
