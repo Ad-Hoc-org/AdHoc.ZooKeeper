@@ -9,7 +9,7 @@ namespace AdHoc.ZooKeeper.Abstractions;
 public sealed record GetDataTransaction
     : IZooKeeperTransaction<Response>
 {
-    public ZooKeeperOperations Operation => throw new NotImplementedException();
+    public ZooKeeperOperations Operation => ZooKeeperOperations.GetData;
 
     public ZooKeeperPath Path { get; }
 
@@ -34,7 +34,7 @@ public sealed record GetDataTransaction
     {
         var buffer = context.Buffer;
 
-        var path = Path.ToAbsolute(context.Root);
+        var path = Path.Normalize(context.Root);
         int size = path.Write(buffer);
 
         if (Watch is null)

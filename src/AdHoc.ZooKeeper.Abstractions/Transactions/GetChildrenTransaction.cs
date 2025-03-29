@@ -34,7 +34,7 @@ public sealed record GetChildrenTransaction
     {
         var buffer = context.Buffer;
 
-        var path = Path.ToAbsolute(context.Root);
+        var path = Path.Normalize(context.Root);
         int size = path.Write(buffer);
 
         if (Watch is null)

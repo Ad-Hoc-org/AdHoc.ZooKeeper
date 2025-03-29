@@ -44,7 +44,7 @@ public sealed record AddAuthenticationTransaction
 
     public Response ReadResponse(in ZooKeeperReadContext context)
     {
-        Debug.Assert(context.Request != Request);
+        Debug.Assert(context.Request == Request);
         context.Status.ThrowIfError();
         return new(
             context.Transaction

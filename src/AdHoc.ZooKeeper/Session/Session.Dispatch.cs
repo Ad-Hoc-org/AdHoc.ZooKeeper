@@ -28,7 +28,7 @@ internal sealed partial class Session
             do
             {
                 request = GetRequest(transaction.Operation);
-                Debug.Assert(request == PingTransaction.Request); // should be manage pending itself
+                Debug.Assert(request != PingTransaction.Request); // should be manage pending itself
                 if (request < 0)
                     throw new InvalidOperationException("Session transactions are only allowed internally.");
             } while (!_pending.TryAdd(request, pending));

@@ -42,7 +42,7 @@ public sealed record AddWatchTransaction
     {
         var buffer = context.Buffer;
 
-        var path = Path.ToAbsolute(context.Root);
+        var path = Path.Normalize(context.Root);
         int size = path.Write(buffer);
         size += Write(buffer.Slice(size), Recursive ? 1 : 0);
 
@@ -104,4 +104,20 @@ public static partial class ZooKeeperTransactions
         CancellationToken cancellationToken
     ) =>
         zooKeeper.AddWatchAsync(path, false, watch, cancellationToken);
+
+    public static Task<Response> AddWatchRecursiveAsync(
+        this IZooKeeper zooKeeper,
+        ZooKeeperPath path,
+        WatchAsync watch,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.AddWatchAsync(path, true, watch, cancellationToken);
+
+    public static Task<Response> AddWatchRecursiveAsync(
+        this IZooKeeper zooKeeper,
+        ZooKeeperPath path,
+        Watch watch,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.AddWatchAsync(path, true, watch, cancellationToken);
 }

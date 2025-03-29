@@ -140,11 +140,11 @@ internal sealed partial class Session
 
         int size = transaction.WriteRequest(new(
             root,
-            buffer.Slice(LengthSize + RequestSize + OperationSize),
+            buffer.Slice(RequestHeaderSize),
             registerWatcher
         ));
 
-        Write(buffer, LengthSize + RequestSize + size);
+        Write(buffer, RequestSize + OperationSize + size);
 
         writer.Advance(RequestHeaderSize + size);
     }

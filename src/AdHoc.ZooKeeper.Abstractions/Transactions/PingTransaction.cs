@@ -21,7 +21,7 @@ public sealed record PingTransaction
 
     public Response ReadResponse(in ZooKeeperReadContext context)
     {
-        Debug.Assert(context.Request != Request);
+        Debug.Assert(context.Request == Request);
         return new(
             context.Transaction,
             context.Status

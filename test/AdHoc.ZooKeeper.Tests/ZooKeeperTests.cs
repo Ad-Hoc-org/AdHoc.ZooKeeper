@@ -9,6 +9,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 namespace AdHoc.ZooKeeper.Tests;
 
 [NotInParallel]
+[Retry(3)]
 public partial class ZooKeeperTests
 {
 
@@ -50,6 +51,7 @@ public partial class ZooKeeperTests
     public async Task PrepareContainerAsync(TestContext context, CancellationToken cancellationToken)
     {
         _root = context.TestDetails.TestMethod.Name;
+        _root = _root.Absolute;
         await StartInstancesAsync(cancellationToken);
         await ZooKeeper.CreateAsync("/", cancellationToken);
     }

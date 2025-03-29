@@ -11,7 +11,7 @@ public sealed record ZooKeeperConnection
 {
     public const int DefaultPort = 2181;
     public static TimeSpan DefaultSessionTimeout { get; } = TimeSpan.FromSeconds(30);
-    public static TimeSpan DefaultConnectionTimeout { get; } = TimeSpan.FromMinutes(1);
+    public static TimeSpan DefaultConnectionTimeout { get; } = TimeSpan.FromSeconds(10);
 
     public readonly record struct Host(string Address, int Port = DefaultPort)
     {

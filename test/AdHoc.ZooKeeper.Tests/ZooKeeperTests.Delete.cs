@@ -20,7 +20,7 @@ public partial class ZooKeeperTests
         await ZooKeeper.CreateAsync(_NewNode, _NewData, cancellationToken);
         var result = await ZooKeeper.DeleteAsync(_NewNode, cancellationToken);
         await Assert.That(result.Deleted).IsTrue();
-        await Assert.That(result.NotEmpty).IsTrue();
+        await Assert.That(result.NotEmpty).IsFalse();
     }
 
     [Test]

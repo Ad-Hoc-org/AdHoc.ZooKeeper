@@ -40,7 +40,7 @@ public sealed record SetWatchersTransaction
         Persistent = persistent;
         RecursivePersistent = recursivePersistent;
 
-        _maxSize = Int32Size + (LengthSize * 3)
+        _maxSize = Int32Size + TransactionSize + (LengthSize * 3)
             + Data.Sum(p => p.GetMaxBufferSize())
             + Children.Sum(p => p.GetMaxBufferSize())
             + Any.Sum(p => p.GetMaxBufferSize());
@@ -77,7 +77,9 @@ public sealed record SetWatchersTransaction
     {
         var buffer = context.Buffer;
 
-        int size = WritePaths(buffer, Data);
+        int size = Write(buffer, LastTransaction);
+
+        size += WritePaths(buffer.Slice(size), Data);
         size += WritePaths(buffer.Slice(size), Any);
         size += WritePaths(buffer.Slice(size), Children);
 
@@ -100,7 +102,7 @@ public sealed record SetWatchersTransaction
 
     public Response ReadResponse(in ZooKeeperReadContext context)
     {
-        Debug.Assert(context.Request != Request);
+        Debug.Assert(context.Request == Request);
         context.Status.ThrowIfError();
         return new(context.Transaction);
     }

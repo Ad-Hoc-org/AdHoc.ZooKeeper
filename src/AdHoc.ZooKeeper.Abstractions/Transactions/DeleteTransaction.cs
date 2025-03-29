@@ -36,8 +36,8 @@ public sealed record DeleteTransaction
     {
         var buffer = context.Buffer;
 
-        var path = Path.ToAbsolute(context.Root);
-        int size = Path.Write(buffer);
+        var path = Path.Normalize(context.Root);
+        int size = path.Write(buffer);
 
         size += Write(buffer.Slice(size), Version);
         return size;

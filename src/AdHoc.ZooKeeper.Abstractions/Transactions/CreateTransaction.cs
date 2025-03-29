@@ -65,7 +65,7 @@ public sealed record CreateTransaction
     {
         var buffer = context.Buffer;
 
-        var path = Path.ToAbsolute(context.Root);
+        var path = Path.Normalize(context.Root);
         int size = path.Write(buffer);
         size += Write(buffer.Slice(size), Data.Span);
 
@@ -83,9 +83,9 @@ public sealed record CreateTransaction
     public Response ReadResponse(in ZooKeeperReadContext context)
     {
         if (context.Status == ZooKeeperStatus.NodeExists)
-            return new(context.Transaction, Path.ToAbsolute(context.Root), true, false);
+            return new(context.Transaction, Path.Normalize(context.Root), true, false);
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, Path.ToAbsolute(context.Root), false, true);
+            return new(context.Transaction, Path.Normalize(context.Root), false, true);
 
         context.Status.ThrowIfError();
 

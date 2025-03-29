@@ -118,8 +118,7 @@ internal sealed partial class Session
 
     private Watcher RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch, Func<Watcher, WatchAsync, WatchAsync>? registerWatch)
     {
-        var watcherPaths = path.Absolute;
-        var watcher = new Watcher(this, watcherPaths, type);
+        var watcher = new Watcher(this, path, type);
 
         if (registerWatch is not null)
             watch = registerWatch(watcher, watch);
@@ -152,7 +151,7 @@ internal sealed partial class Session
 
         public async ValueTask DisposeAsync()
         {
-            if (session._watchers.TryGetValue(path, out var watchers))
+            if ((type is Types.RecursivePersistent ? session._recursiveWatchers : session._watchers).TryGetValue(path, out var watchers))
                 if (watchers.TryRemove(this, out _))
                     if (watchers.IsEmpty || watchers.All(p => p.Key.Type != Type))
                         try

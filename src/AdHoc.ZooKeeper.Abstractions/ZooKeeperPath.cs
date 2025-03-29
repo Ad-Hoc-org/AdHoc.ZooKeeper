@@ -46,18 +46,11 @@ public readonly struct ZooKeeperPath
         }
     }
 
-    /// <summary>
-    /// Converts the current <see cref="ZooKeeperPath"/> to an absolute path if it is not already.
-    /// If the path is not absolute, it uses the specified root to make it absolute.
-    /// </summary>
-    /// <param name="root">The root <see cref="ZooKeeperPath"/> to use if the current path is not absolute.</param>
-    /// <returns>An absolute <see cref="ZooKeeperPath"/>.</returns>
-    public ZooKeeperPath ToAbsolute(ZooKeeperPath root) =>
-        IsAbsolute ? this : Combine(root.Absolute, this);
-
-
     public bool IsContainer =>
         !Memory.IsEmpty && Memory.Span[Memory.Length - 1] == Separator;
+
+    public ZooKeeperPath Node =>
+        IsContainer ? Memory.Slice(0, Memory.Length - 1) : this;
 
     public ZooKeeperPath Container
     {
@@ -98,27 +91,10 @@ public readonly struct ZooKeeperPath
     }
 
 
-    public int GetMaxBufferSize(ZooKeeperPath root = default) =>
-        LengthSize + Encoding.UTF8.GetMaxByteCount(root.Memory.Length) + 1 // separator if needed
-            + Encoding.UTF8.GetMaxByteCount(Memory.Length);
-
-    public static ZooKeeperPath Read(ReadOnlySpan<byte> source, out int size)
-    {
-        int length = ReadInt32(source);
-        size = LengthSize + length;
-        return Encoding.UTF8.GetString(
-            source.Slice(
-                LengthSize,
-                length
-            )
-        );
-    }
-
-    public int Write(Span<byte> destination)
-    {
-        int size = Encoding.UTF8.GetBytes(Memory.Span, destination.Slice(LengthSize));
-        return ZooKeeperTransactions.Write(destination, size) + size;
-    }
+    public ZooKeeperPath Normalize(ZooKeeperPath root) =>
+        IsRoot ? root
+        : IsAbsolute ? Node
+        : Combine(root.Absolute, Node);
 
 
     /// <summary>
@@ -243,6 +219,31 @@ public readonly struct ZooKeeperPath
     /// <seealso cref="Combine(ReadOnlySpan{ZooKeeperPath})"/>
     public static ZooKeeperPath operator +(ZooKeeperPath left, ZooKeeperPath right) =>
         Combine(left, right);
+
+
+
+
+    public int GetMaxBufferSize(ZooKeeperPath root = default) =>
+        LengthSize + Encoding.UTF8.GetMaxByteCount(root.Memory.Length) + 1 // separator if needed
+            + Encoding.UTF8.GetMaxByteCount(Memory.Length);
+
+    public static ZooKeeperPath Read(ReadOnlySpan<byte> source, out int size)
+    {
+        int length = ReadInt32(source);
+        size = LengthSize + length;
+        return Encoding.UTF8.GetString(
+            source.Slice(
+                LengthSize,
+                length
+            )
+        );
+    }
+
+    public int Write(Span<byte> destination)
+    {
+        int size = Encoding.UTF8.GetBytes(Memory.Span, destination.Slice(LengthSize));
+        return ZooKeeperTransactions.Write(destination, size) + size;
+    }
 
 
     public static implicit operator ZooKeeperPath(ReadOnlyMemory<char> path) => new(path);
