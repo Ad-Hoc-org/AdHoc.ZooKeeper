@@ -39,10 +39,18 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
-        var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));
-        write(pipeWriter);
-        _lastInteractionTimestamp = Stopwatch.GetTimestamp();
-        await pipeWriter.FlushAsync(cancellationToken);
+        try
+        {
+            var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));
+            write(pipeWriter);
+            _lastInteractionTimestamp = Stopwatch.GetTimestamp();
+            await pipeWriter.FlushAsync(cancellationToken);
+        }
+        catch (IOException ex)
+        {
+            ThrowConnection(ex);
+            throw;
+        }
     }
 
     private async Task<Response> ReadAsync(

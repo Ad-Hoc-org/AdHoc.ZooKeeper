@@ -67,8 +67,8 @@ public readonly struct ZooKeeperPath
             if (length == 0)
                 return Empty;
             var span = Memory.Span;
-            if (length == 1 && span[0] == Separator)
-                return Root;
+            if (length == 1)
+                return span[0] == Separator ? Root : Empty;
 
             int index = span.Slice(0, length - 1).LastIndexOf(Separator);
             if (index == -1)
@@ -77,6 +77,23 @@ public readonly struct ZooKeeperPath
                 return Root;
 
             return Memory.Slice(0, index + 1);
+        }
+    }
+
+    public ZooKeeperPath Parent
+    {
+        get
+        {
+            int length = Memory.Length;
+            if (length <= 1)
+                return Empty;
+
+            var span = Memory.Span;
+            int index = span.Slice(0, length - 1).LastIndexOf(Separator);
+            if (index <= 0)
+                return Empty;
+
+            return Memory.Slice(0, index);
         }
     }
 
@@ -296,7 +313,9 @@ public static class ZooKeepers
         }
     }
 
-    public static void ThrowIfEmptyOrInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null) =>
-        path.ThrowIfEmpty(pathExpression)
-            .ThrowIfInvalid(pathExpression);
+    public static void ThrowIfEmptyOrInvalid(this ZooKeeperPath path, [CallerArgumentExpression(nameof(path))] string? pathExpression = null)
+    {
+        path.ThrowIfEmpty(pathExpression);
+        path.ThrowIfInvalid(pathExpression);
+    }
 }

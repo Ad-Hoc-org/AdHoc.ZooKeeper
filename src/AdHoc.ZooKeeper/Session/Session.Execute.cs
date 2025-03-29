@@ -1,107 +1,63 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
-using System.Diagnostics;
-using System.IO.Pipelines;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
-using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
-    internal async Task<TResult> ExecuteAsync<TResult>(
-        IZooKeeperTransaction<TResult> operation,
+    internal Task<TResponse> ExecuteAsync<TResponse>(
+        IZooKeeperTransaction<TResponse> transaction,
         ZooKeeperPath root,
         Func<Watcher, WatchAsync, WatchAsync>? registerWatcher,
         CancellationToken cancellationToken
     )
+        where TResponse : IZooKeeperResponse
     {
         ObjectDisposedException.ThrowIf(_disposeSource.IsCancellationRequested, this);
 
-        bool dispatched;
-        if (operation is not PingTransaction)
-        {
-            (var result, dispatched) = await DispatchAsync(operation, root, async (stream, pending, cancellationToken) =>
-            {
-                var pipeWriter = PipeWriter.Create(stream);
-                var writer = new SafeRequestWriter(pipeWriter);
-                bool hasRequest = false;
-                Watcher? watcher = null;
-                operation.WriteRequest(new(
-                    root,
-                    writer,
-                    (operation) =>
-                    {
-                        int request;
-                        do
-                        {
-                            request = GetRequest(operation);
-                            if (request == PingTransaction.Request)
-                                break;
-                        } while (!_pending.TryAdd(request, pending));
-                        hasRequest = true;
-                        return request;
-                    },
-                    (ZooKeeperPath path, Types type, WatchAsync watch) =>
-                    {
-                        if (watcher is not null)
-                            throw new InvalidOperationException("Only one watcher per operation allowed");
-                        watcher = RegisterWatcher(path, type, watch, registerWatcher);
-                    }
-                ));
+        if (transaction.Operation == ZooKeeperOperations.RemoveWatch)
+            throw new InvalidOperationException("Remove watch transaction can be only used internally to reduce miss handling of events.");
 
-                if (writer.IsPing)
-                    return default;
+        if (transaction.Operation == ZooKeeperOperations.Ping)
+            return ExecutePingAsync(root, transaction, cancellationToken);
 
-                if (writer.IsCompleted)
-                    throw ZooKeeperException.CreateInvalidRequestSize(writer.Length, writer.Size);
-
-                if (!hasRequest)
-                    throw new ZooKeeperException("Request identifier has to be requested from context!");
-
-                _lastInteractionTimestamp = Stopwatch.GetTimestamp();
-                await pipeWriter.FlushAsync(cancellationToken);
-                return (writer.Request, watcher);
-            }, cancellationToken);
-            if (dispatched)
-                return result!;
-        }
-
-        // is ping
-        return await ExecutePingAsync(root, operation, cancellationToken);
+        return DispatchAsync(root, transaction, registerWatcher, cancellationToken);
     }
 
-    private async Task<TResult> ExecutePingAsync<TResult>(
+    private async Task<TResponse> ExecutePingAsync<TResponse>(
         ZooKeeperPath root,
-        IZooKeeperTransaction<TResult> operation,
+        IZooKeeperTransaction<TResponse> transaction,
         CancellationToken cancellationToken
     )
+        where TResponse : IZooKeeperResponse
     {
-        Task<TResult>? ping = null;
-        var (pingResult, dispatched) = await DispatchAsync(operation, root, async (stream, pending, cancellationToken) =>
+        TaskCompletionSource<Response>? pending;
+        while (!_pending.TryGetValue(PingTransaction.Request, out pending))
         {
-            if (_responding.TryGetValue(PingTransaction.Request, out var task))
+            await _lock.WaitAsync(cancellationToken);
+            try
             {
-                if (operation is PingTransaction)
-                    ping = Task.Run(async () => await (Task<TResult>)task, cancellationToken);
-                else
-                {
-                    if (!_pending.TryGetValue(PingTransaction.Request, out var response))
-                        throw new InvalidOperationException();
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-                    ping = Task.Run(async () => operation.ReadResponse((await response.Task).ToTransaction(root), null), cancellationToken);
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-                }
-                return default;
+                if (!_pending.TryAdd(PingTransaction.Request, pending = new()))
+                    continue;
             }
+            finally
+            {
+                _lock.Release();
+            }
+            return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
+        }
 
-            _pending[PingTransaction.Request] = pending;
-            await stream.WriteAsync(PingTransaction.Bytes, cancellationToken);
-            _lastInteractionTimestamp = Stopwatch.GetTimestamp();
-            await stream.FlushAsync(cancellationToken);
-            return (PingTransaction.Request, null);
-        }, cancellationToken);
-        return dispatched ? pingResult! : await ping!;
+        return await ReuseResponseAsync(pending);
+        async Task<TResponse> ReuseResponseAsync(
+            TaskCompletionSource<Response> pending
+        )
+        {
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+            using var response = await pending.Task;
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+            return ReadTransaction(response._memory, root, transaction, null);
+        }
     }
 }

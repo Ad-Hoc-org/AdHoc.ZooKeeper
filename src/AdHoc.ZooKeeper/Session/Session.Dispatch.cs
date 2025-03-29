@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
@@ -10,7 +11,6 @@ namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
     private readonly ConcurrentDictionary<int, TaskCompletionSource<Response>> _pending = new();
-    private readonly ConcurrentDictionary<int, Task> _responding = new();
 
     private async Task<TResponse> DispatchAsync<TResponse>(
         ZooKeeperPath root,
@@ -20,29 +20,54 @@ internal sealed partial class Session
     ) where TResponse : IZooKeeperResponse
     {
         await _lock.WaitAsync(cancellationToken);
-
-        bool released = false;
+        int request;
         TaskCompletionSource<Response> pending = new();
-        int? request = null;
-        Task<TResponse>? receive = null;
-        CancellationTokenRegistration registration = default;
+        using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
         try
         {
-            var stream = await EnsureSessionAsync(cancellationToken);
-
             do
             {
                 request = GetRequest(transaction.Operation);
-                if (request == PingTransaction.Request)
-                    break;
-            } while (!_pending.TryAdd(request.Value, pending));
-            registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
+                Debug.Assert(request == PingTransaction.Request); // should be manage pending itself
+                if (request < 0)
+                    throw new InvalidOperationException("Session transactions are only allowed internally.");
+            } while (!_pending.TryAdd(request, pending));
+        }
+        finally
+        {
+            _lock.Release();
+        }
 
+        try
+        {
+            return await DispatchAsync(root, request, pending, transaction, registerWatcher, cancellationToken);
+        }
+        finally
+        {
+            await registration.DisposeAsync();
+            _pending.TryRemove(KeyValuePair.Create(request, pending));
+        }
+    }
+
+    private async Task<TResponse> DispatchAsync<TResponse>(
+        ZooKeeperPath root,
+        int request,
+        TaskCompletionSource<Response> pending,
+        IZooKeeperTransaction<TResponse> transaction,
+        Func<Watcher, WatchAsync, WatchAsync>? registerWatcher,
+        CancellationToken cancellationToken
+    ) where TResponse : IZooKeeperResponse
+    {
+        await _lock.WaitAsync(cancellationToken);
+        bool released = false;
+        try
+        {
+            var stream = await EnsureSessionAsync(cancellationToken);
             IZooKeeperWatcher? watcher = null;
             await WriteAsync(
                 stream,
                 writer => WriteTransaction(
-                    writer, root, request.Value, transaction,
+                    writer, root, request, transaction,
                     (ZooKeeperPath path, Types type, WatchAsync watch) =>
                     {
                         if (watcher is not null)
@@ -53,38 +78,16 @@ internal sealed partial class Session
                 cancellationToken
             );
 
-            receive = ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
-            _responding[request.Value] = receive;
-
-            // release lock after writing and task management is done
+            // release lock after writing
             _lock.Release();
             released = true;
 
-            var response = await receive;
-            _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
-            _pending.TryRemove(KeyValuePair.Create(request.Value, pending));
-            return response;
-        }
-        catch (Exception ex)
-        {
-            bool canceled = ex is OperationCanceledException canceledEx && canceledEx.CancellationToken == cancellationToken;
-
-            if (request is not null)
-            {
-                if (receive is not null)
-                    _responding.TryRemove(KeyValuePair.Create<int, Task>(request.Value, receive));
-                if (_pending.TryRemove(KeyValuePair.Create(request.Value, pending)))
-                    if (canceled)
-                        pending.TrySetCanceled(cancellationToken);
-                    else
-                        pending.TrySetException(ex);
-            }
-
-            throw;
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+            return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         }
         finally
         {
-            await registration.DisposeAsync();
             if (!released)
                 _lock.Release();
         }

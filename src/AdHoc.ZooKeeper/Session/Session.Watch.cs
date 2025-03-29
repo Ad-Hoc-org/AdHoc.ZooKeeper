@@ -18,24 +18,21 @@ internal sealed partial class Session
         var @event = ZooKeeperEvent.Read(response._memory.Span, out _);
         _lastTransaction = @event.Trigger;
         var path = @event.Path;
+
         if (_watchers.TryGetValue(path, out var watchers))
         {
             foreach (var watchPair in watchers)
-                try
-                {
-                    var (watcher, watch) = watchPair;
-                    if (watcher.Type.IsHandling(@event.Type)
-                        && (watcher.Type.IsPersistent || watchers.TryRemove(watchPair))
-                    )
-#pragma warning disable VSTHRD110 // Observe result of async calls
-                        watch(watcher, @event, _disposeSource.Token);
-#pragma warning restore VSTHRD110 // Observe result of async calls
-                }
-                catch { }
+            {
+                var (watcher, watch) = watchPair;
+                if (watcher.Type.IsHandling(@event.Type)
+                    && (watcher.Type is Types.Persistent || watchers.TryRemove(watchPair))
+                )
+                    DispatchEvent(watcher, watch, @event, _disposeSource.Token);
+            }
 
             if (watchers.IsEmpty && _watchers.TryRemove(KeyValuePair.Create(path, watchers)))
             {
-                // read after watchers was added before removing
+                // read after watcher was added before removing
                 if (!watchers.IsEmpty)
                     _watchers.AddOrUpdate(path, watchers, (_, newWatches) =>
                     {
@@ -45,23 +42,47 @@ internal sealed partial class Session
                     });
             }
         }
+
+        if (!_recursiveWatchers.IsEmpty)
+            do
+            {
+                if (_recursiveWatchers.TryGetValue(path, out var recWatchers))
+                    foreach (var watchPair in recWatchers)
+                    {
+                        var (watcher, watch) = watchPair;
+                        DispatchEvent(watcher, watch, @event, _disposeSource.Token);
+                    }
+
+                path = path.Parent;
+            } while (!path.IsEmpty);
+    }
+
+    private static void DispatchEvent(Watcher watcher, WatchAsync watch, ZooKeeperEvent @event, CancellationToken cancellationToken)
+    {
+#pragma warning disable VSTHRD110 // Observe result of async calls
+#pragma warning disable CA2012 // Use ValueTasks correctly
+        try { watch(watcher, @event, cancellationToken); } catch { }
+#pragma warning restore CA2012 // Use ValueTasks correctly
+#pragma warning restore VSTHRD110 // Observe result of async calls
     }
 
     private void DeregisterWatchers()
     {
         var state = IsConnected ? States.Closed : States.Disconnected;
-        while (!_watchers.IsEmpty)
-            if (_watchers.TryRemove(_watchers.Keys.First(), out var watchers))
-                foreach (var (watcher, watch) in watchers)
-                    try
-                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-#pragma warning disable VSTHRD110 // Observe result of async calls
-                        var task = watch(watcher, new(0, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, state, default), CancellationToken.None);
-#pragma warning restore VSTHRD110 // Observe result of async calls
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    }
-                    catch { }
+        ZooKeeperEvent ev = new(_lastTransaction, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, state, ZooKeeperPath.Empty);
+        Deregister(_watchers, ev);
+        Deregister(_recursiveWatchers, ev);
+
+        void Deregister(ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> watchesDict, ZooKeeperEvent ev)
+        {
+            while (!watchesDict.IsEmpty)
+            {
+                var key = _watchers.Keys.FirstOrDefault();
+                if (watchesDict.TryRemove(key, out var watchers))
+                    foreach (var (watcher, watch) in watchers)
+                        DispatchEvent(watcher, watch, ev, CancellationToken.None);
+            }
+        }
     }
 
     private async ValueTask ReregisterWatchersAsync(NetworkStream stream, CancellationToken cancellationToken)
@@ -70,7 +91,7 @@ internal sealed partial class Session
             return;
 
         ConcurrentDictionary<Types, HashSet<ZooKeeperPath>> paths = new();
-        foreach (var (path, watchers) in _watchers)
+        foreach (var (path, watchers) in _watchers.Concat(_recursiveWatchers))
             foreach (var (watcher, _) in watchers)
                 paths.AddOrUpdate(watcher.Type,
                     _ => [path],
@@ -133,18 +154,12 @@ internal sealed partial class Session
         {
             if (session._watchers.TryGetValue(path, out var watchers))
                 if (watchers.TryRemove(this, out _))
-                {
-                    try
-                    {
-                        if (watchers.IsEmpty || watchers.All(p => p.Key.Type != Type))
-                            try
-                            {
-                                await session.ExecuteAsync(RemoveWatchTransaction.Create(this), default, null, default);
-                            }
-                            catch { }
-                    }
-                    catch { }
-                }
+                    if (watchers.IsEmpty || watchers.All(p => p.Key.Type != Type))
+                        try
+                        {
+                            await session.DispatchAsync(ZooKeeperPath.Empty, RemoveWatchTransaction.Create(this), null, CancellationToken.None);
+                        }
+                        catch { }
         }
     }
 

@@ -57,7 +57,8 @@ public class ZooKeeper
         : this(Parse(connectionString)) { }
 
 
-    public async Task<TResult> ExecuteAsync<TResult>(IZooKeeperTransaction<TResult> transaction, CancellationToken cancellationToken)
+    public async Task<TResponse> ProcessAsync<TResponse>(IZooKeeperTransaction<TResponse> transaction, CancellationToken cancellationToken)
+        where TResponse : IZooKeeperResponse
     {
         ArgumentNullException.ThrowIfNull(transaction);
         var session = _session;
@@ -74,7 +75,7 @@ public class ZooKeeper
             return result.Item1!;
         }
 
-        Task<TResult> ExecutingAsync(Session session, CancellationToken cancellationToken) =>
+        Task<TResponse> ExecutingAsync(Session session, CancellationToken cancellationToken) =>
             session.ExecuteAsync(transaction, _root, (watcher, watch) =>
             {
                 Host host = session.Host;
