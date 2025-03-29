@@ -28,7 +28,7 @@ public class ZooKeeperException
         long lastInteractionTimestamp,
         Exception? innerException = null
     ) => new(
-        $"Lost connection {SessionToString(session.Session.Span)} to {host}.",
+        $"Lost connection {ZooKeeperSession.ToString(session.Session.Span)} to {host}.",
         innerException
     )
     {
@@ -45,7 +45,7 @@ public class ZooKeeperException
         long lastInteractionTimestamp,
         Exception? innerException = null
     ) => new(
-        $"Session {SessionToString(session.Session.Span)} expired.",
+        $"Session {ZooKeeperSession.ToString(session.Session.Span)} expired.",
         innerException
     )
     {
