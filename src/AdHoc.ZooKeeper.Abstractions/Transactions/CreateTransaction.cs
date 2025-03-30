@@ -140,7 +140,10 @@ public sealed record CreateTransaction
         ZooKeeperPath Path,
         bool AlreadyExisted,
         bool ContainerMissing
-    ) : IZooKeeperResponse;
+    ) : IZooKeeperResponse
+    {
+        public bool Created => !AlreadyExisted && !ContainerMissing;
+    }
 }
 
 public static partial class ZooKeeperTransactions

@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics.CodeAnalysis;
 using static AdHoc.ZooKeeper.Abstractions.GetDataTransaction;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
@@ -77,6 +78,8 @@ public sealed record GetDataTransaction
         IZooKeeperResponse,
         IAsyncDisposable
     {
+        [MemberNotNullWhen(true, nameof(Node))]
+        public bool Existed => Node is not null;
         public ValueTask DisposeAsync() => Watcher?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 }

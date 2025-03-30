@@ -61,7 +61,10 @@ public sealed record SetDataTransaction
     public readonly record struct Response(
         long Transaction,
         ZooKeeperNode? Node
-    ) : IZooKeeperResponse;
+    ) : IZooKeeperResponse
+    {
+        public bool Updated => Node is not null;
+    }
 }
 
 public static partial class ZooKeeperTransactions
