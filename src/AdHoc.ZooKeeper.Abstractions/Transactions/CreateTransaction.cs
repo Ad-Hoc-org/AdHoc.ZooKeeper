@@ -60,22 +60,31 @@ public sealed record CreateTransaction
 
     public static CreateTransaction Create(
         ZooKeeperPath path,
-        ReadOnlyMemory<byte> data
+        ReadOnlyMemory<byte> data,
+        bool sequential
     ) =>
-        new(path, data, ModeFlag.Persistent, null);
+        new(path, data, sequential ? ModeFlag.PersistentSequential : ModeFlag.Persistent, null);
 
-    public static CreateTransaction CreateEphemeral(
+    public static CreateTransaction CreateContainer(
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data
     ) =>
-        new(path, data, ModeFlag.Ephemeral, null);
+        new(path, data, ModeFlag.Container, null);
 
     public static CreateTransaction Create(
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
-        TimeSpan timeToLive
+        TimeSpan timeToLive,
+        bool sequential
     ) =>
-        new(path, data, ModeFlag.WithTimeToLive, timeToLive);
+        new(path, data, sequential ? ModeFlag.SequentialWithTimeToLive : ModeFlag.WithTimeToLive, timeToLive);
+
+    public static CreateTransaction CreateEphemeral(
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        bool sequential
+    ) =>
+        new(path, data, sequential ? ModeFlag.EphemeralSequential : ModeFlag.Ephemeral, null);
 
 
     public int GetMaxRequestSize(in ZooKeeperPath root) =>
@@ -141,16 +150,61 @@ public static partial class ZooKeeperTransactions
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
+        bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, data, sequential), cancellationToken);
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, data, false), cancellationToken);
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        bool sequential,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
+
+
+
+    public static Task<Response> CreateContainerAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(CreateContainer(path, data), cancellationToken);
+
+    public static Task<Response> CreateContainerAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(CreateContainer(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
+
+
+
+    public static Task<Response> CreateEphemeralAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        bool sequential,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(CreateEphemeral(path, data, sequential), cancellationToken);
 
     public static Task<Response> CreateEphemeralAsync(
         this IZooKeeperTransactable zooKeeper,
@@ -158,14 +212,34 @@ public static partial class ZooKeeperTransactions
         ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, data), cancellationToken);
+        zooKeeper.ProcessAsync(CreateEphemeral(path, data, false), cancellationToken);
+
+    public static Task<Response> CreateEphemeralAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        bool sequential,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
 
     public static Task<Response> CreateEphemeralAsync(
         this IZooKeeperTransactable zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
+        zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
+
+
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        TimeSpan timeToLive,
+        bool sequential,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, data, timeToLive, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
         this IZooKeeperTransactable zooKeeper,
@@ -174,7 +248,16 @@ public static partial class ZooKeeperTransactions
         TimeSpan timeToLive,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, timeToLive), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, data, timeToLive, false), cancellationToken);
+
+    public static Task<Response> CreateAsync(
+        this IZooKeeperTransactable zooKeeper,
+        ZooKeeperPath path,
+        TimeSpan timeToLive,
+        bool sequential,
+        CancellationToken cancellationToken
+    ) =>
+        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
         this IZooKeeperTransactable zooKeeper,
@@ -182,6 +265,6 @@ public static partial class ZooKeeperTransactions
         TimeSpan timeToLive,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive), cancellationToken);
+        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, false), cancellationToken);
 
 }

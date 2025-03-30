@@ -33,6 +33,7 @@ internal sealed partial class Session
                 return _tcpClient!.GetStream();
 
             var receiving = _receiving;
+            _tcpClient?.Close();
             _tcpClient?.Dispose();
             await receiving; // wait until all pending request are canceled
 
@@ -81,48 +82,47 @@ internal sealed partial class Session
             throw ZooKeeperException.CreateSessionExpired(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
     }
 
-    private async Task KeepAliveAsync(CancellationToken cancellationToken)
+    private Task KeepAliveAsync(CancellationToken cancellationToken)
     {
-        var keepAlive = _keepAlive;
-        if (!keepAlive.IsCompleted)
-        {
-            await keepAlive;
-            return;
-        }
+        if (!_keepAlive.IsCompleted)
+            return _keepAlive;
 
-        await _lock.WaitAsync(cancellationToken);
-        try
+        lock (_keepAlive)
         {
             if (!_keepAlive.IsCompleted)
-            {
-                keepAlive = _keepAlive;
-            }
+                return _keepAlive;
             else
-            {
-                _keepAlive = keepAlive = Task.Run(async () =>
-                {
-                    var session = _session;
-                    if (session is null)
-                        return; // not connected
-
-                    var elapsed = Stopwatch.GetElapsedTime(_lastInteractionTimestamp);
-                    var timeout = session.Value.SessionTimeout;
-                    if (elapsed > timeout)
-                        return; // already expired
-
-                    while (elapsed < timeout / 2)
-                    {
-                        await Task.Delay((timeout / 2) - elapsed, cancellationToken);
-                        // other request was made so we can wait longer
-                        elapsed = Stopwatch.GetElapsedTime(_lastInteractionTimestamp);
-                    }
-
-                    await ExecutePingAsync(ZooKeeperPath.Root, Ping, cancellationToken);
-                }, cancellationToken);
-            }
+                return _keepAlive = PingIfNeededAsync(cancellationToken);
         }
-        finally { _lock.Release(); }
-        await keepAlive;
+        async Task PingIfNeededAsync(CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+
+            var session = _session;
+            if (session is null)
+                return; // not connected
+
+            var elapsed = Stopwatch.GetElapsedTime(_lastInteractionTimestamp);
+            var timeout = session.Value.SessionTimeout;
+            if (elapsed > timeout)
+                return; // already expired
+
+            while (IsConnected && elapsed < timeout / 2)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
+                await Task.Delay((timeout / 2) - elapsed, cancellationToken);
+                // other request was made so we can idle
+                elapsed = Stopwatch.GetElapsedTime(_lastInteractionTimestamp);
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            if (HasWatchers)
+                await ExecutePingAsync(ZooKeeperPath.Root, Ping, cancellationToken); ;
+        }
     }
 
 }

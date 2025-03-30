@@ -18,7 +18,15 @@ public partial class ZooKeeperTests
     private static List<IContainer> _containers = [];
 
     private static readonly SemaphoreSlim _lock = new(1, 1);
-    private static Session _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
+    private static Session? _session;
+    private static Session Session => _session ??=
+        _session = new(
+            new Host("localhost"),
+            FrozenSet<Authentication>.Empty,
+            connectionTimeout: TimeSpan.FromSeconds(1),
+            sessionTimeout: TimeSpan.FromSeconds(10),
+            false
+        );
 
     private ZooKeeperPath _root;
     private ZooKeeper? _zoo;
@@ -59,8 +67,8 @@ public partial class ZooKeeperTests
 
     private async Task NewSessionAsync(CancellationToken cancellationToken)
     {
-        await _session.CloseAsync();
-        _session = new(new Host("localhost"), FrozenSet<Authentication>.Empty, DefaultConnectionTimeout, DefaultSessionTimeout, false);
+        await Session.CloseAsync();
+        _session = null;
         await StartInstancesAsync(cancellationToken);
     }
 
@@ -91,13 +99,13 @@ public partial class ZooKeeperTests
         }));
 
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host("localhost", c.GetMappedPublicPort(2181)))];
-        _zoo = new ZooKeeper(_session, hosts, _root, _lock);
+        _zoo = new ZooKeeper(Session, hosts, _root, _lock);
         int i = 0;
         while (i++ < 10)
             try
             {
-                if (!_session.IsConnected)
-                    await _session.ReconnectAsync(hosts[0], cancellationToken);
+                if (!Session.IsConnected)
+                    await Session.ReconnectAsync(hosts[0], cancellationToken);
                 break;
             }
             catch
@@ -107,7 +115,7 @@ public partial class ZooKeeperTests
     }
 
     private Task StopInstanceAsync(CancellationToken cancellationToken) =>
-        _containers.First(c => _session.Host.Port == c.GetMappedPublicPort(2181)).StopAsync(cancellationToken);
+        _containers.First(c => Session.Host.Port == c.GetMappedPublicPort(2181)).StopAsync(cancellationToken);
 
     private async Task StopInstancesAsync(CancellationToken cancellationToken)
     {

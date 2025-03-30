@@ -59,11 +59,11 @@ internal sealed partial class Session
     ) where TResponse : IZooKeeperResponse
     {
         await _lock.WaitAsync(cancellationToken);
-        bool released = false;
+        NetworkStream stream;
+        IZooKeeperWatcher? watcher = null;
         try
         {
-            var stream = await EnsureSessionAsync(cancellationToken);
-            IZooKeeperWatcher? watcher = null;
+            stream = await EnsureSessionAsync(cancellationToken);
             await WriteAsync(
                 stream,
                 writer => WriteTransaction(
@@ -77,20 +77,12 @@ internal sealed partial class Session
                 ),
                 cancellationToken
             );
-
-            // release lock after writing
-            _lock.Release();
-            released = true;
+        }
+        finally { _lock.Release(); }
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
+        return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-        }
-        finally
-        {
-            if (!released)
-                _lock.Release();
-        }
     }
 
     private async Task<TResponse> ReceiveAsync<TResponse>(
@@ -110,7 +102,7 @@ internal sealed partial class Session
             receiving = ReceivingAsync(stream);
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            var task = await Task.WhenAny(receiving, pending);
+            await Task.WhenAny(receiving, pending);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         }
 

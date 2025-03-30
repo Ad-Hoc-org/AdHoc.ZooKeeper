@@ -26,7 +26,9 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
+        // sync so no async pending allowed
         Debug.Assert(_pending.IsEmpty);
+        Debug.Assert(_receiving.IsCompleted);
 
         await WriteAsync(stream, write, cancellationToken);
         using var response = await ReadAsync(stream, null, cancellationToken);
@@ -39,6 +41,7 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
+        Debug.Assert(_lock.CurrentCount == 0); // write should be sync
         try
         {
             var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));
@@ -110,7 +113,7 @@ internal sealed partial class Session
         where TResponse : IZooKeeperResponse
     {
         int request = GetRequest(transaction.Operation);
-        Debug.Assert(request < 0); // only connections request are sync allowed
+        Debug.Assert(request < 0); // only sync requests are allowed
         return SendAsync(
             stream,
             writer => WriteTransaction(

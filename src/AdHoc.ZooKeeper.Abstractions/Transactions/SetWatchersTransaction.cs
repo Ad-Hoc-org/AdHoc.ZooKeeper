@@ -18,7 +18,7 @@ public sealed record SetWatchersTransaction
 
     public IReadOnlySet<ZooKeeperPath> Data { get; }
     public IReadOnlySet<ZooKeeperPath> Children { get; }
-    public IReadOnlySet<ZooKeeperPath> Any { get; }
+    public IReadOnlySet<ZooKeeperPath> Exists { get; }
     public IReadOnlySet<ZooKeeperPath> Persistent { get; }
     public IReadOnlySet<ZooKeeperPath> RecursivePersistent { get; }
 
@@ -29,21 +29,21 @@ public sealed record SetWatchersTransaction
         long lastTransaction,
         IReadOnlySet<ZooKeeperPath> data,
         IReadOnlySet<ZooKeeperPath> children,
-        IReadOnlySet<ZooKeeperPath> any,
+        IReadOnlySet<ZooKeeperPath> exists,
         IReadOnlySet<ZooKeeperPath> persistent,
         IReadOnlySet<ZooKeeperPath> recursivePersistent
     )
     {
         Data = data;
         Children = children;
-        Any = any;
+        Exists = exists;
         Persistent = persistent;
         RecursivePersistent = recursivePersistent;
 
         _maxSize = Int32Size + TransactionSize + (LengthSize * 3)
             + Data.Sum(p => p.GetMaxBufferSize())
             + Children.Sum(p => p.GetMaxBufferSize())
-            + Any.Sum(p => p.GetMaxBufferSize());
+            + Exists.Sum(p => p.GetMaxBufferSize());
         if (persistent.Count > 0 || recursivePersistent.Count > 0)
         {
             Operation = ZooKeeperOperations.SetWatchesWithPersistent;
@@ -58,14 +58,14 @@ public sealed record SetWatchersTransaction
         long lastTransaction,
         IEnumerable<ZooKeeperPath>? data = null,
         IEnumerable<ZooKeeperPath>? children = null,
-        IEnumerable<ZooKeeperPath>? any = null,
+        IEnumerable<ZooKeeperPath>? exists = null,
         IEnumerable<ZooKeeperPath>? persistent = null,
         IEnumerable<ZooKeeperPath>? recursivePersistent = null
     ) => new(
         lastTransaction,
         data?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
         children?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
-        any?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
+        exists?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
         persistent?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty,
         recursivePersistent?.ToFrozenSet() ?? FrozenSet<ZooKeeperPath>.Empty
     );
@@ -80,7 +80,7 @@ public sealed record SetWatchersTransaction
         int size = Write(buffer, LastTransaction);
 
         size += WritePaths(buffer.Slice(size), Data);
-        size += WritePaths(buffer.Slice(size), Any);
+        size += WritePaths(buffer.Slice(size), Exists);
         size += WritePaths(buffer.Slice(size), Children);
 
         if (Operation == ZooKeeperOperations.SetWatchesWithPersistent)

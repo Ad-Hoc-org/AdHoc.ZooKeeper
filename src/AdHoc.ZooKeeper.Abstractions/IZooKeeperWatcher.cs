@@ -13,7 +13,7 @@ public interface IZooKeeperWatcher
     {
         Children = 1,
         Data = 2,
-        Any = 3,
+        Exists = 3,
         Persistent = 4,
         RecursivePersistent = 5
     }

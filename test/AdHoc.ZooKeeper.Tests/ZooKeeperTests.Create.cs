@@ -4,7 +4,6 @@ namespace AdHoc.ZooKeeper.Tests;
 
 public partial class ZooKeeperTests
 {
-
     private static ZooKeeperPath _NewNode = "new-node";
     private static ZooKeeperPath _ChildNode = "new-node/child";
     private static byte[] _NewData = [1, 2, 3, 4];
@@ -47,9 +46,36 @@ public partial class ZooKeeperTests
         await Assert.That(result.ContainerMissing).IsFalse();
     }
 
+
+    [Test]
+    public async Task CreateAsync_WithTimeToLive(CancellationToken cancellationToken)
+    {
+        var ttl = TimeSpan.FromSeconds(5);
+        var result = await ZooKeeper.CreateAsync(_NewNode, ttl, cancellationToken);
+
+        await NewSessionAsync(cancellationToken);
+        var delay = Task.Delay(ttl * 3, cancellationToken);
+
+        // should be still alive
+        await Assert.That((await ZooKeeper.ExistsAsync(result.Path, cancellationToken)).Node).IsNotNull();
+
+        do
+        {
+            try
+            {
+                await Assert.That((await ZooKeeper.ExistsAsync(result.Path, cancellationToken)).Node).IsNull();
+            }
+            catch when (!delay.IsCompleted)
+            {
+                await Task.Delay(1000, cancellationToken);
+            }
+        } while (!delay.IsCompleted);
+    }
+
+
     [Test]
     [DependsOn(nameof(GetEphemeralsAsync_None))]
-    public async Task CreateAsync_Ephemeral(CancellationToken cancellationToken)
+    public async Task CreateEphemeralAsync_NewWithDisposing(CancellationToken cancellationToken)
     {
         var result = await ZooKeeper.CreateEphemeralAsync(_NewNode, cancellationToken);
         await Assert.That(result.AlreadyExisted).IsFalse();
@@ -65,33 +91,7 @@ public partial class ZooKeeperTests
     }
 
     [Test]
-    //[DependsOn(nameof(CreateAsync_Ephemeral))]
-    public async Task CreateAsync_WithTimeToLive(CancellationToken cancellationToken)
-    {
-        var ttl = TimeSpan.FromSeconds(10);
-        var result = await ZooKeeper.CreateAsync(_NewNode, ttl, cancellationToken);
-
-        await NewSessionAsync(cancellationToken);
-        var delay = Task.Delay(ttl, cancellationToken);
-
-        // should be still alive
-        await Assert.That((await ZooKeeper.ExistsAsync(result.Path, cancellationToken)).Node).IsNotNull();
-
-        await delay;
-        try
-        {
-            await Assert.That((await ZooKeeper.ExistsAsync(result.Path, cancellationToken)).Node).IsNull();
-        }
-        catch
-        {
-            // try it again maybe server was slower
-            await Task.Delay(ttl / 2);
-            await Assert.That((await ZooKeeper.ExistsAsync(result.Path, cancellationToken)).Node).IsNull();
-        }
-    }
-
-    [Test]
-    public async Task CreateAsync_MultipleEphemeralsWithoutSequential(CancellationToken cancellationToken)
+    public async Task CreateEphemeralAsync_MultipleEphemeralsWithoutSequential(CancellationToken cancellationToken)
     {
         var result = await ZooKeeper.CreateEphemeralAsync(_NewNode, cancellationToken);
         await Assert.That(result.AlreadyExisted).IsFalse();
@@ -100,5 +100,31 @@ public partial class ZooKeeperTests
         result = await ZooKeeper.CreateEphemeralAsync(_NewNode, cancellationToken);
         await Assert.That(result.AlreadyExisted).IsTrue();
         await Assert.That(result.ContainerMissing).IsFalse();
+    }
+
+
+    [Test]
+    public async Task CreateContainerAsync_NewContainer(CancellationToken cancellationToken)
+    {
+        var result = await ZooKeeper.CreateContainerAsync(_NewNode, _NewData, cancellationToken);
+        await Assert.That(result.AlreadyExisted).IsFalse();
+        await Assert.That(result.ContainerMissing).IsFalse();
+    }
+
+    [Test]
+    public async Task CreateContainerAsync_ExistingContainer(CancellationToken cancellationToken)
+    {
+        await ZooKeeper.CreateAsync(_NewNode, cancellationToken);
+        var result = await ZooKeeper.CreateContainerAsync(_NewNode, cancellationToken);
+        await Assert.That(result.AlreadyExisted).IsTrue();
+        await Assert.That(result.ContainerMissing).IsFalse();
+    }
+
+    [Test]
+    public async Task CreateContainerAsync_MissingContainer(CancellationToken cancellationToken)
+    {
+        var result = await ZooKeeper.CreateContainerAsync(_ChildNode, cancellationToken);
+        await Assert.That(result.ContainerMissing).IsTrue();
+        await Assert.That(result.AlreadyExisted).IsFalse();
     }
 }

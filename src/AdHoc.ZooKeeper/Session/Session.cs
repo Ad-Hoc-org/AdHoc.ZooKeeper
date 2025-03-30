@@ -40,6 +40,7 @@ internal sealed partial class Session
         try
         {
             Host = host;
+            _tcpClient?.Close();
             _tcpClient?.Dispose();
             _tcpClient = null;
 
@@ -54,8 +55,6 @@ internal sealed partial class Session
 
     internal async ValueTask CloseAsync()
     {
-        DeregisterWatchers();
-
         await _disposeSource.CancelAsync();
 
         var receiving = _receiving;
@@ -67,6 +66,7 @@ internal sealed partial class Session
         _tcpClient = null;
         if (client is not null)
         {
+            await _lock.WaitAsync();
             try
             {
                 await WriteAsync(client.GetStream(),
@@ -75,8 +75,10 @@ internal sealed partial class Session
                 );
             }
             catch { }
+            finally { _lock.Release(); }
             client.Dispose();
         }
+        _lock.Dispose();
     }
 
 

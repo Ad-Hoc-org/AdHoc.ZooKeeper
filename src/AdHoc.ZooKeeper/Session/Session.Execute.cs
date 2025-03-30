@@ -33,31 +33,21 @@ internal sealed partial class Session
     )
         where TResponse : IZooKeeperResponse
     {
-        TaskCompletionSource<Response>? pending;
-        while (!_pending.TryGetValue(PingTransaction.Request, out pending))
+        TaskCompletionSource<Response> pending = new();
+        using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
+        while (!_pending.TryAdd(PingTransaction.Request, pending))
+            if (_pending.TryGetValue(PingTransaction.Request, out var previous) && !previous.Task.IsCompleted)
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+                try { await previous.Task; } catch { }
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+        try
         {
-            await _lock.WaitAsync(cancellationToken);
-            try
-            {
-                if (!_pending.TryAdd(PingTransaction.Request, pending = new()))
-                    continue;
-            }
-            finally
-            {
-                _lock.Release();
-            }
             return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
         }
-
-        return await ReuseResponseAsync(pending);
-        async Task<TResponse> ReuseResponseAsync(
-            TaskCompletionSource<Response> pending
-        )
+        finally
         {
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            using var response = await pending.Task;
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-            return ReadTransaction(response._memory, root, transaction, null);
+            _pending.TryRemove(KeyValuePair.Create(PingTransaction.Request, pending));
+            await registration.DisposeAsync();
         }
     }
 }

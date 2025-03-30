@@ -43,7 +43,7 @@ public sealed record ExistsTransaction
         else
         {
             buffer[size++] = 1;
-            context.RegisterWatcher(path, Types.Any, Watch);
+            context.RegisterWatcher(path, Types.Exists, Watch);
         }
 
         return size;

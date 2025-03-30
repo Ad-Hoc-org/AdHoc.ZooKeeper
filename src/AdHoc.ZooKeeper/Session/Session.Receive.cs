@@ -4,7 +4,6 @@
 using System.Buffers;
 using System.Diagnostics;
 using System.Net.Sockets;
-using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper;
@@ -13,96 +12,81 @@ internal sealed partial class Session
 
     private Task _receiving = Task.CompletedTask;
 
-    private async Task ReceivingAsync(NetworkStream stream)
+    private Task ReceivingAsync(NetworkStream stream)
     {
-        var receiving = _receiving;
-        if (!receiving.IsCompleted)
-        {
-            await receiving;
-            return;
-        }
+        if (!_receiving.IsCompleted)
+            return _receiving;
 
-        CancellationToken cancellationToken = _disposeSource.Token;
-        await _lock.WaitAsync(cancellationToken);
-        try
-        {
+        lock (_receiving)
             if (!_receiving.IsCompleted)
-                receiving = _receiving;
+                return _receiving;
             else
-                _receiving = receiving = Task.Run(async () =>
+                return _receiving = ProcessDataAsync(stream, _disposeSource.Token);
+
+        async Task ProcessDataAsync(NetworkStream stream, CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+
+            IMemoryOwner<byte>? owner = null;
+            try
+            {
+                while (!_pending.IsEmpty || HasWatchers)
                 {
-                    IMemoryOwner<byte>? owner = null;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        ThrowWith(new ObjectDisposedException(this.ToString()));
+                        DeregisterWatchers();
+                        continue;
+                    }
+
                     try
                     {
-                        while (!_pending.IsEmpty || !_watchers.IsEmpty)
+                        var responseTask = ReadAsync(stream, owner, cancellationToken);
+                        while (!responseTask.IsCompleted)
                         {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                await ResponseWithAsync(new ObjectDisposedException(this.ToString()));
-                                DeregisterWatchers();
-                                continue;
-                            }
-
-                            try
-                            {
-                                var responseTask = ReadAsync(stream, owner, cancellationToken);
-                                while (!responseTask.IsCompleted)
-                                {
-                                    await Task.WhenAny(
-                                        responseTask,
-                                        KeepAliveAsync(cancellationToken)
-                                    );
-                                }
-                                var response = await responseTask;
-                                owner = response._owner;
-
-                                var requestIdentifier = ReadInt32(response._memory.Span);
-                                if (_pending.TryRemove(requestIdentifier, out var request))
-                                {
-                                    if (request.TrySetResult(response))
-                                        owner = null;
-                                }
-                                else if (requestIdentifier == NoRequest)
-                                {
-                                    DispatchEvent(response);
-                                }
-                                else
-                                {
-                                    Debug.Assert(false);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                if (cancellationToken.IsCancellationRequested)
-                                    await ResponseWithAsync(new ObjectDisposedException(this.ToString(), ex));
-                                else
-                                    await ResponseWithAsync(ex);
-                            }
+                            await Task.WhenAny(
+                                responseTask,
+                                KeepAliveAsync(cancellationToken)
+                            );
                         }
+                        var response = await responseTask;
+                        owner = response._owner;
+
+                        var requestIdentifier = ReadInt32(response._memory.Span);
+                        if (_pending.TryRemove(requestIdentifier, out var request))
+                        {
+                            if (request.TrySetResult(response))
+                                owner = null;
+                        }
+                        else if (requestIdentifier == NoRequest)
+                            DispatchEvent(response);
+                        else
+                            Debug.Assert(false);
                     }
-                    finally
+                    catch (Exception ex)
                     {
-                        owner?.Dispose();
+                        if (cancellationToken.IsCancellationRequested)
+                            ThrowWith(new ObjectDisposedException(this.ToString(), ex));
+                        else
+                            ThrowWith(ex);
+
+                        if (!stream.Socket.Connected)
+                            return; // receiving has to start with new connection
                     }
-                }, cancellationToken);
+                }
+            }
+            finally
+            {
+                owner?.Dispose();
+            }
         }
-        finally { _lock.Release(); }
-        await receiving;
     }
 
-    private async Task ResponseWithAsync(Exception exception)
+    private void ThrowWith(Exception exception)
     {
-        await _lock.WaitAsync();
-        try
-        {
-            while (!_pending.IsEmpty)
-                if (_pending.TryRemove(_pending.Keys.First(), out var request))
-                    request.TrySetException(exception);
-        }
-        finally
-        {
-            _lock.Release();
-        }
+        while (!_pending.IsEmpty)
+            if (_pending.TryRemove(_pending.Keys.FirstOrDefault(), out var request))
+                request.TrySetException(exception);
     }
 
 }

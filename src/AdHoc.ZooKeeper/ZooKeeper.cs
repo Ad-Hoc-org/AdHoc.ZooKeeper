@@ -67,7 +67,7 @@ public class ZooKeeper
         {
             return await ExecutingAsync(session, cancellationToken);
         }
-        catch (ConnectionException ex)
+        catch (ConnectionException ex) when (ex is not SessionExpiredException)
         {
             var result = await TryReconnectAsync(session, ex.Host, ex, ExecutingAsync, cancellationToken);
             if (result.Item2 is not null)

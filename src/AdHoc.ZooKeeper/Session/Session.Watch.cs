@@ -13,6 +13,8 @@ internal sealed partial class Session
     private readonly ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> _watchers = new();
     private readonly ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> _recursiveWatchers = new();
 
+    private bool HasWatchers => !_watchers.IsEmpty || !_recursiveWatchers.IsEmpty;
+
     private void DispatchEvent(Response response)
     {
         var @event = ZooKeeperEvent.Read(response._memory.Span, out _);
@@ -87,7 +89,7 @@ internal sealed partial class Session
 
     private async ValueTask ReregisterWatchersAsync(NetworkStream stream, CancellationToken cancellationToken)
     {
-        if (_watchers.IsEmpty)
+        if (!HasWatchers)
             return;
 
         ConcurrentDictionary<Types, HashSet<ZooKeeperPath>> paths = new();
@@ -103,7 +105,7 @@ internal sealed partial class Session
             SetWatchersTransaction.Create(
                 _lastTransaction,
                 data: paths.TryGetValue(Types.Data, out var data) ? data : null,
-                any: paths.TryGetValue(Types.Any, out var any) ? any : null,
+                exists: paths.TryGetValue(Types.Exists, out var exists) ? exists : null,
                 children: paths.TryGetValue(Types.Children, out var children) ? children : null,
                 persistent: paths.TryGetValue(Types.Persistent, out var persistent) ? persistent : null,
                 recursivePersistent: paths.TryGetValue(Types.RecursivePersistent, out var persistentRecursive) ? persistentRecursive : null
