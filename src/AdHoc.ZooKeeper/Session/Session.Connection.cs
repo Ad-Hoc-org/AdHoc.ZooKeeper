@@ -78,12 +78,12 @@ internal sealed partial class Session
             throw ZooKeeperException.CreateNoConnection(Host, exception);
         else if (Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout)
         {
-            //DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Disconnected, ZooKeeperPath.Empty));
+            DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Disconnected, ZooKeeperPath.Empty));
             throw ZooKeeperException.CreateLostConnection(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
         }
         else
         {
-            //DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Expired, ZooKeeperPath.Empty));
+            DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Expired, ZooKeeperPath.Empty));
             throw ZooKeeperException.CreateSessionExpired(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
         }
     }

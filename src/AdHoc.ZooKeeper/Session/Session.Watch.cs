@@ -77,14 +77,14 @@ internal sealed partial class Session
 
     private void DeregisterWatchers()
     {
-        DispatchConnectionEvent(new(_lastTransaction, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, States.Closed, ZooKeeperPath.Empty));
+        DispatchConnectionEvent(new(_lastTransaction, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, IsConnected ? States.Closed : States.Disconnected, ZooKeeperPath.Empty));
         Deregister(_watchers);
         Deregister(_recursiveWatchers);
 
         void Deregister(ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> watchesDict)
         {
             while (!watchesDict.IsEmpty)
-                if (watchesDict.TryRemove(_watchers.Keys.FirstOrDefault(), out var watchers))
+                if (watchesDict.TryRemove(watchesDict.Keys.FirstOrDefault(), out var watchers))
                     watchers.Clear();
         }
     }

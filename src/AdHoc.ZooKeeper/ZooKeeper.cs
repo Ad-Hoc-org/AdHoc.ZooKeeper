@@ -80,18 +80,21 @@ public class ZooKeeper
             {
                 Host host = session.Host;
                 _watchers.TryAdd(watcher, watch);
-                return async (watcher, @event, cancellationToken) =>
+                return (watcher, @event, cancellationToken) =>
                 {
-                    if (@event.State != States.Disconnected)
+                    if (@event.State == States.Disconnected)
                     {
-                        await watch(watcher, @event, cancellationToken);
-                        return;
+                        return new(Task.WhenAll(
+                            Task.Run(async () =>
+                            {
+                                await TryReconnectAsync<object?>(session, host, null, null, cancellationToken);
+                                host = session.Host;
+                            }, cancellationToken),
+                            Task.Run(async () => await watch(watcher, @event, cancellationToken), cancellationToken)
+                        ));
                     }
 
-                    var result = await TryReconnectAsync<object?>(session, host, null, null, cancellationToken);
-                    host = session.Host;
-                    if (result.Item2 is not null)
-                        await watch(watcher, @event, cancellationToken);
+                    return watch(watcher, @event, cancellationToken);
                 };
             }, cancellationToken);
     }

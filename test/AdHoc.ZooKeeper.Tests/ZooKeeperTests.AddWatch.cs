@@ -49,7 +49,7 @@ public partial class ZooKeeperTests
     }
 
     [Test]
-    [DependsOn(nameof(AddWatchAsync_PersistentRecursive))]
+    //[DependsOn(nameof(AddWatchAsync_PersistentRecursive))]
     public async Task AddWatchAsync_PersistentRecursive_Children(CancellationToken cancellationToken)
     {
         bool dispatched;
