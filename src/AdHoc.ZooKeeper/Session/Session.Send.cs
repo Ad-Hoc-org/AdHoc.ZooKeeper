@@ -41,7 +41,7 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     )
     {
-        Debug.Assert(_lock.CurrentCount == 0); // write should be sync
+        Debug.Assert(_writeLock.CurrentCount == 0); // write should be sync
         try
         {
             var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));

@@ -19,7 +19,8 @@ public class ZooKeeper
     internal Session? _session;
 
     private ImmutableArray<Host> _hosts;
-    private SemaphoreSlim _lock;
+    internal Host _currentHost;
+    private SemaphoreSlim _reconnectLock;
 
     private readonly ConcurrentDictionary<Watcher, WatchAsync> _watchers = new();
 
@@ -33,7 +34,7 @@ public class ZooKeeper
         _root = root;
         _hosts = hosts;
         _session = session;
-        _lock = @lock;
+        _reconnectLock = @lock;
     }
 
     public ZooKeeper(ZooKeeperConnection connection)
@@ -43,13 +44,13 @@ public class ZooKeeper
         _root = connection.Root;
         _hosts = [.. connection.Hosts];
         _session = new(
-            _hosts[Random.Shared.Next(0, _hosts.Length)],
+            _currentHost = _hosts[Random.Shared.Next(0, _hosts.Length)],
             connection.Authentications.ToFrozenSet(),
             connection.ConnectionTimeout,
             connection.SessionTimeout,
             connection.ReadOnly
         );
-        _lock = new SemaphoreSlim(1, 1);
+        _reconnectLock = new SemaphoreSlim(1, 1);
         _owned = true;
     }
 
@@ -78,7 +79,7 @@ public class ZooKeeper
         Task<TResponse> ExecutingAsync(Session session, CancellationToken cancellationToken) =>
             session.ExecuteAsync(transaction, _root, (watcher, watch) =>
             {
-                Host host = session.Host;
+                Host host = _currentHost;
                 _watchers.TryAdd(watcher, watch);
                 return (watcher, @event, cancellationToken) =>
                 {
@@ -88,7 +89,7 @@ public class ZooKeeper
                             Task.Run(async () =>
                             {
                                 await TryReconnectAsync<object?>(session, host, null, null, cancellationToken);
-                                host = session.Host;
+                                host = _currentHost;
                             }, cancellationToken),
                             Task.Run(async () => await watch(watcher, @event, cancellationToken), cancellationToken)
                         ));
@@ -110,53 +111,51 @@ public class ZooKeeper
     {
         int length = _hosts.Length;
         int usedIndex = _hosts.IndexOf(host);
-        int currentIndex = _hosts.IndexOf(session.Host);
+        int currentIndex = _hosts.IndexOf(_currentHost);
         var exceptions = new List<Exception>(length);
         if (exception is not null)
             exceptions.Add(exception);
 
-        if (usedIndex != currentIndex)
-            try
-            {
-                if (executeAsync is null)
-                    return default;
-                return (await executeAsync(session, cancellationToken), null);
-            }
-            catch (ConnectionException ex)
-            {
-                exceptions.Add(ex);
-            }
+        if (usedIndex != currentIndex) // already reconnected
+            return await InvokeExecute(session, executeAsync, cancellationToken);
 
-        await _lock.WaitAsync(cancellationToken);
+        await _reconnectLock.WaitAsync(cancellationToken);
         try
         {
-            currentIndex = (currentIndex + 1) % length;
-            while (usedIndex != currentIndex)
+            if (currentIndex != _hosts.IndexOf(_currentHost)) // already reconnected
+                return await InvokeExecute(session, executeAsync, cancellationToken);
+
+            if (usedIndex == -1)
+                usedIndex = Random.Shared.Next(0, _hosts.Length);
+            currentIndex = (usedIndex + 1) % length;
+            do
             {
                 try
                 {
-                    await session.ReconnectAsync(_hosts[currentIndex], cancellationToken);
-
-                    if (executeAsync is null)
-                        return default;
-                    return (await executeAsync(session, cancellationToken), null);
+                    _currentHost = _hosts[currentIndex];
+                    await session.ReconnectAsync(_currentHost, cancellationToken);
+                    return await InvokeExecute(session, executeAsync, cancellationToken);
                 }
                 catch (ConnectionException ex)
                 {
                     exceptions.Add(ex);
                 }
-
-                if (usedIndex == -1)
-                    usedIndex = currentIndex;
                 currentIndex = (currentIndex + 1) % length;
-            }
+            } while (currentIndex != usedIndex);
         }
         finally
         {
-            _lock.Release();
+            _reconnectLock.Release();
         }
 
         return (default, CreateConnectionException(host, $"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions)));
+
+        static async Task<(TResult?, ConnectionException?)> InvokeExecute<TResult>(Session session, Func<Session, CancellationToken, Task<TResult>>? executeAsync, CancellationToken cancellationToken)
+        {
+            if (executeAsync is null)
+                return default;
+            return (await executeAsync(session, cancellationToken), null);
+        }
     }
 
     private static ConnectionException CreateConnectionException(

@@ -8,7 +8,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 namespace AdHoc.ZooKeeper;
 internal sealed partial class Session
 {
-    internal Host Host { get; private set; }
+    private Host _host;
     private readonly FrozenSet<Authentication> _authentications;
     private readonly TimeSpan _connectionTimeout;
     private readonly TimeSpan _sessionTimeout;
@@ -26,7 +26,7 @@ internal sealed partial class Session
         bool readOnly
     )
     {
-        Host = host;
+        _host = host;
         _authentications = authentications;
         _connectionTimeout = connectionTimeout;
         _sessionTimeout = sessionTimeout;
@@ -36,10 +36,10 @@ internal sealed partial class Session
 
     internal async ValueTask ReconnectAsync(Host host, CancellationToken cancellationToken)
     {
-        await _lock.WaitAsync();
+        await _writeLock.WaitAsync(cancellationToken);
         try
         {
-            Host = host;
+            _host = host;
             _tcpClient?.Close();
             _tcpClient?.Dispose();
             _tcpClient = null;
@@ -50,7 +50,7 @@ internal sealed partial class Session
 
             await EnsureSessionAsync(cancellationToken);
         }
-        finally { _lock.Release(); }
+        finally { _writeLock.Release(); }
     }
 
     internal async ValueTask CloseAsync()
@@ -66,7 +66,7 @@ internal sealed partial class Session
         _tcpClient = null;
         if (client is not null)
         {
-            await _lock.WaitAsync();
+            await _writeLock.WaitAsync();
             try
             {
                 await WriteAsync(client.GetStream(),
@@ -75,10 +75,10 @@ internal sealed partial class Session
                 );
             }
             catch { }
-            finally { _lock.Release(); }
+            finally { _writeLock.Release(); }
             client.Dispose();
         }
-        _lock.Dispose();
+        _writeLock.Dispose();
     }
 
 

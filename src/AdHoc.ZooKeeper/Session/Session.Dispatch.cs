@@ -19,34 +19,17 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     ) where TResponse : IZooKeeperResponse
     {
-        await _lock.WaitAsync(cancellationToken);
         int request;
         TaskCompletionSource<Response> pending = new();
-        using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
-        try
+        do
         {
-            do
-            {
-                request = GetRequest(transaction.Operation);
-                Debug.Assert(request != PingTransaction.Request); // should be manage pending itself
-                if (request < 0)
-                    throw new InvalidOperationException("Session transactions are only allowed internally.");
-            } while (!_pending.TryAdd(request, pending));
-        }
-        finally
-        {
-            _lock.Release();
-        }
+            request = GetRequest(transaction.Operation);
+            Debug.Assert(request != PingTransaction.Request); // should be manage pending itself
+            if (request < 0)
+                throw new InvalidOperationException("Session transactions are only allowed internally.");
+        } while (!_pending.TryAdd(request, pending));
 
-        try
-        {
-            return await DispatchAsync(root, request, pending, transaction, registerWatcher, cancellationToken);
-        }
-        finally
-        {
-            await registration.DisposeAsync();
-            _pending.TryRemove(KeyValuePair.Create(request, pending));
-        }
+        return await DispatchAsync(root, request, pending, transaction, registerWatcher, cancellationToken);
     }
 
     private async Task<TResponse> DispatchAsync<TResponse>(
@@ -58,31 +41,45 @@ internal sealed partial class Session
         CancellationToken cancellationToken
     ) where TResponse : IZooKeeperResponse
     {
-        await _lock.WaitAsync(cancellationToken);
-        NetworkStream stream;
-        IZooKeeperWatcher? watcher = null;
+        Debug.Assert(_pending.Values.Contains(pending));
         try
         {
-            stream = await EnsureSessionAsync(cancellationToken);
-            await WriteAsync(
-                stream,
-                writer => WriteTransaction(
-                    writer, root, request, transaction,
-                    (ZooKeeperPath path, Types type, WatchAsync watch) =>
-                    {
-                        if (watcher is not null)
-                            throw new InvalidOperationException("Only one watcher per operation allowed");
-                        watcher = RegisterWatcher(path, type, watch, registerWatcher);
-                    }
-                ),
-                cancellationToken
-            );
-        }
-        finally { _lock.Release(); }
+            using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
+            await _writeLock.WaitAsync(cancellationToken);
+            NetworkStream stream;
+            IZooKeeperWatcher? watcher = null;
+            try
+            {
+                stream = await EnsureSessionAsync(cancellationToken);
+                await WriteAsync(
+                    stream,
+                    writer => WriteTransaction(
+                        writer, root, request, transaction,
+                        (ZooKeeperPath path, Types type, WatchAsync watch) =>
+                        {
+                            if (watcher is not null)
+                                throw new InvalidOperationException("Only one watcher per operation allowed");
+                            watcher = RegisterWatcher(path, type, watch, registerWatcher);
+                        }
+                    ),
+                    cancellationToken
+                );
+            }
+            catch (Exception ex)
+            {
+                pending.TrySetException(ex);
+                throw;
+            }
+            finally { _writeLock.Release(); }
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-        return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
+            return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+        }
+        finally
+        {
+            _pending.TryRemove(KeyValuePair.Create(request, pending));
+        }
     }
 
     private async Task<TResponse> ReceiveAsync<TResponse>(

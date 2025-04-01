@@ -121,7 +121,7 @@ public partial class ZooKeeperTests
     }
 
     private Task StopInstanceAsync(CancellationToken cancellationToken) =>
-        _containers.First(c => Session.Host.Port == c.GetMappedPublicPort(2181)).StopAsync(cancellationToken);
+        _containers.First(c => _zoo!._currentHost.Port == c.GetMappedPublicPort(2181)).StopAsync(cancellationToken);
 
     private async Task StopInstancesAsync(CancellationToken cancellationToken)
     {

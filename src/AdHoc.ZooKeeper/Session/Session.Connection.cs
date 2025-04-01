@@ -16,7 +16,7 @@ internal sealed partial class Session
     private long _lastTransaction;
 
     private TcpClient? _tcpClient;
-    private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     private Task _keepAlive = Task.CompletedTask;
 
@@ -38,7 +38,7 @@ internal sealed partial class Session
             await receiving; // wait until all pending request are canceled
 
             _tcpClient = new() { SendTimeout = (int)_connectionTimeout.TotalMilliseconds };
-            await _tcpClient.ConnectAsync(Host.Address, Host.Port, cancellationToken);
+            await _tcpClient.ConnectAsync(_host.Address, _host.Port, cancellationToken);
             var stream = _tcpClient.GetStream();
 
             _session = await SendAsync(stream,
@@ -75,16 +75,16 @@ internal sealed partial class Session
     private void ThrowConnection(Exception? exception = null)
     {
         if (_session is null)
-            throw ZooKeeperException.CreateNoConnection(Host, exception);
+            throw ZooKeeperException.CreateNoConnection(_host, exception);
         else if (Stopwatch.GetElapsedTime(_lastInteractionTimestamp) < _session.Value.SessionTimeout)
         {
             DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Disconnected, ZooKeeperPath.Empty));
-            throw ZooKeeperException.CreateLostConnection(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
+            throw ZooKeeperException.CreateLostConnection(_host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
         }
         else
         {
             DispatchConnectionEvent(new ZooKeeperEvent(0, ZooKeeperStatus.ConnectionLoss, ZooKeeperEvent.Types.None, IZooKeeper.States.Expired, ZooKeeperPath.Empty));
-            throw ZooKeeperException.CreateSessionExpired(Host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
+            throw ZooKeeperException.CreateSessionExpired(_host, _session.Value, _lastTransaction, _lastInteractionTimestamp, exception);
         }
     }
 
@@ -127,7 +127,7 @@ internal sealed partial class Session
                 return;
 
             if (HasWatchers)
-                await ExecutePingAsync(ZooKeeperPath.Root, Ping, cancellationToken); ;
+                await ExecutePingAsync(ZooKeeperPath.Root, Ping, cancellationToken);
         }
     }
 

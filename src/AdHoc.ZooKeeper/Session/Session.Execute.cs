@@ -34,20 +34,15 @@ internal sealed partial class Session
         where TResponse : IZooKeeperResponse
     {
         TaskCompletionSource<Response> pending = new();
-        using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
         while (!_pending.TryAdd(PingTransaction.Request, pending))
-            if (_pending.TryGetValue(PingTransaction.Request, out var previous) && !previous.Task.IsCompleted)
+            if (_pending.TryGetValue(PingTransaction.Request, out var previous))
+                if (previous.Task.IsCompleted) // if that task is faster and block the removing from concurrent dict
+                    _pending.TryRemove(KeyValuePair.Create(PingTransaction.Request, previous));
+                else
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-                try { await previous.Task; } catch { }
+                    try { await previous.Task; } catch { }
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
-        try
-        {
-            return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
-        }
-        finally
-        {
-            _pending.TryRemove(KeyValuePair.Create(PingTransaction.Request, pending));
-            await registration.DisposeAsync();
-        }
+
+        return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
     }
 }

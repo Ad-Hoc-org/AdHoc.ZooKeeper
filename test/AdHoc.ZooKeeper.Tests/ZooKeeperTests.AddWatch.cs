@@ -49,7 +49,7 @@ public partial class ZooKeeperTests
     }
 
     [Test]
-    //[DependsOn(nameof(AddWatchAsync_PersistentRecursive))]
+    [DependsOn(nameof(AddWatchAsync_PersistentRecursive))]
     public async Task AddWatchAsync_PersistentRecursive_Children(CancellationToken cancellationToken)
     {
         bool dispatched;
@@ -112,7 +112,6 @@ public partial class ZooKeeperTests
         await Assert.That(dispatched).IsTrue();
 
         await StopInstancesAsync(cancellationToken);
-        await Assert.ThrowsAsync<ConnectionLostException>(() => ZooKeeper.PingAsync(cancellationToken));
         await StartInstancesAsync(cancellationToken);
 
         dispatched = false;
