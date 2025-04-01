@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

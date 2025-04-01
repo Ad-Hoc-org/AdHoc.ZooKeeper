@@ -91,7 +91,7 @@ public class ZooKeeper
                                 await TryReconnectAsync<object?>(session, host, null, null, cancellationToken);
                                 host = _currentHost;
                             }, cancellationToken),
-                            Task.Run(async () => await watch(watcher, @event, cancellationToken), cancellationToken)
+                            watch(watcher, @event, cancellationToken).AsTask()
                         ));
                     }
 
@@ -117,13 +117,13 @@ public class ZooKeeper
             exceptions.Add(exception);
 
         if (usedIndex != currentIndex) // already reconnected
-            return await InvokeExecute(session, executeAsync, cancellationToken);
+            return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
 
         await _reconnectLock.WaitAsync(cancellationToken);
         try
         {
             if (currentIndex != _hosts.IndexOf(_currentHost)) // already reconnected
-                return await InvokeExecute(session, executeAsync, cancellationToken);
+                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
 
             if (usedIndex == -1)
                 usedIndex = Random.Shared.Next(0, _hosts.Length);
@@ -134,7 +134,7 @@ public class ZooKeeper
                 {
                     _currentHost = _hosts[currentIndex];
                     await session.ReconnectAsync(_currentHost, cancellationToken);
-                    return await InvokeExecute(session, executeAsync, cancellationToken);
+                    return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
                 }
                 catch (ConnectionException ex)
                 {
@@ -150,11 +150,11 @@ public class ZooKeeper
 
         return (default, CreateConnectionException(host, $"Couldn't establish a stable connection to any of {string.Join(", ", _hosts)}.", new AggregateException(exceptions)));
 
-        static async Task<(TResult?, ConnectionException?)> InvokeExecute<TResult>(Session session, Func<Session, CancellationToken, Task<TResult>>? executeAsync, CancellationToken cancellationToken)
+        static Task<TResult> InvokeExecuteAsync(Session session, Func<Session, CancellationToken, Task<TResult>>? executeAsync, CancellationToken cancellationToken)
         {
             if (executeAsync is null)
-                return default;
-            return (await executeAsync(session, cancellationToken), null);
+                return Task.FromResult<TResult>(default!);
+            return executeAsync(session, cancellationToken);
         }
     }
 

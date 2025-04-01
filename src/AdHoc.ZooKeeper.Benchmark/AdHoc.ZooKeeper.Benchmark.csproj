@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <NoWarn>VSTHRD200;VSTHRD002</NoWarn>
+    <NoError>VSTHRD002</NoError>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="ZooKeeperNetEx" />
+    <PackageReference Include="Testcontainers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdHoc.ZooKeeper\AdHoc.ZooKeeper.csproj" />
+  </ItemGroup>
+
+</Project>

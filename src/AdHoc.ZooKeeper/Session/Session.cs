@@ -46,7 +46,7 @@ internal sealed partial class Session
 
             var receiving = _receiving;
             _receiving = Task.CompletedTask;
-            try { await receiving; } catch { }
+            try { await receiving.WaitAsync(cancellationToken); } catch { }
 
             await EnsureSessionAsync(cancellationToken);
         }

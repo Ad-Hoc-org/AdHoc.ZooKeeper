@@ -5,6 +5,7 @@
   <ItemGroup Label="Microsoft">
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="[9.0,]" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="[9.0,]" />
+    <PackageVersion Include="ZooKeeperNetEx" Version="3.4.12.4" />
   </ItemGroup>
   <ItemGroup Label="System">
     <PackageVersion Include="System.IO.Pipelines" Version="[9.0,]" />

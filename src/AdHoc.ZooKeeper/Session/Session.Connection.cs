@@ -27,6 +27,7 @@ internal sealed partial class Session
 
     private async ValueTask<NetworkStream> EnsureSessionAsync(CancellationToken cancellationToken)
     {
+        Debug.Assert(_writeLock.CurrentCount == 0); // write should be sync
         try
         {
             if (IsConnected)
@@ -35,7 +36,7 @@ internal sealed partial class Session
             var receiving = _receiving;
             _tcpClient?.Close();
             _tcpClient?.Dispose();
-            await receiving; // wait until all pending request are canceled
+            await receiving.WaitAsync(cancellationToken); // wait until all pending request are canceled
 
             _tcpClient = new() { SendTimeout = (int)_connectionTimeout.TotalMilliseconds };
             await _tcpClient.ConnectAsync(_host.Address, _host.Port, cancellationToken);
@@ -102,8 +103,6 @@ internal sealed partial class Session
         }
         async Task PingIfNeededAsync(CancellationToken cancellationToken)
         {
-            await Task.Yield();
-
             var session = _session;
             if (session is null)
                 return; // not connected

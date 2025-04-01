@@ -35,10 +35,8 @@ internal sealed partial class Session
     {
         TaskCompletionSource<Response> pending = new();
         while (!_pending.TryAdd(PingTransaction.Request, pending))
-            if (_pending.TryGetValue(PingTransaction.Request, out var previous))
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-                await Task.Run(async () => { try { await previous.Task; } catch { } }, cancellationToken);
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+            if (_pending.TryGetValue(PingTransaction.Request, out var previous) && !previous.Task.IsCompleted)
+                try { await previous.Task.WaitAsync(cancellationToken); } catch { }
 
         return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
     }

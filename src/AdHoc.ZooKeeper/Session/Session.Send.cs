@@ -27,7 +27,7 @@ internal sealed partial class Session
     )
     {
         // sync so no async pending allowed
-        Debug.Assert(_pending.IsEmpty);
+        Debug.Assert(IsConnected || _pending.IsEmpty);
         Debug.Assert(_receiving.IsCompleted);
 
         await WriteAsync(stream, write, cancellationToken);

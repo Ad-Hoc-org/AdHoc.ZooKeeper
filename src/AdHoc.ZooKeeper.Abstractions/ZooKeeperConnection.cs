@@ -203,8 +203,8 @@ public sealed record ZooKeeperConnection
 
     public override string ToString() =>
         $"zookeeper://{string.Join(',', Hosts)}{Root}" +
-        $"?sessionTimeout={SessionTimeout.Milliseconds}" +
-        $"&connectionTimeout={ConnectionTimeout.Milliseconds}" +
+        $"?sessionTimeout={SessionTimeout.TotalMilliseconds}" +
+        $"&connectionTimeout={ConnectionTimeout.TotalMilliseconds}" +
         $"&readOnly={ReadOnly}" +
         $"{(Authentications.Count == 0 ? string.Empty
             : '&' + string.Join('&', Authentications.Select(a => $"auth={a}"))
