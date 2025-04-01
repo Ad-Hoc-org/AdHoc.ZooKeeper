@@ -160,9 +160,9 @@ internal sealed partial class Session
     )
         where TResponse : IZooKeeperResponse
     {
-        var context = Response.ToContext(data.Span, root, watcher);
+        var context = Response.ToContext(root, transaction.Operation, data.Span, watcher);
         _lastTransaction = context.Transaction;
-        return transaction.ReadResponse(context);
+        return transaction.ReadResponse(context, out _);
     }
 
     private readonly struct Response
@@ -178,11 +178,12 @@ internal sealed partial class Session
             _memory = memory;
         }
 
-        internal ZooKeeperReadContext ToContext(ZooKeeperPath root, IZooKeeperWatcher? watcher) =>
-            ToContext(_memory.Span, root, watcher);
+        internal ZooKeeperReadContext ToContext(ZooKeeperPath root, ZooKeeperOperations operation, IZooKeeperWatcher? watcher) =>
+            ToContext(root, operation, _memory.Span, watcher);
 
-        internal static ZooKeeperReadContext ToContext(ReadOnlySpan<byte> data, ZooKeeperPath root, IZooKeeperWatcher? watcher) => new(
+        internal static ZooKeeperReadContext ToContext(ZooKeeperPath root, ZooKeeperOperations operation, ReadOnlySpan<byte> data, IZooKeeperWatcher? watcher) => new(
             root,
+            operation: operation,
             request: ReadInt32(data),
             transaction: ReadInt64(data.Slice(RequestSize)),
             status: (ZooKeeperStatus)ReadInt32(data.Slice(RequestSize + TransactionSize)),

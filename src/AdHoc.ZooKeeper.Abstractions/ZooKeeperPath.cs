@@ -91,7 +91,7 @@ public readonly struct ZooKeeperPath
     }
 
 
-    public ZooKeeperPath Normalize(ZooKeeperPath root) =>
+    public ZooKeeperPath Normalize(in ZooKeeperPath root) =>
         IsRoot ? root
         : IsAbsolute ? Node
         : Combine(root.Absolute, Node);
@@ -223,7 +223,7 @@ public readonly struct ZooKeeperPath
 
 
 
-    public int GetMaxBufferSize(ZooKeeperPath root = default) =>
+    public int GetMaxBufferSize(in ZooKeeperPath root = default) =>
         LengthSize + Encoding.UTF8.GetMaxByteCount(root.Memory.Length) + 1 // separator if needed
             + Encoding.UTF8.GetMaxByteCount(Memory.Length);
 

@@ -22,7 +22,7 @@ public sealed record CreateTransaction
         SequentialWithTimeToLive = Sequential | WithTimeToLive
     }
 
-    // TODO will be different depending on ttl and container
+
     public ZooKeeperOperations Operation { get; }
 
 
@@ -116,28 +116,36 @@ public sealed record CreateTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        // in multi transaction the response may not match the operation
+        Debug.Assert(context.Operation == Operation
+            || context.Operation is ZooKeeperOperations.Create or ZooKeeperOperations.CreateWithNode);
+
+        size = 0;
         if (context.Status == ZooKeeperStatus.NodeExists)
-            return new(context.Transaction, Path.Normalize(context.Root), true, false);
+            return new(context.Transaction, Path.Normalize(context.Root), default, true, false);
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, Path.Normalize(context.Root), false, true);
+            return new(context.Transaction, Path.Normalize(context.Root), default, false, true);
 
         if (context.Status == ZooKeeperStatus.Unimplemented && TimeToLive is not null)
             throw new ResponseException(ZooKeeperStatus.Unimplemented, "Nodes with time to live are not supported. Please enable extended types on the server to use this feature.");
         context.Status.ThrowIfError();
 
-        return new(
-            context.Transaction,
-            ZooKeeperPath.Read(context.Data, out _),
-            false,
-            false
-        );
+        ZooKeeperPath path = ZooKeeperPath.Read(context.Data, out size);
+        ZooKeeperNode? node = default;
+        if (context.Operation is ZooKeeperOperations.CreateWithNode)
+        {
+            node = ZooKeeperNode.Read(context.Data.Slice(size), out int nodeSize);
+            size += nodeSize;
+        }
+        return new(context.Transaction, path, node, false, false);
     }
 
     public readonly record struct Response(
         long Transaction,
         ZooKeeperPath Path,
+        ZooKeeperNode? Node,
         bool AlreadyExisted,
         bool ContainerMissing
     ) : IZooKeeperResponse
@@ -148,126 +156,238 @@ public sealed record CreateTransaction
 
 public static partial class ZooKeeperTransactions
 {
+    #region ZooKeeper
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, data, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, data, false), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
 
 
 
     public static Task<Response> CreateContainerAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateContainer(path, data), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateContainer(path, data), cancellationToken);
 
     public static Task<Response> CreateContainerAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateContainer(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateContainer(path, ReadOnlyMemory<byte>.Empty), cancellationToken);
 
 
 
     public static Task<Response> CreateEphemeralAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, data, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateEphemeral(path, data, sequential), cancellationToken);
 
     public static Task<Response> CreateEphemeralAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, data, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateEphemeral(path, data, false), cancellationToken);
 
     public static Task<Response> CreateEphemeralAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, sequential), cancellationToken);
 
     public static Task<Response> CreateEphemeralAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, false), cancellationToken);
 
 
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         TimeSpan timeToLive,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, timeToLive, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, data, timeToLive, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         TimeSpan timeToLive,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, timeToLive, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, data, timeToLive, false), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         TimeSpan timeToLive,
         bool sequential,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, sequential), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, sequential), cancellationToken);
 
     public static Task<Response> CreateAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         TimeSpan timeToLive,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, false), cancellationToken);
+        zooKeeper.ExecuteAsync(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, false), cancellationToken);
 
+    #endregion ZooKeeper
+    #region Transaction
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, data, sequential));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, data, false));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, sequential));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, false));
+
+
+
+    public static ZooKeeperTransaction.Builder CreateContainer(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateContainer(path, data));
+
+    public static ZooKeeperTransaction.Builder CreateContainer(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateContainer(path, ReadOnlyMemory<byte>.Empty));
+
+
+
+    public static ZooKeeperTransaction.Builder CreateEphemeral(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateEphemeral(path, data, sequential));
+
+    public static ZooKeeperTransaction.Builder CreateEphemeral(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateEphemeral(path, data, false));
+
+    public static ZooKeeperTransaction.Builder CreateEphemeral(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, sequential));
+
+    public static ZooKeeperTransaction.Builder CreateEphemeral(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path
+    ) =>
+        transaction.AddTransaction(CreateTransaction.CreateEphemeral(path, ReadOnlyMemory<byte>.Empty, false));
+
+
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        TimeSpan timeToLive,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, data, timeToLive, sequential));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        TimeSpan timeToLive
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, data, timeToLive, false));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        TimeSpan timeToLive,
+        bool sequential
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, sequential));
+
+    public static ZooKeeperTransaction.Builder Create(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        TimeSpan timeToLive
+    ) =>
+        transaction.AddTransaction(CreateTransaction.Create(path, ReadOnlyMemory<byte>.Empty, timeToLive, false));
+
+    #endregion Transaction
 }

@@ -68,22 +68,24 @@ internal sealed partial class Session
 #pragma warning restore VSTHRD110 // Observe result of async calls
     }
 
+    private void DispatchConnectionEvent(ZooKeeperEvent @event)
+    {
+        foreach (var (_, watchers) in _watchers.Concat(_recursiveWatchers))
+            foreach (var (watcher, watch) in watchers)
+                DispatchEvent(watcher, watch, @event, CancellationToken.None);
+    }
+
     private void DeregisterWatchers()
     {
-        var state = IsConnected ? States.Closed : States.Disconnected;
-        ZooKeeperEvent ev = new(_lastTransaction, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, state, ZooKeeperPath.Empty);
-        Deregister(_watchers, ev);
-        Deregister(_recursiveWatchers, ev);
+        DispatchConnectionEvent(new(_lastTransaction, ZooKeeperStatus.Ok, ZooKeeperEvent.Types.None, States.Closed, ZooKeeperPath.Empty));
+        Deregister(_watchers);
+        Deregister(_recursiveWatchers);
 
-        void Deregister(ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> watchesDict, ZooKeeperEvent ev)
+        void Deregister(ConcurrentDictionary<ZooKeeperPath, ConcurrentDictionary<Watcher, WatchAsync>> watchesDict)
         {
             while (!watchesDict.IsEmpty)
-            {
-                var key = _watchers.Keys.FirstOrDefault();
-                if (watchesDict.TryRemove(key, out var watchers))
-                    foreach (var (watcher, watch) in watchers)
-                        DispatchEvent(watcher, watch, ev, CancellationToken.None);
-            }
+                if (watchesDict.TryRemove(_watchers.Keys.FirstOrDefault(), out var watchers))
+                    watchers.Clear();
         }
     }
 

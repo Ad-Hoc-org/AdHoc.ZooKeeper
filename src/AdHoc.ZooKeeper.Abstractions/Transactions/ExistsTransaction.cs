@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using static AdHoc.ZooKeeper.Abstractions.ExistsTransaction;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
@@ -50,19 +51,22 @@ public sealed record ExistsTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        Debug.Assert(context.Operation == Operation);
+
+        size = 0;
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, default, context.Watcher);
+            return new(context.Transaction, Path.Normalize(context.Root), default, context.Watcher);
 
         context.Status.ThrowIfError();
 
         return new(
             context.Transaction,
+            Path.Normalize(context.Root),
             ZooKeeperNode.Read(
                 context.Data,
-                Path.Normalize(context.Root),
-                out _
+                out size
             ),
             context.Watcher
         );
@@ -71,6 +75,7 @@ public sealed record ExistsTransaction
 
     public readonly record struct Response(
         long Transaction,
+        ZooKeeperPath Path,
         ZooKeeperNode? Node,
         IZooKeeperWatcher? Watcher
     ) :
@@ -91,7 +96,7 @@ public static partial class ZooKeeperTransactions
         WatchAsync watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, watch), cancellationToken);
+        zooKeeper.ExecuteAsync(ExistsTransaction.Create(path, watch), cancellationToken);
 
     public static Task<Response> ExistsAsync(
         this IZooKeeper zooKeeper,
@@ -99,12 +104,12 @@ public static partial class ZooKeeperTransactions
         Watch watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, watch.ToAsyncWatch()), cancellationToken);
+        zooKeeper.ExecuteAsync(ExistsTransaction.Create(path, watch.ToAsyncWatch()), cancellationToken);
 
     public static Task<Response> ExistsAsync(
         this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path), cancellationToken);
+        zooKeeper.ExecuteAsync(ExistsTransaction.Create(path), cancellationToken);
 }

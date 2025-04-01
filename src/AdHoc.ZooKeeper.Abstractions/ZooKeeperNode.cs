@@ -5,21 +5,20 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
 namespace AdHoc.ZooKeeper.Abstractions;
 public readonly record struct ZooKeeperNode(
-    ZooKeeperPath Path,
-    long Creator,
-    long LastModifier,
-    DateTimeOffset CreatedAt,
-    DateTimeOffset ModifiedAt,
-    int Version,
-    int ChildVersion,
-    int AccessControlListVersion,
-    long EphemeralOwner,
-    int Length,
-    int ChildrenCount,
-    long ChildrenLastModifier
+    long Creator = -1,
+    long LastModifier = -1,
+    DateTimeOffset CreatedAt = default,
+    DateTimeOffset ModifiedAt = default,
+    int Version = -1,
+    int ChildVersion = -1,
+    int AccessControlListVersion = -1,
+    long EphemeralOwner = -1,
+    int Length = -1,
+    int ChildrenCount = -1,
+    long ChildrenLastModifier = -1
 )
 {
-    public static ZooKeeperNode Read(ReadOnlySpan<byte> source, ZooKeeperPath path, out int size)
+    public static ZooKeeperNode Read(ReadOnlySpan<byte> source, out int size)
     {
         size = SessionSize + SessionSize
             + TimestampSize + TimestampSize
@@ -28,18 +27,17 @@ public readonly record struct ZooKeeperNode(
             + LengthSize + Int32Size
             + SessionSize;
         return new ZooKeeperNode(
-            path,
-            ReadInt64(source),
-            ReadInt64(source.Slice(SessionSize)),
-            ReadTimestamp(source.Slice(SessionSize + SessionSize)),
-            ReadTimestamp(source.Slice(SessionSize + SessionSize + TimestampSize)),
-            ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize)),
-            ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize)),
-            ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize)),
-            ReadInt64(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize)),
-            ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize)),
-            ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize + LengthSize)),
-            ReadInt64(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize + LengthSize + Int32Size))
+            Creator: ReadInt64(source),
+            LastModifier: ReadInt64(source.Slice(SessionSize)),
+            CreatedAt: ReadTimestamp(source.Slice(SessionSize + SessionSize)),
+            ModifiedAt: ReadTimestamp(source.Slice(SessionSize + SessionSize + TimestampSize)),
+            Version: ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize)),
+            ChildVersion: ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize)),
+            AccessControlListVersion: ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize)),
+            EphemeralOwner: ReadInt64(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize)),
+            Length: ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize)),
+            ChildrenCount: ReadInt32(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize + LengthSize)),
+            ChildrenLastModifier: ReadInt64(source.Slice(SessionSize + SessionSize + TimestampSize + TimestampSize + VersionSize + VersionSize + VersionSize + SessionSize + LengthSize + Int32Size))
         );
     }
 }

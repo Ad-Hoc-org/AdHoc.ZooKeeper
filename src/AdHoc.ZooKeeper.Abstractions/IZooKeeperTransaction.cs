@@ -7,8 +7,16 @@ namespace AdHoc.ZooKeeper.Abstractions;
 /// Represents a ZooKeeper transaction interface.
 /// </summary>
 /// <typeparam name="TResponse">The type of the response.</typeparam>
-public interface IZooKeeperTransaction<TResponse>
+public interface IZooKeeperTransaction<out TResponse>
+    : IZooKeeperTransaction
     where TResponse : IZooKeeperResponse
+{
+    IZooKeeperResponse IZooKeeperTransaction.ReadResponse(in ZooKeeperReadContext context, out int size) =>
+        ReadResponse(context, out size);
+    new TResponse ReadResponse(in ZooKeeperReadContext context, out int size);
+}
+
+public interface IZooKeeperTransaction
 {
     /// <summary>
     /// Gets the ZooKeeper operation associated with this transaction.
@@ -36,5 +44,5 @@ public interface IZooKeeperTransaction<TResponse>
     /// </summary>
     /// <param name="context">The read context.</param>
     /// <returns>The response.</returns>
-    TResponse ReadResponse(in ZooKeeperReadContext context);
+    IZooKeeperResponse ReadResponse(in ZooKeeperReadContext context, out int size);
 }

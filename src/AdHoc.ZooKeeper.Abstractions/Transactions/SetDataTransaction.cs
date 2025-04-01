@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using static AdHoc.ZooKeeper.Abstractions.SetDataTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
@@ -47,19 +48,23 @@ public sealed record SetDataTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        Debug.Assert(context.Operation == Operation);
+
+        size = 0;
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, default);
+            return new(context.Transaction, Path.Normalize(context.Root), default);
 
         context.Status.ThrowIfError();
 
-        return new(context.Transaction, ZooKeeperNode.Read(context.Data, (context.Root + Path).Absolute, out _));
+        return new(context.Transaction, Path.Normalize(context.Root), ZooKeeperNode.Read(context.Data, out _));
     }
 
 
     public readonly record struct Response(
         long Transaction,
+        ZooKeeperPath Path,
         ZooKeeperNode? Node
     ) : IZooKeeperResponse
     {
@@ -70,19 +75,35 @@ public sealed record SetDataTransaction
 public static partial class ZooKeeperTransactions
 {
     public static Task<Response> SetDataAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         int version,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data, version), cancellationToken);
+        zooKeeper.ExecuteAsync(SetDataTransaction.Create(path, data, version), cancellationToken);
 
     public static Task<Response> SetDataAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         ReadOnlyMemory<byte> data,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, data), cancellationToken);
+        zooKeeper.ExecuteAsync(SetDataTransaction.Create(path, data), cancellationToken);
+
+
+    public static ZooKeeperTransaction.Builder SetData(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data,
+        int version
+    ) =>
+        transaction.AddTransaction(SetDataTransaction.Create(path, data, version));
+
+    public static ZooKeeperTransaction.Builder SetData(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        ReadOnlyMemory<byte> data
+    ) =>
+        transaction.AddTransaction(SetDataTransaction.Create(path, data));
 }

@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using static AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
@@ -39,9 +40,11 @@ public sealed record RemoveWatchTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        Debug.Assert(context.Operation == Operation);
         context.Status.ThrowIfError();
+        size = 0;
         return new(context.Transaction);
     }
 

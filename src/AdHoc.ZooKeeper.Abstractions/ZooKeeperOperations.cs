@@ -26,7 +26,7 @@ public enum ZooKeeperOperations
     //CheckWatch = 17,
     RemoveWatch = 18,
     CreateContainer = 19,
-    DeleteContainer = 20,
+    //DeleteContainer = 20,
     CreateWithTimeToLive = 21,
     ReadTransaction = 22,
     Authentication = 100,

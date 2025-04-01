@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using static AdHoc.ZooKeeper.Abstractions.DeleteTransaction;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
@@ -43,20 +44,24 @@ public sealed record DeleteTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        Debug.Assert(context.Operation == Operation);
+
+        size = 0;
         if (context.Status == ZooKeeperStatus.NoNode)
-            return new(context.Transaction, false, false);
+            return new(context.Transaction, Path.Normalize(context.Root), false, false);
         if (context.Status == ZooKeeperStatus.NotEmpty)
-            return new(context.Transaction, false, true);
+            return new(context.Transaction, Path.Normalize(context.Root), false, true);
 
         context.Status.ThrowIfError();
 
-        return new(context.Transaction, true, false);
+        return new(context.Transaction, Path.Normalize(context.Root), true, false);
     }
 
     public readonly record struct Response(
         long Transaction,
+        ZooKeeperPath Path,
         bool Deleted,
         bool NotEmpty
     ) : IZooKeeperResponse;
@@ -65,17 +70,30 @@ public sealed record DeleteTransaction
 public static partial class ZooKeeperTransactions
 {
     public static Task<Response> DeleteAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         int version,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, version), cancellationToken);
+        zooKeeper.ExecuteAsync(DeleteTransaction.Create(path, version), cancellationToken);
 
     public static Task<Response> DeleteAsync(
-        this IZooKeeperTransactable zooKeeper,
+        this IZooKeeper zooKeeper,
         ZooKeeperPath path,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path), cancellationToken);
+        zooKeeper.ExecuteAsync(DeleteTransaction.Create(path), cancellationToken);
+
+    public static ZooKeeperTransaction.Builder Delete(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path,
+        int version
+    ) =>
+        transaction.AddTransaction(DeleteTransaction.Create(path, version));
+
+    public static ZooKeeperTransaction.Builder Delete(
+        this ZooKeeperTransaction.Builder transaction,
+        ZooKeeperPath path
+    ) =>
+        transaction.AddTransaction(DeleteTransaction.Create(path));
 }

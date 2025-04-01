@@ -19,9 +19,11 @@ public sealed record PingTransaction
     public int GetMaxRequestSize(in ZooKeeperPath root) => 0;
     public int WriteRequest(in ZooKeeperWriteContext context) => 0;
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
         Debug.Assert(context.Request == Request);
+        Debug.Assert(context.Operation == Operation);
+        size = 0;
         return new(
             context.Transaction,
             context.Status
@@ -43,5 +45,5 @@ public static partial class ZooKeeperTransactions
         this IZooKeeper zooKeeper,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Ping, cancellationToken);
+        zooKeeper.ExecuteAsync(Ping, cancellationToken);
 }

@@ -100,10 +100,12 @@ public sealed record SetWatchersTransaction
     }
 
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
+        Debug.Assert(context.Operation == Operation);
         Debug.Assert(context.Request == Request);
         context.Status.ThrowIfError();
+        size = 0;
         return new(context.Transaction);
     }
 

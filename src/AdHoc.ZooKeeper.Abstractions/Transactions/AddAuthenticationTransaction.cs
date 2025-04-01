@@ -42,13 +42,13 @@ public sealed record AddAuthenticationTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
         Debug.Assert(context.Request == Request);
+        Debug.Assert(context.Operation == Operation);
         context.Status.ThrowIfError();
-        return new(
-            context.Transaction
-        );
+        size = 0;
+        return new(context.Transaction);
     }
 
     public readonly record struct Response(long Transaction) : IZooKeeperResponse;

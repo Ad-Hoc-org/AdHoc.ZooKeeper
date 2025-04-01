@@ -50,10 +50,12 @@ public sealed record AddWatchTransaction
         return size;
     }
 
-    public Response ReadResponse(in ZooKeeperReadContext context)
+    public Response ReadResponse(in ZooKeeperReadContext context, out int size)
     {
         Debug.Assert(context.Watcher is not null);
+        Debug.Assert(context.Operation == Operation);
         context.Status.ThrowIfError();
+        size = 0;
         return new(context.Transaction, context.Watcher);
     }
 
@@ -78,7 +80,7 @@ public static partial class ZooKeeperTransactions
         WatchAsync watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, recursive, watch), cancellationToken);
+        zooKeeper.ExecuteAsync(AddWatchTransaction.Create(path, recursive, watch), cancellationToken);
 
     public static Task<Response> AddWatchAsync(
         this IZooKeeper zooKeeper,
@@ -87,7 +89,7 @@ public static partial class ZooKeeperTransactions
         Watch watch,
         CancellationToken cancellationToken
     ) =>
-        zooKeeper.ProcessAsync(Create(path, recursive, watch.ToAsyncWatch()), cancellationToken);
+        zooKeeper.ExecuteAsync(AddWatchTransaction.Create(path, recursive, watch.ToAsyncWatch()), cancellationToken);
 
     public static Task<Response> AddWatchAsync(
         this IZooKeeper zooKeeper,

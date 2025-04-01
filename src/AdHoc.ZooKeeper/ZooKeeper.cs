@@ -57,7 +57,7 @@ public class ZooKeeper
         : this(Parse(connectionString)) { }
 
 
-    public async Task<TResponse> ProcessAsync<TResponse>(IZooKeeperTransaction<TResponse> transaction, CancellationToken cancellationToken)
+    public async Task<TResponse> ExecuteAsync<TResponse>(IZooKeeperTransaction<TResponse> transaction, CancellationToken cancellationToken)
         where TResponse : IZooKeeperResponse
     {
         ArgumentNullException.ThrowIfNull(transaction);

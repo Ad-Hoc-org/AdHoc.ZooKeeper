@@ -14,4 +14,7 @@ public readonly ref struct ZooKeeperWriteContext(
     public Span<byte> Buffer { get; } = buffer;
     public void RegisterWatcher(ZooKeeperPath path, Types type, WatchAsync watch) =>
         registerWatcher(path, type, watch);
+
+    public ZooKeeperWriteContext Slice(int start) =>
+        new(Root, Buffer.Slice(start), registerWatcher);
 }
