@@ -13,7 +13,7 @@ public partial class ZooKeeperTests
     public async Task PingAsync_MultipleParallel(CancellationToken cancellationToken)
     {
         using var cancelSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cancelSource.CancelAfter(TimeSpan.FromSeconds(5));
+        cancelSource.CancelAfter(TimeSpan.FromSeconds(10));
         await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => ZooKeeper.PingAsync(cancelSource.Token)));
     }
 

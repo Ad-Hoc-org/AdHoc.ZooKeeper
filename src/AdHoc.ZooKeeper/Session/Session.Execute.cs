@@ -36,11 +36,8 @@ internal sealed partial class Session
         TaskCompletionSource<Response> pending = new();
         while (!_pending.TryAdd(PingTransaction.Request, pending))
             if (_pending.TryGetValue(PingTransaction.Request, out var previous))
-                if (previous.Task.IsCompleted) // if that task is faster and block the removing from concurrent dict
-                    _pending.TryRemove(KeyValuePair.Create(PingTransaction.Request, previous));
-                else
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-                    try { await previous.Task; } catch { }
+                await Task.Run(async () => { try { await previous.Task; } catch { } }, cancellationToken);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
 
         return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);

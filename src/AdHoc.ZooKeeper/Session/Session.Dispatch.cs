@@ -44,7 +44,11 @@ internal sealed partial class Session
         Debug.Assert(_pending.Values.Contains(pending));
         try
         {
-            using CancellationTokenRegistration registration = cancellationToken.Register(() => pending.TrySetCanceled(cancellationToken));
+            using CancellationTokenRegistration registration = cancellationToken.Register(() =>
+            {
+                _pending.TryRemove(KeyValuePair.Create(request, pending));
+                pending.TrySetCanceled(cancellationToken);
+            });
             await _writeLock.WaitAsync(cancellationToken);
             NetworkStream stream;
             IZooKeeperWatcher? watcher = null;
@@ -65,20 +69,17 @@ internal sealed partial class Session
                     cancellationToken
                 );
             }
-            catch (Exception ex)
-            {
-                pending.TrySetException(ex);
-                throw;
-            }
             finally { _writeLock.Release(); }
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
             return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         }
-        finally
+        catch (Exception ex)
         {
             _pending.TryRemove(KeyValuePair.Create(request, pending));
+            pending.TrySetException(ex);
+            throw;
         }
     }
 
