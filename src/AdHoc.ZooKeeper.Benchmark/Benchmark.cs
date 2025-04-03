@@ -16,7 +16,7 @@ public class Benchmark
     private IContainer _container;
     private int _port;
 
-    private static readonly byte[] _Data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    private static readonly byte[] _Data = new byte[1024];
 
     private ZooKeeperPool _pool;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
