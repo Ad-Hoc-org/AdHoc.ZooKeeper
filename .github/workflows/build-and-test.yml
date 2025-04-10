@@ -77,3 +77,5 @@ jobs:
       id: tests
       run: |
         dotnet test --framework ${{ matrix.framework }}
+      env:
+        DOCKER_HOST: unix:///var/run/docker.sock
