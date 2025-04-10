@@ -61,7 +61,9 @@ internal sealed partial class Session
                         else if (requestIdentifier == NoRequest)
                             DispatchEvent(response);
                         else
-                            Debug.Assert(false);
+                        {
+                            // probably canceled before receiving response
+                        }
                     }
                     catch (Exception ex)
                     {
