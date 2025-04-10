@@ -43,10 +43,6 @@ jobs:
     name: Test ${{ matrix.configuration-name }} - ${{ matrix.framework }}
     needs: build
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:20.10.16-dind
-        options: --privileged
     strategy:
       fail-fast: false
       matrix:
@@ -76,9 +72,10 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
+    - name: Install Docker
+      uses: docker/setup-docker-action@v4.3.0
+      
     - name: Test
       id: tests
       run: |
         dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }}
-      env:
-        DOCKER_HOST: unix:///var/run/docker.sock
