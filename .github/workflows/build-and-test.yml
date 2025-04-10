@@ -43,6 +43,10 @@ jobs:
     name: Test ${{ matrix.display-name }}
     needs: build
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:20.10.16-dind
+        options: --privileged
     strategy:
       fail-fast: false
       matrix:
