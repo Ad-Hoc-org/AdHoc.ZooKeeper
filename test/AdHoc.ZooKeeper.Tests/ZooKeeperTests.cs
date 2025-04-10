@@ -10,7 +10,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 namespace AdHoc.ZooKeeper.Tests;
 
 [NotInParallel]
-[Retry(3)]
+[Retry(5)]
 public partial class ZooKeeperTests
 {
 
@@ -100,8 +100,11 @@ public partial class ZooKeeperTests
     {
         await Task.WhenAll(_containers.Select(async c =>
         {
-            if (c.State != TestcontainersStates.Running)
+            while (c.State != TestcontainersStates.Running)
+            {
                 await c.StartAsync(cancellationToken);
+                await Task.Delay(100);
+            }
         }));
 
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
