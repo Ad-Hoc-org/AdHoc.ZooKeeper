@@ -37,7 +37,7 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Build
-        run: find . -name "*.csproj" | xargs -I {} dotnet build "{}" --configuration ${{ matrix.configuration }}
+        run: dotnet build --configuration ${{ matrix.configuration }}
 
   test:
     name: Test ${{ matrix.display-name }}
@@ -72,5 +72,4 @@ jobs:
     - name: Test
       id: tests
       run: |
-        find . -name "*.csproj" | xargs -I {} dotnet test "{}" \
-          --framework ${{ matrix.framework }}
+        dotnet test --framework ${{ matrix.framework }}

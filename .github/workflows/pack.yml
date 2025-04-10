@@ -34,7 +34,7 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Pack the project
-        run: find -type f -name "$PACKAGE.csproj" | xargs -I {} dotnet pack "{}" --configuration Release --output ./nupkgs /p:RepositoryUrl=https://github.com/${{ github.repository }}
+        run: dotnet pack --configuration Release --output ./nupkgs /p:RepositoryUrl=https://github.com/${{ github.repository }}
 
       - name: Validate package version
         run: |
