@@ -104,7 +104,7 @@ public partial class ZooKeeperTests
                 await c.StartAsync(cancellationToken);
         }));
 
-        ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host("localhost", c.GetMappedPublicPort(2181)))];
+        ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
         _zoo = new ZooKeeper(Session, hosts, _root, _lock);
         int i = 0;
         while (i++ < 10)
