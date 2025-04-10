@@ -10,7 +10,7 @@ using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 namespace AdHoc.ZooKeeper.Tests;
 
 [NotInParallel]
-[Retry(5)]
+[Retry(3)]
 public partial class ZooKeeperTests
 {
 
@@ -26,7 +26,7 @@ public partial class ZooKeeperTests
         _session = new(
             new Host("localhost"),
             FrozenSet<Authentication>.Empty,
-            connectionTimeout: TimeSpan.FromSeconds(10),
+            connectionTimeout: TimeSpan.FromSeconds(30),
             sessionTimeout: SessionTimeout,
             false
         );
