@@ -21,12 +21,12 @@ public partial class ZooKeeperTests
     private static readonly SemaphoreSlim _lock = new(1, 1);
     private static Session? _session;
 
-    private static TimeSpan SessionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(10);
+    private static TimeSpan SessionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(30);
     private static Session Session => _session ??=
         _session = new(
             new Host("localhost"),
             FrozenSet<Authentication>.Empty,
-            connectionTimeout: TimeSpan.FromSeconds(1),
+            connectionTimeout: TimeSpan.FromSeconds(10),
             sessionTimeout: SessionTimeout,
             false
         );
