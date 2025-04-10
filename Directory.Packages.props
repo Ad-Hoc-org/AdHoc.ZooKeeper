@@ -2,10 +2,12 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="ZooKeeperNetEx" Version="3.4.12.4" />
+  </ItemGroup>
   <ItemGroup Label="Microsoft">
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="[9.0,]" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="[9.0,]" />
-    <PackageVersion Include="ZooKeeperNetEx" Version="3.4.12.4" />
   </ItemGroup>
   <ItemGroup Label="System">
     <PackageVersion Include="System.IO.Pipelines" Version="[9.0,]" />
@@ -20,6 +22,9 @@
   <ItemGroup Label="Fody">
     <PackageVersion Include="ConfigureAwait.Fody" Version="[3.3.2,]" />
     <PackageVersion Include="Fody" Version="[6.8.1,]" />
+  </ItemGroup>
+  <ItemGroup Label="Versioning">
+    <PackageVersion Include="MinVer" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Label="Analyzer">
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20" />

@@ -17,23 +17,23 @@
     <PackageTags>AdHoc;ZooKeeper</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Ad-Hoc-org/AdHoc.ZooKeeper</RepositoryUrl>
-    <PackageIcon>icon-512.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <Authors>AdHoc Authors</Authors>
     <Company>AdHoc</Company>
     <Copyright>Copyright AdHoc Authors</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
     <PackagePrimaryLicenseFile>$(RepoRoot)LICENSE</PackagePrimaryLicenseFile>
     <!-- <PackageThirdPartyNoticesFile>$(RepoRoot)THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile> -->
-    <!-- <PackageReadmeFile>README.md</PackageReadmeFile> -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
   <ItemGroup>
-    <!--<PackageMarkdownFiles Include="README.md" />-->
-    <None Include="$(RepoRoot)icon-512.png" Pack="true" PackagePath="\" />
+    <PackageMarkdownFiles Include="README.md" />
+    <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
   <!-- Enable sourcelink https://docs.microsoft.com/dotnet/standard/library-guidance/sourcelink -->
@@ -44,6 +44,10 @@
   <ItemGroup Label="SourceLinkProperties">
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
   </ItemGroup>
+  <!-- Enable Deterministic Builds for github actions -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -58,6 +62,16 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Use MinVer for assembly, nuget versioning based on git tags -->
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="All" />
+  </ItemGroup>
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
+    <MinVerTagPrefix>releases/$(PackageName)/v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>rc;preview</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Label="Fody">
