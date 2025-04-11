@@ -5,6 +5,7 @@ using AdHoc.ZooKeeper.Abstractions;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
+using ICSharpCode.SharpZipLib.Zip;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Tests;
@@ -124,6 +125,7 @@ public partial class ZooKeeperTests
                     Console.WriteLine($"Tried to connect {retries} times before invoking test: " + ex);
                 await Task.Delay(100 * i, cancellationToken);
             }
+        Console.WriteLine("Connected to: " + _zoo!._currentHost);
     }
 
     private Task StopInstanceAsync(CancellationToken cancellationToken) =>
