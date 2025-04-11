@@ -75,7 +75,7 @@ jobs:
     - name: Test
       id: tests
       run: |
-        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }} -v \
+        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }} --verbosity detailed \
           --results-directory "${{ github.workspace }}/TestResults/${{ matrix.configuration }}/${{ matrix.framework }}"
 
     - name: Upload test results
