@@ -5,7 +5,6 @@ using AdHoc.ZooKeeper.Abstractions;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
-using ICSharpCode.SharpZipLib.Zip;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection;
 
 namespace AdHoc.ZooKeeper.Tests;
@@ -73,6 +72,7 @@ public partial class ZooKeeperTests
     {
         await Session.CloseAsync();
         _session = null;
+        _zoo = null;
         await StartInstancesAsync(cancellationToken);
     }
 
@@ -80,7 +80,10 @@ public partial class ZooKeeperTests
     public async Task DisposeZooKeeperAsync(CancellationToken cancellationToken)
     {
         if (_zoo is not null)
+        {
             await _zoo.DisposeAsync();
+            _zoo = null;
+        }
     }
 
     [After(Class)]
@@ -100,7 +103,7 @@ public partial class ZooKeeperTests
     private async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         int i = 0;
-        int retries = 32;
+        int retries = 10;
         while (i++ < retries)
             try
             {
@@ -116,20 +119,14 @@ public partial class ZooKeeperTests
                 ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
                 _zoo = new ZooKeeper(Session, hosts, _root, _lock);
                 if (!Session.IsConnected)
-                    await Session.ReconnectAsync(hosts[0], cancellationToken);
+                    await _zoo.TryReconnectAsync<object?>(Session, hosts[0], null, null, cancellationToken);
                 break;
             }
-            catch (Exception ex)
+            catch
             {
-                if (retries == i)
-                    Console.WriteLine($"Tried to connect {retries} times before invoking test: " + ex);
                 await Task.Delay(100 * i, cancellationToken);
             }
-        Console.WriteLine("Connected to: " + _zoo!._currentHost);
     }
-
-    private Task StopInstanceAsync(CancellationToken cancellationToken) =>
-        _containers.First(c => _zoo!._currentHost.Port == c.GetMappedPublicPort(2181)).StopAsync(cancellationToken);
 
     private async Task StopInstancesAsync(CancellationToken cancellationToken)
     {

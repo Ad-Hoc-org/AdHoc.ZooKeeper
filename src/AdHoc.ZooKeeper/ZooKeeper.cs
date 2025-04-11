@@ -19,7 +19,7 @@ public class ZooKeeper
     internal Session? _session;
 
     private ImmutableArray<Host> _hosts;
-    internal Host _currentHost;
+    private Host _currentHost;
     private SemaphoreSlim _reconnectLock;
 
     private readonly ConcurrentDictionary<Watcher, WatchAsync> _watchers = new();
@@ -101,7 +101,7 @@ public class ZooKeeper
     }
 
 
-    private async Task<(TResult?, ConnectionException?)> TryReconnectAsync<TResult>(
+    internal async Task<(TResult?, ConnectionException?)> TryReconnectAsync<TResult>(
         Session session,
         Host host,
         ConnectionException? exception,
@@ -109,6 +109,9 @@ public class ZooKeeper
         CancellationToken cancellationToken
     )
     {
+        if (session.IsConnected)
+            return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+
         int length = _hosts.Length;
         int usedIndex = _hosts.IndexOf(host);
         int currentIndex = _hosts.IndexOf(_currentHost);
@@ -122,6 +125,9 @@ public class ZooKeeper
         await _reconnectLock.WaitAsync(cancellationToken);
         try
         {
+            if (session.IsConnected)
+                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+
             if (currentIndex != _hosts.IndexOf(_currentHost)) // already reconnected
                 return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
 
