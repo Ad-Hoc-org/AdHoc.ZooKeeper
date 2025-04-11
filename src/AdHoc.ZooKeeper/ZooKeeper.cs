@@ -109,27 +109,46 @@ public class ZooKeeper
         CancellationToken cancellationToken
     )
     {
+        List<Exception>? exceptions = null;
         if (session.IsConnected)
-            return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+            try
+            {
+                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+            }
+            catch (ConnectionException ex) when (ex is not SessionExpiredException)
+            {
+                exceptions = new List<Exception>(1 + _hosts.Length) { ex };
+            }
 
         int length = _hosts.Length;
         int usedIndex = _hosts.IndexOf(host);
         int currentIndex = _hosts.IndexOf(_currentHost);
-        var exceptions = new List<Exception>(length);
+        exceptions ??= new List<Exception>(length);
         if (exception is not null)
-            exceptions.Add(exception);
+            exceptions.Insert(0, exception);
 
         if (usedIndex != currentIndex) // already reconnected
-            return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+            try
+            {
+                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+            }
+            catch (ConnectionException ex) when (ex is not SessionExpiredException)
+            {
+                exceptions.Add(ex);
+            }
 
         await _reconnectLock.WaitAsync(cancellationToken);
         try
         {
-            if (session.IsConnected)
-                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
-
-            if (currentIndex != _hosts.IndexOf(_currentHost)) // already reconnected
-                return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+            if (session.IsConnected || currentIndex != _hosts.IndexOf(_currentHost)) // already reconnected
+                try
+                {
+                    return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
+                }
+                catch (ConnectionException ex) when (ex is not SessionExpiredException)
+                {
+                    exceptions.Add(ex);
+                }
 
             if (usedIndex == -1)
                 usedIndex = Random.Shared.Next(0, _hosts.Length);
@@ -142,7 +161,7 @@ public class ZooKeeper
                     await session.ReconnectAsync(_currentHost, cancellationToken);
                     return (await InvokeExecuteAsync(session, executeAsync, cancellationToken), null);
                 }
-                catch (ConnectionException ex)
+                catch (ConnectionException ex) when (ex is not SessionExpiredException)
                 {
                     exceptions.Add(ex);
                 }
