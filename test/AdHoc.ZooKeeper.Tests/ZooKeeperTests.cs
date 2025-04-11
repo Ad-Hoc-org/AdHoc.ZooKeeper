@@ -98,22 +98,22 @@ public partial class ZooKeeperTests
 
     private async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
-        await Task.WhenAll(_containers.Select(async c =>
-        {
-            while (c.State != TestcontainersStates.Running)
-            {
-                await c.StartAsync(cancellationToken);
-                await Task.Delay(100);
-            }
-        }));
-
-        ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
-        _zoo = new ZooKeeper(Session, hosts, _root, _lock);
         int i = 0;
-        int retries = 10;
+        int retries = 32;
         while (i++ < retries)
             try
             {
+                await Task.WhenAll(_containers.Select(async c =>
+                {
+                    while (c.State != TestcontainersStates.Running)
+                    {
+                        await c.StartAsync(cancellationToken);
+                        await Task.Delay(100);
+                    }
+                }));
+
+                ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
+                _zoo = new ZooKeeper(Session, hosts, _root, _lock);
                 if (!Session.IsConnected)
                     await Session.ReconnectAsync(hosts[0], cancellationToken);
                 break;
