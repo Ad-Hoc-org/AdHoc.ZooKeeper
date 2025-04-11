@@ -110,7 +110,8 @@ public partial class ZooKeeperTests
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
         _zoo = new ZooKeeper(Session, hosts, _root, _lock);
         int i = 0;
-        while (i++ < 30)
+        int retries = 10;
+        while (i++ < retries)
             try
             {
                 if (!Session.IsConnected)
@@ -119,8 +120,9 @@ public partial class ZooKeeperTests
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Tried to connect: " + ex);
-                await Task.Delay(100, cancellationToken);
+                if (retries == i)
+                    Console.WriteLine($"Tried to connect {retries} times before invoking test: " + ex);
+                await Task.Delay(100 * i, cancellationToken);
             }
     }
 
