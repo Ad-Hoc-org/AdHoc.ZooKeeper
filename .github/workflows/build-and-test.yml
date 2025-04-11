@@ -79,8 +79,8 @@ jobs:
             --logger "trx" --results-directory "./TestResults/${{ matrix.configuration }}/${{ matrix.framework }}"
 
     - name: Upload test results
-      if: always()
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: TestResults-${{ matrix.configuration }}-${{ matrix.framework }}
-        path: TestResults/TestResults.trx
+        path: TestResults/${{ matrix.configuration }}/${{ matrix.framework }}
