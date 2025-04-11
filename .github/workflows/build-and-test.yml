@@ -75,4 +75,12 @@ jobs:
     - name: Test
       id: tests
       run: |
-        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }}
+        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }} \
+            --logger "trx;LogFileName=TestResults.trx" --results-directory TestResults
+
+    - name: Upload test results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: TestResults-${{ matrix.configuration }}-${{ matrix.framework }}
+        path: TestResults/TestResults.trx
