@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/_test/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
-    <Project Path="src/AdHoc.ZooKeeper.Benchmark/AdHoc.ZooKeeper.Benchmark.csproj" Id="36f20422-dff2-4915-a177-e73ad650b06e" />
+    <Project Path="test/AdHoc.ZooKeeper.Benchmark/AdHoc.ZooKeeper.Benchmark.csproj" Id="36f20422-dff2-4915-a177-e73ad650b06e" />
     <Project Path="test/AdHoc.ZooKeeper.Tests/AdHoc.ZooKeeper.Tests.csproj" />
   </Folder>
   <Folder Name="/.Settings/">

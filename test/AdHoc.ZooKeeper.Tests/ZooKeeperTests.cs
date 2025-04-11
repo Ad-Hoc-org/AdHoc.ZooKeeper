@@ -21,12 +21,12 @@ public partial class ZooKeeperTests
     private static readonly SemaphoreSlim _lock = new(1, 1);
     private static Session? _session;
 
-    private static TimeSpan SessionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(30);
+    private static TimeSpan SessionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(15);
     private static Session Session => _session ??=
         _session = new(
             new Host("localhost"),
             FrozenSet<Authentication>.Empty,
-            connectionTimeout: TimeSpan.FromSeconds(30),
+            connectionTimeout: Debugger.IsAttached ? TimeSpan.FromSeconds(20) : TimeSpan.FromSeconds(5),
             sessionTimeout: SessionTimeout,
             false
         );
@@ -110,15 +110,16 @@ public partial class ZooKeeperTests
         ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
         _zoo = new ZooKeeper(Session, hosts, _root, _lock);
         int i = 0;
-        while (i++ < 10)
+        while (i++ < 30)
             try
             {
                 if (!Session.IsConnected)
                     await Session.ReconnectAsync(hosts[0], cancellationToken);
                 break;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Tried to connect: " + ex);
                 await Task.Delay(100, cancellationToken);
             }
     }
