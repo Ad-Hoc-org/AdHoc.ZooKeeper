@@ -75,12 +75,4 @@ jobs:
     - name: Test
       id: tests
       run: |
-        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }} --verbosity detailed \
-          --results-directory "${{ github.workspace }}/TestResults/${{ matrix.configuration }}/${{ matrix.framework }}"
-
-    - name: Upload test results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: TestResults-${{ matrix.configuration }}-${{ matrix.framework }}
-        path: ${{ github.workspace }}/TestResults/${{ matrix.configuration }}/${{ matrix.framework }}/**
+        dotnet test --framework ${{ matrix.framework }} --configuration ${{ matrix.configuration }}
