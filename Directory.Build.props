@@ -32,7 +32,7 @@
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
   <ItemGroup>
-    <PackageMarkdownFiles Include="README.md" />
+    <PackageMarkdownFiles Include="ReadMe.md" />
     <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
