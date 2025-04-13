@@ -12,7 +12,7 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
-  <PropertyGroup Label="PackageProperties">
+  <PropertyGroup Label="PackageProperties" Condition="'$(IsPacking)' == 'true'">
     <Description>Handles internal and distributed locks for efficient resource synchronization.</Description>
     <PackageTags>AdHoc;ZooKeeper</PackageTags>
     <RepositoryType>git</RepositoryType>
@@ -31,8 +31,8 @@
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="$(RepoRoot)ReadMe.md" Pack="true" PackagePath="\" Visible="false" />
+  <ItemGroup Condition="'$(IsPacking)' == 'true'">
+    <None Include="ReadMe.md" Pack="true" PackagePath="\" />
     <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
