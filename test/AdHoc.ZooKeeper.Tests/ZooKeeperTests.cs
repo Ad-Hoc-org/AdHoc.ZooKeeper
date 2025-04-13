@@ -103,7 +103,7 @@ public partial class ZooKeeperTests
     private async Task StartInstancesAsync(CancellationToken cancellationToken)
     {
         int i = 0;
-        int retries = 10;
+        int retries = 32;
         while (i++ < retries)
             try
             {
@@ -120,10 +120,16 @@ public partial class ZooKeeperTests
                 _zoo = new ZooKeeper(Session, hosts, _root, _lock);
                 if (!Session.IsConnected)
                     await _zoo.TryReconnectAsync<object?>(Session, hosts[0], null, null, cancellationToken);
+                else
+                    await _zoo.PingAsync(cancellationToken);
                 break;
             }
-            catch
+            catch (Exception ex)
             {
+                if (i == retries)
+                    Console.WriteLine("Failed to connect: " + ex);
+                else
+                    Console.WriteLine("Tried to connect: " + ex.Message);
                 await Task.Delay(100 * i, cancellationToken);
             }
     }
