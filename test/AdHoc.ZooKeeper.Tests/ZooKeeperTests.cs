@@ -136,7 +136,7 @@ public partial class ZooKeeperTests
                 if (!Session.IsConnected)
                     await _zoo.TryReconnectAsync<object?>(Session, hosts[Random.Shared.Next(0, hosts.Length)], null, null, cancellationToken);
                 else
-                    await _zoo.PingAsync(cancellationToken);
+                    (await _zoo.PingAsync(cancellationToken)).Status.ThrowIfError();
                 break;
             }
             catch (Exception ex) when (i < retries)
