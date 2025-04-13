@@ -46,7 +46,6 @@ internal sealed partial class Session
         {
             var pipeWriter = PipeWriter.Create(stream, new StreamPipeWriterOptions(leaveOpen: true));
             write(pipeWriter);
-            _lastInteractionTimestamp = Stopwatch.GetTimestamp();
             await pipeWriter.FlushAsync(cancellationToken);
         }
         catch (IOException ex)
@@ -96,6 +95,7 @@ internal sealed partial class Session
             else if (bytes != length)
                 throw new ZooKeeperException($"Invalid ZooKeeper response!");
 
+            _lastInteractionTime = Stopwatch.GetTimestamp();
             return new Response(owner, response);
         }
         catch (IOException ex)

@@ -9,6 +9,15 @@ public partial class ZooKeeperTests
         ZooKeeper.PingAsync(cancellationToken);
 
     [Test]
+    public async Task PingAsync_SessionExpired(CancellationToken cancellationToken)
+    {
+        await ZooKeeper.PingAsync(cancellationToken);
+        await Task.Delay(SessionTimeout * 2, cancellationToken); // server tolerance
+        await Assert.ThrowsAsync<SessionExpiredException>(ZooKeeper.PingAsync(cancellationToken));
+        await ZooKeeper.PingAsync(cancellationToken);
+    }
+
+    [Test]
     [DependsOn(nameof(PingAsync_WithConnection))]
     public async Task PingAsync_MultipleParallel(CancellationToken cancellationToken)
     {
@@ -21,7 +30,7 @@ public partial class ZooKeeperTests
     public async Task PingAsync_WithNoConnection(CancellationToken cancellationToken)
     {
         await StopInstancesAsync(cancellationToken);
-        await Assert.ThrowsAsync<ConnectionException>(() => ZooKeeper.PingAsync(cancellationToken));
+        await Assert.ThrowsAsync<ConnectionException>(ZooKeeper.PingAsync(cancellationToken));
     }
 
     [Test]
@@ -30,7 +39,7 @@ public partial class ZooKeeperTests
     {
         await ZooKeeper.PingAsync(cancellationToken);
         await StopInstancesAsync(cancellationToken);
-        await Assert.ThrowsAsync<ConnectionLostException>(() => ZooKeeper.PingAsync(cancellationToken));
+        await Assert.ThrowsAsync<ConnectionLostException>(ZooKeeper.PingAsync(cancellationToken));
     }
 
     [Test]
@@ -39,7 +48,7 @@ public partial class ZooKeeperTests
     {
         await ZooKeeper.PingAsync(cancellationToken);
         await StopInstancesAsync(cancellationToken);
-        await Assert.ThrowsAsync<ConnectionLostException>(() => ZooKeeper.PingAsync(cancellationToken));
+        await Assert.ThrowsAsync<ConnectionLostException>(ZooKeeper.PingAsync(cancellationToken));
         await StartInstancesAsync(cancellationToken);
         await ZooKeeper.PingAsync(cancellationToken);
     }

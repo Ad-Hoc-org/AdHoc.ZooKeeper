@@ -26,12 +26,6 @@ public static partial class ZooKeeperTransactions
     public const int TimestampSize = Int64Size;
     public const int TimeSpanSize = Int64Size;
 
-    public const int ProtocolVersionSize = Int32Size;
-    public const int TimeoutSize = Int32Size;
-    public const int SessionSize = Int64Size;
-    public const int ReadOnlySize = BooleanSize;
-
-
 
     public static int GetRequest(this ZooKeeperOperations operation, ref int previousRequest)
     {

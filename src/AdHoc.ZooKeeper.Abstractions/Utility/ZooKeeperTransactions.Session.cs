@@ -6,6 +6,12 @@ using System.Buffers;
 namespace AdHoc.ZooKeeper.Abstractions;
 public static partial class ZooKeeperTransactions
 {
+
+    public const int ProtocolVersionSize = Int32Size;
+    public const int TimeoutSize = Int32Size;
+    public const int SessionSize = Int64Size;
+    public const int ReadOnlySize = BooleanSize;
+
     public const int NewSessionSize = LengthSize + ProtocolVersionSize + TransactionSize + TimeoutSize + SessionSize + LengthSize + ReadOnlySize;
 
     public const int DefaultPasswordSize = 16;
@@ -71,15 +77,17 @@ public static partial class ZooKeeperTransactions
         writer.Advance(size);
     }
 
-    public static ZooKeeperSession ReadSession(in ReadOnlySpan<byte> data) => new(
-        data.Slice(ProtocolVersionSize + TimeoutSize, SessionSize).ToArray(),
-        data.Slice(
-            ProtocolVersionSize + TimeoutSize + SessionSize + LengthSize,
-            ReadInt32(data.Slice(ProtocolVersionSize + TimeoutSize + SessionSize))
-        ).ToArray(),
-        ReadTimeSpan(data.Slice(ProtocolVersionSize)),
-        data[data.Length - 1] == 1
-    );
+    public static ZooKeeperSession? ReadSession(in ReadOnlySpan<byte> data) =>
+        data.Slice(ProtocolVersionSize + TimeoutSize, SessionSize).SequenceEqual(stackalloc byte[SessionSize]) ? null
+        : new(
+            data.Slice(ProtocolVersionSize + TimeoutSize, SessionSize).ToArray(),
+            data.Slice(
+                ProtocolVersionSize + TimeoutSize + SessionSize + LengthSize,
+                ReadInt32(data.Slice(ProtocolVersionSize + TimeoutSize + SessionSize))
+            ).ToArray(),
+            ReadTimeSpan(data.Slice(ProtocolVersionSize)),
+            data[data.Length - 1] == 1
+        );
 
 
     public static void WriteCloseSession(IBufferWriter<byte> writer) =>

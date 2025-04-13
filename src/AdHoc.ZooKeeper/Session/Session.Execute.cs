@@ -1,6 +1,7 @@
 // Copyright AdHoc Authors
 // SPDX-License-Identifier: MIT
 
+using System.Net.Sockets;
 using AdHoc.ZooKeeper.Abstractions;
 using static AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher;
 
@@ -34,10 +35,27 @@ internal sealed partial class Session
         where TResponse : IZooKeeperResponse
     {
         TaskCompletionSource<Response> pending = new();
-        while (!_pending.TryAdd(PingTransaction.Request, pending))
+        NetworkStream stream;
+        do
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _writeLock.WaitAsync(cancellationToken);
+            try
+            {
+                stream = await EnsureSessionAsync(cancellationToken);
+                if (_pending.TryAdd(PingTransaction.Request, pending))
+                    break;
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
+
             if (_pending.TryGetValue(PingTransaction.Request, out var previous) && !previous.Task.IsCompleted)
                 try { await previous.Task.WaitAsync(cancellationToken); } catch { }
+        } while (!cancellationToken.IsCancellationRequested);
 
-        return await DispatchAsync(root, PingTransaction.Request, pending, transaction, null, cancellationToken);
+        return await DispatchAsync(stream, root, PingTransaction.Request, pending, transaction, null, cancellationToken);
     }
 }

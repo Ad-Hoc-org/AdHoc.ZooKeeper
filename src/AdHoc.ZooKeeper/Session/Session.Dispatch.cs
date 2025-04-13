@@ -21,18 +21,29 @@ internal sealed partial class Session
     {
         int request;
         TaskCompletionSource<Response> pending = new();
-        do
+        await _writeLock.WaitAsync(cancellationToken);
+        NetworkStream stream;
+        try
         {
-            request = GetRequest(transaction.Operation);
-            Debug.Assert(request != PingTransaction.Request); // should be manage pending itself
-            if (request < 0)
-                throw new InvalidOperationException("Session transactions are only allowed internally.");
-        } while (!_pending.TryAdd(request, pending));
+            stream = await EnsureSessionAsync(cancellationToken);
+            do
+            {
+                request = GetRequest(transaction.Operation);
+                Debug.Assert(request != PingTransaction.Request); // should be manage pending itself
+                if (request < 0)
+                    throw new InvalidOperationException("Session transactions are only allowed internally.");
+            } while (!_pending.TryAdd(request, pending));
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
 
-        return await DispatchAsync(root, request, pending, transaction, registerWatcher, cancellationToken);
+        return await DispatchAsync(stream, root, request, pending, transaction, registerWatcher, cancellationToken);
     }
 
     private async Task<TResponse> DispatchAsync<TResponse>(
+        NetworkStream stream,
         ZooKeeperPath root,
         int request,
         TaskCompletionSource<Response> pending,
@@ -50,11 +61,9 @@ internal sealed partial class Session
                 pending.TrySetCanceled(cancellationToken);
             });
             await _writeLock.WaitAsync(cancellationToken);
-            NetworkStream stream;
             IZooKeeperWatcher? watcher = null;
             try
             {
-                stream = await EnsureSessionAsync(cancellationToken);
                 await WriteAsync(
                     stream,
                     writer => WriteTransaction(
@@ -71,9 +80,7 @@ internal sealed partial class Session
             }
             finally { _writeLock.Release(); }
 
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
-            return await ReceiveAsync(stream, root, pending.Task, transaction, watcher, cancellationToken);
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
+            return await ReceiveAsync(stream, root, pending.Task.WaitAsync(cancellationToken), transaction, watcher, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -93,20 +100,17 @@ internal sealed partial class Session
     )
         where TResponse : IZooKeeperResponse
     {
+        pending = pending.WaitAsync(cancellationToken);
         Task receiving;
         while (!pending.IsCompleted)
         {
             cancellationToken.ThrowIfCancellationRequested();
             receiving = ReceivingAsync(stream);
 
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
             await Task.WhenAny(receiving, pending);
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         }
 
-#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
         using var response = await pending;
-#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         return ReadTransaction(response._memory, root, transaction, watcher);
     }
 }

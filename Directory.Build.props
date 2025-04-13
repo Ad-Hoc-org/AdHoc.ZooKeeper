@@ -74,7 +74,7 @@
     <MinVerDefaultPreReleaseIdentifiers>rc;preview</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
-  <PropertyGroup Label="Fody">
+  <PropertyGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">
     <WeaverConfiguration>
       <Weavers GenerateXsd="false">
         <ConfigureAwait ContinueOnCapturedContext="false" />

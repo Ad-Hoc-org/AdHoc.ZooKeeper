@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Buffers;
-using System.Diagnostics;
 using System.Net.Sockets;
 using static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions;
 
