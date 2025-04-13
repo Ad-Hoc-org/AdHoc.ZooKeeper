@@ -70,7 +70,7 @@
   </ItemGroup>
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerTagPrefix>releases/$(PackageName)/v</MinVerTagPrefix>
+    <MinVerTagPrefix>releases/$(PackageName)/</MinVerTagPrefix>
     <MinVerDefaultPreReleaseIdentifiers>rc;preview</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
