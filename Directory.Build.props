@@ -71,7 +71,6 @@
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
     <MinVerTagPrefix>releases/$(PackageName)/</MinVerTagPrefix>
-    <MinVerDefaultPreReleaseIdentifiers>rc;preview</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">
