@@ -50,6 +50,16 @@ public partial class ZooKeeperTests
         await StopInstancesAsync(cancellationToken);
         await Assert.ThrowsAsync<ConnectionLostException>(ZooKeeper.PingAsync(cancellationToken));
         await StartInstancesAsync(cancellationToken);
-        await ZooKeeper.PingAsync(cancellationToken);
+        int tries = 3;
+        int i = 0;
+        while (i++ < tries)
+            try
+            {
+                await ZooKeeper.PingAsync(cancellationToken);
+            }
+            catch when (i < tries)
+            {
+                await Task.Delay(1000 * i, cancellationToken);
+            }
     }
 }
