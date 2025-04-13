@@ -64,7 +64,7 @@ public partial class ZooKeeperTests
     {
         _root = context.TestDetails.TestMethod.Name;
         _root = _root.Absolute;
-        await StartInstancesAsync(cancellationToken);
+        await NewSessionAsync(cancellationToken);
         int tries = 3;
         int i = 0;
         while (i++ < tries)
