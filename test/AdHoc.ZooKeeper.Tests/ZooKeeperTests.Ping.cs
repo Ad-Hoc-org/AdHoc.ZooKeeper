@@ -12,7 +12,7 @@ public partial class ZooKeeperTests
     public async Task PingAsync_SessionExpired(CancellationToken cancellationToken)
     {
         await ZooKeeper.PingAsync(cancellationToken);
-        await Task.Delay(SessionTimeout * 2, cancellationToken); // server tolerance
+        await Task.Delay(SessionTimeout * 2.5, cancellationToken); // server tolerance
         await Assert.ThrowsAsync<SessionExpiredException>(ZooKeeper.PingAsync(cancellationToken));
         await ZooKeeper.PingAsync(cancellationToken);
     }
