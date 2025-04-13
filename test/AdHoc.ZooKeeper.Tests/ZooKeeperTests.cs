@@ -65,7 +65,22 @@ public partial class ZooKeeperTests
         _root = context.TestDetails.TestMethod.Name;
         _root = _root.Absolute;
         await StartInstancesAsync(cancellationToken);
-        await ZooKeeper.CreateAsync("/", cancellationToken);
+        int tries = 3;
+        int i = 0;
+        while (i++ < tries)
+            try
+            {
+                await ZooKeeper.CreateAsync("/", cancellationToken);
+            }
+            catch when (i < tries)
+            {
+                await Task.Delay(1000, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to create root: " + ex.Message);
+                throw;
+            }
     }
 
     private async Task NewSessionAsync(CancellationToken cancellationToken)
@@ -124,12 +139,9 @@ public partial class ZooKeeperTests
                     await _zoo.PingAsync(cancellationToken);
                 break;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (i < retries)
             {
-                if (i == retries)
-                    Console.WriteLine("Failed to connect: " + ex);
-                else
-                    Console.WriteLine("Tried to connect: " + ex.Message);
+                Console.WriteLine("Tried to connect: " + ex.Message);
                 await Task.Delay(100 * i, cancellationToken);
             }
     }
