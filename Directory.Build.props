@@ -27,7 +27,7 @@
     <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
     <PackagePrimaryLicenseFile>$(RepoRoot)LICENSE</PackagePrimaryLicenseFile>
     <!-- <PackageThirdPartyNoticesFile>$(RepoRoot)THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile> -->
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
