@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using AdHoc.ZooKeeper.Abstractions;
@@ -14,26 +13,24 @@ namespace AdHoc.ZooKeeper.Tests;
 public partial class ZooKeeperTests
 {
 
+    private static readonly int _ExposedPort = DefaultPort + Random.Shared.Next(1, 1000) * 3;
+
     private const int _Instances = 3;
     private static INetwork? _network;
     private static List<IContainer> _containers = [];
 
-    private static readonly SemaphoreSlim _lock = new(1, 1);
-    private static Session? _session;
-
     private static TimeSpan SessionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(15);
-    private static Session Session => _session ??=
-        _session = new(
-            new Host("localhost"),
-            FrozenSet<Authentication>.Empty,
-            connectionTimeout: Debugger.IsAttached ? TimeSpan.FromSeconds(20) : TimeSpan.FromSeconds(5),
-            sessionTimeout: SessionTimeout,
-            false
-        );
 
     private ZooKeeperPath _root;
     private ZooKeeper? _zoo;
-    protected IZooKeeper ZooKeeper => _zoo!;
+    protected IZooKeeper ZooKeeper => _zoo ??= new ZooKeeper(new ZooKeeperConnection(
+        Enumerable.Range(1, _containers.Count).Select(i => new Host("localhost", _ExposedPort + i)).ToImmutableArray()
+    )
+    {
+        Root = _root,
+        ConnectionTimeout = Debugger.IsAttached ? TimeSpan.FromSeconds(20) : TimeSpan.FromSeconds(5),
+        SessionTimeout = SessionTimeout,
+    });
 
     [Before(Class)]
     public static async Task CreateZooAsync(CancellationToken cancellationToken)
@@ -54,7 +51,7 @@ public partial class ZooKeeperTests
             .WithEnvironment("ZOO_STANDALONE_ENABLED", "false")
             .WithEnvironment("ZOO_MY_ID", i.ToString())
             .WithEnvironment("ZOO_SERVERS", string.Join(' ', Enumerable.Range(1, _Instances).Select(j => $"server.{j}={_network!.Name}-keeper{j}:2888:3888;2181")))
-            .WithPortBinding(2181, true)
+            .WithPortBinding(_ExposedPort + i, DefaultPort)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(2181))
             .WithNetwork(_network)
             .Build();
@@ -64,7 +61,7 @@ public partial class ZooKeeperTests
     {
         _root = context.TestDetails.TestMethod.Name;
         _root = _root.Absolute;
-        await NewSessionAsync(cancellationToken);
+        await StartInstancesAsync(cancellationToken);
         int tries = 3;
         int i = 0;
         while (i++ < tries)
@@ -74,7 +71,7 @@ public partial class ZooKeeperTests
             }
             catch when (i < tries)
             {
-                await Task.Delay(1000, cancellationToken);
+                await Task.Delay(1000 * i, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -85,8 +82,8 @@ public partial class ZooKeeperTests
 
     private async Task NewSessionAsync(CancellationToken cancellationToken)
     {
-        await Session.CloseAsync();
-        _session = null;
+        if (_zoo is not null)
+            await _zoo.DisposeAsync();
         _zoo = null;
         await StartInstancesAsync(cancellationToken);
     }
@@ -104,9 +101,6 @@ public partial class ZooKeeperTests
     [After(Class)]
     public static async Task DisposeZooAsync(CancellationToken cancellationToken)
     {
-        if (_session is not null)
-            await _session.CloseAsync();
-
         foreach (var container in _containers)
             await container.DisposeAsync();
 
@@ -131,12 +125,7 @@ public partial class ZooKeeperTests
                     }
                 }));
 
-                ImmutableArray<Host> hosts = [.. _containers.Select(c => new Host(c.Hostname, c.GetMappedPublicPort(2181)))];
-                _zoo = new ZooKeeper(Session, hosts, _root, _lock);
-                if (!Session.IsConnected)
-                    await _zoo.TryReconnectAsync<object?>(Session, hosts[Random.Shared.Next(0, hosts.Length)], null, null, cancellationToken);
-                else
-                    (await _zoo.PingAsync(cancellationToken)).Status.ThrowIfError();
+                (await ZooKeeper.PingAsync(cancellationToken)).Status.ThrowIfError();
                 break;
             }
             catch (Exception ex) when (i < retries)

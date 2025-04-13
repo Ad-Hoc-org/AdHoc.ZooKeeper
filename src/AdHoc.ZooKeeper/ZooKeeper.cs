@@ -16,7 +16,7 @@ public class ZooKeeper
 {
     private readonly ZooKeeperPath _root;
     private readonly bool _owned;
-    internal Session? _session;
+    private Session? _session;
 
     private ImmutableArray<Host> _hosts;
     private Host _currentHost;
