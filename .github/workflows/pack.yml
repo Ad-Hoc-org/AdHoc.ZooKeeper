@@ -35,6 +35,7 @@ jobs:
 
       - name: Pack the project
         run: |
+          export LANG=en-US.UTF-8
           dotnet build --configuration Release
           dotnet pack --configuration Release --output ./nupkgs /p:RepositoryUrl=https://github.com/${{ github.repository }}
 
