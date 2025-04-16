@@ -32,8 +32,8 @@
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
   <ItemGroup Condition="'$(IsPacking)' == 'true'">
-    <None Include="ReadMe.md" Pack="true" PackagePath="\" />
-    <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="ReadMe.md" Pack="true" PackagePath="\README.md" />
+    <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\icon.png" Visible="false" />
   </ItemGroup>
 
   <!-- Enable sourcelink https://docs.microsoft.com/dotnet/standard/library-guidance/sourcelink -->
