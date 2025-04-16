@@ -71,7 +71,7 @@
   </ItemGroup>
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerTagPrefix>releases/$(PackageId)/</MinVerTagPrefix>
+    <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
     <MinVerVerbose>true</MinVerVerbose>
   </PropertyGroup>
 
