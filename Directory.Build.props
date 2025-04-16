@@ -25,15 +25,16 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
-    <!--<PackagePrimaryLicenseFile>$(RepoRoot)LICENSE</PackagePrimaryLicenseFile>-->
+    <PackagePrimaryLicenseFile>LICENSE</PackagePrimaryLicenseFile>
     <!-- <PackageThirdPartyNoticesFile>$(RepoRoot)THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile> -->
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
   <ItemGroup Condition="'$(IsPacking)' == 'true'">
-    <None Include="ReadMe.md" Pack="true" PackagePath="" />
     <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="" Visible="false" />
+    <None Include="ReadMe.md" Pack="true" PackagePath="" />
+    <None Include="$(RepoRoot)LICSENE" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
 
   <!-- Enable sourcelink https://docs.microsoft.com/dotnet/standard/library-guidance/sourcelink -->
@@ -70,7 +71,8 @@
   </ItemGroup>
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerTagPrefix>releases/$(PackageName)/</MinVerTagPrefix>
+    <MinVerTagPrefix>releases/$(PackageId)/</MinVerTagPrefix>
+    <MinVerVerbose>true</MinVerVerbose>
   </PropertyGroup>
 
   <PropertyGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">

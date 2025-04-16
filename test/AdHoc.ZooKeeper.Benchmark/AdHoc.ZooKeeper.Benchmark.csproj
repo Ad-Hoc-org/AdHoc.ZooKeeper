@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <NoWarn>VSTHRD200;VSTHRD002</NoWarn>
     <NoError>VSTHRD002</NoError>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
