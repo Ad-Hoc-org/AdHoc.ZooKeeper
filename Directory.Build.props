@@ -25,15 +25,15 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
-    <PackagePrimaryLicenseFile>$(RepoRoot)LICENSE</PackagePrimaryLicenseFile>
+    <!--<PackagePrimaryLicenseFile>$(RepoRoot)LICENSE</PackagePrimaryLicenseFile>-->
     <!-- <PackageThirdPartyNoticesFile>$(RepoRoot)THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile> -->
-    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+    <!--<PackageReadmeFile>ReadMe.md</PackageReadmeFile>-->
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
   </PropertyGroup>
   <ItemGroup Condition="'$(IsPacking)' == 'true'">
-    <None Include="ReadMe.md" Pack="true" PackagePath="\README.md" />
-    <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="\icon.png" Visible="false" />
+    <None Include="ReadMe.md" Pack="true" PackagePath="README.md" />
+    <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="icon.png" Visible="false" />
   </ItemGroup>
 
   <!-- Enable sourcelink https://docs.microsoft.com/dotnet/standard/library-guidance/sourcelink -->

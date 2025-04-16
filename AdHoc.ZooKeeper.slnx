@@ -5,6 +5,7 @@
     <Project Path="test/AdHoc.ZooKeeper.Tests/AdHoc.ZooKeeper.Tests.csproj" />
   </Folder>
   <Folder Name="/.Settings/">
+    <File Path=".devcontainer/devcontainer.json" />
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
