@@ -12,7 +12,7 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
-  <PropertyGroup Label="PackageProperties" Condition="'$(IsPacking)' == 'true'">
+  <PropertyGroup Label="PackageProperties">
     <Description>Handles internal and distributed locks for efficient resource synchronization.</Description>
     <PackageTags>AdHoc;ZooKeeper</PackageTags>
     <RepositoryType>git</RepositoryType>
@@ -21,17 +21,18 @@
     <Authors>AdHoc Authors</Authors>
     <Company>AdHoc</Company>
     <Copyright>Copyright AdHoc Authors</Copyright>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackagePrimaryLicenseFile>LICENSE</PackagePrimaryLicenseFile>
     <!-- <PackageThirdPartyNoticesFile>$(RepoRoot)THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile> -->
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NoWarn>$(NoWarn);NU5017</NoWarn>
   </PropertyGroup>
-  <ItemGroup Condition="'$(IsPacking)' == 'true'">
+  <ItemGroup>
     <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="" Visible="false" />
     <None Include="ReadMe.md" Pack="true" PackagePath="" />
     <None Include="$(RepoRoot)LICSENE" Pack="true" PackagePath="" Visible="false" />
@@ -55,14 +56,12 @@
     <AssemblyOriginatorKeyFile>$(RepoRoot)/sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup>
     <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <Optimize>true</Optimize>
-    <DebugType>embedded</DebugType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
   </PropertyGroup>
