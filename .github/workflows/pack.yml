@@ -54,9 +54,9 @@ jobs:
           fi
 
       - name: Publish NuGet package to GitHub Packages
-        run: dotnet nuget push ./nupkgs/$PACKAGE.$VERSION.*nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k "${{ secrets.TOKEN_GITHUB }}"
+        run: dotnet nuget push ./nupkgs/$PACKAGE.$VERSION.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k "${{ secrets.TOKEN_GITHUB }}"
         
       - name: Publish NuGet package
         # no prereleases and build versions
         if: ${{ steps.package-information.outputs.is-prerelease == 'false' }}
-        run: dotnet nuget push ./nupkgs/$PACKAGE.$VERSION.*nupkg --source https://api.nuget.org/v3/index.json -k "${{ secrets.NUGET_TOKEN }}"
+        run: dotnet nuget push ./nupkgs/$PACKAGE.$VERSION.nupkg --source https://api.nuget.org/v3/index.json -k "${{ secrets.NUGET_TOKEN }}"

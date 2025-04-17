@@ -18,7 +18,7 @@ await using IZooKeeperProvider provider = [...]; // Obtain an instance of IZooKe
 
 await using IZooKeeper zooKeeper = provider.GetZooKeeper("localhost:2171/root");
 
-var createResult = await zooKeeper.CreateAsync("/path/to/node", "data"u8.ToArray(), CreateMode.Persistent);
+var createResult = await zooKeeper.CreateAsync("/path/to/node", "data"u8.ToArray());
 
 await using (await zooKeeper.ExistsAsync(_NewNode, (_, _) => {}, cancellationToken))
 {
