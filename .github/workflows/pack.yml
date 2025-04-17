@@ -26,7 +26,6 @@ jobs:
             version="${BASH_REMATCH[2]}"
             echo "VERSION=$version" >> $GITHUB_ENV
             if [[ "$version" =~ -|(.+\.){3,} ]]; then
-              echo "prerelease"
               echo "is-prerelease=true" >> "$GITHUB_OUTPUT"
             else
               echo "is-prerelease=false" >> "$GITHUB_OUTPUT"
@@ -59,5 +58,5 @@ jobs:
         
       - name: Publish NuGet package
         # no prereleases and build versions
-        if: ${{ ! steps.package-information.outputs.is-prerelease }}
+        if: ${{ steps.package-information.outputs.is-prerelease == 'false' }}
         run: dotnet nuget push ./nupkgs/$PACKAGE.$VERSION.nupkg --source https://api.nuget.org/v3/index.json -k "${{ secrets.NUGET_TOKEN }}"
