@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageId>AdHoc.ZooKeeper.Abstractions</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
