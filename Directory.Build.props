@@ -71,7 +71,7 @@
   </ItemGroup>
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
+    <MinVerTagPrefix>releases/AdHoc.ZooKeeper.Abstractions/v</MinVerTagPrefix>
     <MinVerVerbose>true</MinVerVerbose>
   </PropertyGroup>
 
