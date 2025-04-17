@@ -1,9 +1,22 @@
 <Project>
 
   <Target Name="SetVersionTagPrefix" BeforeTargets="MinVer">
-    <PropertyGroup Label="Build">
+    <PropertyGroup>
       <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
     </PropertyGroup>
+  </Target>
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Condition="'%(FullPath)' != ''">
+        <PackageVersion>@(ProjectReference->'%(PackageVersion)')</PackageVersion>
+      </_ProjectReferencesWithVersions>
+      <_ProjectReferencesWithVersions Condition="'%(Identity)' != '' And '%(PackageVersion)' == ''">
+        <ProjectVersion>$(MinVerMinimumMajorMinor)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+      <_ProjectReferencesWithVersions Condition="'%(Identity)' != '' And '%(PackageVersion)' != ''">
+        <ProjectVersion>$([System.String]::new('%(PackageVersion)').Replace('~',%(ProjectVersion)))</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
   </Target>
 
   <ItemGroup Label="Analyzers">
@@ -13,7 +26,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">
+  <ItemGroup Label="Fody" Condition="'$(Configuration)' != 'Debug'">
     <PackageReference Include="ConfigureAwait.Fody">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

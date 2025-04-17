@@ -55,12 +55,14 @@
     <AssemblyOriginatorKeyFile>$(RepoRoot)/sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>true</Optimize>
+    <DebugType>embedded</DebugType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
   </PropertyGroup>
@@ -73,7 +75,7 @@
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
   </PropertyGroup>
 
-  <PropertyGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">
+  <PropertyGroup Label="Fody" Condition="'$(Configuration)' != 'Debug'">
     <WeaverConfiguration>
       <Weavers GenerateXsd="false">
         <ConfigureAwait ContinueOnCapturedContext="false" />
