@@ -23,8 +23,10 @@ jobs:
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           if [[ "$BRANCH_NAME" =~ releases/([^/]+)/v(.+) ]]; then
             echo "PACKAGE=${BASH_REMATCH[1]}" >> $GITHUB_ENV
-            echo "VERSION=${BASH_REMATCH[2]}" >> $GITHUB_ENV
-            if [[ "$VERSION" =~ -|(.+\.){3,} ]]; then
+            version="${BASH_REMATCH[2]}"
+            echo "VERSION=$version" >> $GITHUB_ENV
+            if [[ "$version" =~ -|(.+\.){3,} ]]; then
+              echo "prerelease"
               echo "is-prerelease=true" >> "$GITHUB_OUTPUT"
             else
               echo "is-prerelease=false" >> "$GITHUB_OUTPUT"
