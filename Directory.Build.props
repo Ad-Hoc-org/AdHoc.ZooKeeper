@@ -28,6 +28,7 @@
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <!-- <PackageChangelogFile>CHANGELOG.md</PackageChangelogFile> -->
     <!-- <PackageReleaseNotesFile>$(RepoRoot)RELEASENOTES.md</PackageReleaseNotesFile> -->
+    <DebugType>full</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <NoWarn>$(NoWarn);NU5017</NoWarn>
@@ -35,7 +36,7 @@
   <ItemGroup>
     <None Include="$(RepoRoot)icon.png" Pack="true" PackagePath="" Visible="false" />
     <None Include="ReadMe.md" Pack="true" PackagePath="" />
-    <None Include="$(RepoRoot)LICSENE" Pack="true" PackagePath="" Visible="false" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
 
   <!-- Enable sourcelink https://docs.microsoft.com/dotnet/standard/library-guidance/sourcelink -->
@@ -54,10 +55,6 @@
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(RepoRoot)/sign.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
