@@ -1,5 +1,11 @@
 <Project>
 
+  <Target Name="SetVersionTagPrefix" BeforeTargets="MinVer">
+    <PropertyGroup Label="Build">
+      <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
+    </PropertyGroup>
+  </Target>
+
   <ItemGroup Label="Analyzers">
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
       <PrivateAssets>all</PrivateAssets>

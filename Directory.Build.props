@@ -71,8 +71,6 @@
   </ItemGroup>
   <PropertyGroup>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
-    <MinVerVerbose>true</MinVerVerbose>
   </PropertyGroup>
 
   <PropertyGroup Label="Fody" Condition="'$(Configuration)'!='Debug'">
