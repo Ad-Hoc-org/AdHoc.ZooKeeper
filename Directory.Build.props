@@ -10,6 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <PropertyGroup Label="PackageProperties">
@@ -65,6 +66,7 @@
 
   <!-- Use MinVer for assembly, nuget versioning based on git tags -->
   <ItemGroup>
+    <!--<PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="All" />-->
     <PackageReference Include="MinVer" PrivateAssets="All" />
   </ItemGroup>
   <PropertyGroup>

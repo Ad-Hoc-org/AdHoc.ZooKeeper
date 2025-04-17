@@ -28,6 +28,7 @@
     <PackageVersion Include="MinVer" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Label="Analyzer">
+    <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20" />
   </ItemGroup>
   <ItemGroup Label="SourceLinkProperties">
