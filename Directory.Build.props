@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="PackageProperties">
-    <Description>Handles internal and distributed locks for efficient resource synchronization.</Description>
+    <Description>Library designed to simplify interactions with ZooKeeper.</Description>
     <PackageTags>AdHoc;ZooKeeper</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Ad-Hoc-org/AdHoc.ZooKeeper</RepositoryUrl>
