@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <RepoRoot>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)))</RepoRoot>
+  </PropertyGroup>
+  <Import Project="$(RepoRoot).props/*Build.props" />
+
+  <PropertyGroup>
+    <Description>Project description</Description>
+    <PackageTags>$(PackageTags);ProjectTags</PackageTags>
+
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+  </PropertyGroup>
+</Project>

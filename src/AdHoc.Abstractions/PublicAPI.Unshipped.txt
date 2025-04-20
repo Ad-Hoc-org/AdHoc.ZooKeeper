@@ -1,0 +1,2 @@
+AdHoc.Abstractions.IFoo
+AdHoc.Abstractions.IFoo.Bar() -> int

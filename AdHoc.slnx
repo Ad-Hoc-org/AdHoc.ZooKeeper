@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/_test/">
+    <Project Path="test/AdHoc.Tests/AdHoc.Tests.csproj" Id="fc73c16c-575a-4f6b-8b9e-ab2fe8772dda" />
+  </Folder>
+  <Folder Name="/.props/">
+    <File Path=".editorconfig" />
+    <File Path=".devcontainer/devcontainer.json" />
+    <File Path="global.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="NuGet.config" />
+    <File Path=".gitignore" />
+    <File Path=".gitattributes" />
+  </Folder>
+  <Project Path="src/AdHoc.Abstractions/AdHoc.Abstractions.csproj" />
+  <Project Path="src/AdHoc/AdHoc.csproj" />
+</Solution>

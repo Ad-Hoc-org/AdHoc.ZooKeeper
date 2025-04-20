@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Condition="'$(OutputType)' != 'Exe'">
+    <TargetFrameworks>$(TargetFrameworks);netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+</Project>

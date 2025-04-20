@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup Label="Fody">
+    <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="Fody" Version="6.8.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+  </ItemGroup>
+</Project>

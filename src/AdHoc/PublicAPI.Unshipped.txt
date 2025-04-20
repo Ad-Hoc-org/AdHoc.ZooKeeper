@@ -1,0 +1,3 @@
+AdHoc.Foo
+AdHoc.Foo.Bar() -> int
+AdHoc.Foo.Foo() -> void

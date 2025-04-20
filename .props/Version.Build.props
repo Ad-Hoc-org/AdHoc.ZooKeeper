@@ -1,0 +1,13 @@
+<Project>
+  <!-- Using MinVer for assembly, nuget versioning based on git tags -->
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
+    <!-- MinVerTagPrefix see targets -->
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\AdHoc.Abstractions\AdHoc.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

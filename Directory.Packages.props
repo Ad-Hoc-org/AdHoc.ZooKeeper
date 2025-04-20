@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="$(RepoRoot).props/*Packages.props" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+</Project>

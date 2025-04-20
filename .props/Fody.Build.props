@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <WeaverConfiguration>
+      <Weavers GenerateXsd="false">
+        <ConfigureAwait ContinueOnCapturedContext="false" />
+      </Weavers>
+    </WeaverConfiguration>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+    <PackageReference Include="ConfigureAwait.Fody">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Fody">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

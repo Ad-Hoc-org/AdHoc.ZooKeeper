@@ -1,0 +1,20 @@
+<Project>
+  <Target Name="SetVersionTagPrefix" BeforeTargets="MinVer">
+    <PropertyGroup>
+      <MinVerTagPrefix>releases/$(PackageId)/v</MinVerTagPrefix>
+    </PropertyGroup>
+  </Target>
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Condition="'%(FullPath)' != ''">
+        <PackageVersion>@(ProjectReference->'%(PackageVersion)')</PackageVersion>
+      </_ProjectReferencesWithVersions>
+      <_ProjectReferencesWithVersions Condition="'%(Identity)' != '' And '%(PackageVersion)' == ''">
+        <ProjectVersion>$(MinVerMinimumMajorMinor)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+      <_ProjectReferencesWithVersions Condition="'%(Identity)' != '' And '%(PackageVersion)' != ''">
+        <ProjectVersion>$([System.String]::new('%(PackageVersion)').Replace('~',%(ProjectVersion)))</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+</Project>
