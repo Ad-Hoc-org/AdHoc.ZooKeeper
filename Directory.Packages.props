@@ -4,4 +4,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="ZooKeeperNetEx" Version="3.4.12.4" />
+    <PackageVersion Include="System.IO.Pipelines" Version="9.0.4" />
+  </ItemGroup>
 </Project>

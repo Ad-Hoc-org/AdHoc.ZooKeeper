@@ -5,8 +5,8 @@
   <Import Project="$(RepoRoot).props/*Build.props" />
 
   <PropertyGroup>
-    <Description>Project description</Description>
-    <PackageTags>$(PackageTags);ProjectTags</PackageTags>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <PackageTags>$(PackageTags);zookeeper</PackageTags>
 
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
   </PropertyGroup>

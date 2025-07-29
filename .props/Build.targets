@@ -1,5 +1,12 @@
 <Project>
-  <PropertyGroup Condition="'$(OutputType)' != 'Exe'">
-    <TargetFrameworks>$(TargetFrameworks);netstandard2.1</TargetFrameworks>
-  </PropertyGroup>
+  <Target Name="SkipNetStandardExe" BeforeTargets="Build" Condition="'$(OutputType)' != 'Exe'">
+    <PropertyGroup>
+      <TargetFrameworks>$([System.Text.RegularExpressions.Regex]::Replace($(TargetFrameworks), ';?netstandard[^;]*', ''))</TargetFrameworks>
+    </PropertyGroup>
+  </Target>
 </Project>
+
+
+      <!-- $([System.String]::Join(';', 
+        $('$(TargetFrameworks)'.Where(s => !s.StartsWith('netstandard'))))
+      ) -->
