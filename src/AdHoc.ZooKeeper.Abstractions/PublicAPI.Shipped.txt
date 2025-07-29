@@ -1,1 +1,667 @@
 #nullable enable
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Authentication.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> int
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response.Response(long Transaction) -> void
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Recursive.get -> bool
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher! Watcher) -> void
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher!
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response.Watcher.init -> void
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Watch.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync!
+AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.ConnectionException
+AdHoc.ZooKeeper.Abstractions.ConnectionException.ConnectionException() -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionException.ConnectionException(string? message) -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionException.ConnectionException(string? message, System.Exception? inner) -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionException.Host.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host
+AdHoc.ZooKeeper.Abstractions.ConnectionException.Host.init -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.ConnectionLostException() -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.ConnectionLostException(string? message) -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.ConnectionLostException(string? message, System.Exception? inner) -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.LastInteractionTimestamp.get -> long
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.LastInteractionTimestamp.init -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.LastTransaction.get -> long
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.LastTransaction.init -> void
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.Session.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperSession
+AdHoc.ZooKeeper.Abstractions.ConnectionLostException.Session.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.AccessControlList.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList!
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Data.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.IsContainer.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.IsEphemeral.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.IsPersistent.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.IsSequential.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.AlreadyExisted.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.AlreadyExisted.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.ContainerMissing.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.ContainerMissing.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Created.get -> bool
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode?
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Node.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, AdHoc.ZooKeeper.Abstractions.ZooKeeperNode? Node, bool AlreadyExisted, bool ContainerMissing) -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.TimeToLive.get -> System.TimeSpan?
+AdHoc.ZooKeeper.Abstractions.CreateTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Deleted.get -> bool
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Deleted.init -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.NotEmpty.get -> bool
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.NotEmpty.init -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, bool Deleted, bool NotEmpty) -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Version.get -> int
+AdHoc.ZooKeeper.Abstractions.DeleteTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Existed.get -> bool
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode?
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Node.init -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, AdHoc.ZooKeeper.Abstractions.ZooKeeperNode? Node, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher? Watcher) -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher?
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response.Watcher.init -> void
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Watch.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync?
+AdHoc.ZooKeeper.Abstractions.ExistsTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Children.get -> System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>?
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Children.init -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Existed.get -> bool
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.HasChildren.get -> bool
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode?
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Node.init -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, AdHoc.ZooKeeper.Abstractions.ZooKeeperNode? Node, System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? Children, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher? Watcher) -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher?
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response.Watcher.init -> void
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Watch.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync?
+AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Data.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Data.init -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Existed.get -> bool
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode?
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Node.init -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, System.ReadOnlyMemory<byte> Data, AdHoc.ZooKeeper.Abstractions.ZooKeeperNode? Node, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher? Watcher) -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher?
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response.Watcher.init -> void
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Watch.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync?
+AdHoc.ZooKeeper.Abstractions.GetDataTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Ephemerals.get -> System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Ephemerals.init -> void
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath> Ephemerals) -> void
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.InvalidRequestException
+AdHoc.ZooKeeper.Abstractions.InvalidRequestException.InvalidRequestException() -> void
+AdHoc.ZooKeeper.Abstractions.InvalidRequestException.InvalidRequestException(string! message) -> void
+AdHoc.ZooKeeper.Abstractions.InvalidRequestException.InvalidRequestException(string! message, System.Exception! inner) -> void
+AdHoc.ZooKeeper.Abstractions.IZooKeeper
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.ExecuteAsync<TResponse>(AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction<TResponse>! transaction, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.AuthFailed = 4 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.Closed = 7 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.ConnectedReadOnly = 5 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.Disconnected = 0 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.Expired = -112 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.SASLAuthenticated = 6 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeper.States.SyncConnected = 3 -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.IZooKeeperProvider
+AdHoc.ZooKeeper.Abstractions.IZooKeeperProvider.GetZooKeeper(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection! connection) -> AdHoc.ZooKeeper.Abstractions.IZooKeeper!
+AdHoc.ZooKeeper.Abstractions.IZooKeeperResponse
+AdHoc.ZooKeeper.Abstractions.IZooKeeperResponse.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.IZooKeeperResponse!
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction<TResponse>
+AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction<TResponse>.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> TResponse
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Type.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types.Children = 1 -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types.Data = 2 -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types.Exists = 3 -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types.Persistent = 4 -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types.RecursivePersistent = 5 -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch
+AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync
+AdHoc.ZooKeeper.Abstractions.PingTransaction
+AdHoc.ZooKeeper.Abstractions.PingTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.PingTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.PingTransaction.Response
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus Status) -> void
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Status.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Status.init -> void
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.PingTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.PingTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response.Response(long Transaction) -> void
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher!
+AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.ResponseException
+AdHoc.ZooKeeper.Abstractions.ResponseException.ResponseException(AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status) -> void
+AdHoc.ZooKeeper.Abstractions.ResponseException.ResponseException(AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status, string! message) -> void
+AdHoc.ZooKeeper.Abstractions.ResponseException.ResponseException(AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status, string! message, System.Exception! inner) -> void
+AdHoc.ZooKeeper.Abstractions.ResponseException.Status.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.SessionExpiredException
+AdHoc.ZooKeeper.Abstractions.SessionExpiredException.SessionExpiredException() -> void
+AdHoc.ZooKeeper.Abstractions.SessionExpiredException.SessionExpiredException(string? message) -> void
+AdHoc.ZooKeeper.Abstractions.SessionExpiredException.SessionExpiredException(string? message, System.Exception? inner) -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Data.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode?
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Node.init -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Response(long Transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path, AdHoc.ZooKeeper.Abstractions.ZooKeeperNode? Node) -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response.Updated.get -> bool
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Version.get -> int
+AdHoc.ZooKeeper.Abstractions.SetDataTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Children.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>!
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Data.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>!
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Exists.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>!
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.LastTransaction.get -> long
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Persistent.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>!
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.RecursivePersistent.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>!
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response.Response(long Transaction) -> void
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Count.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Entry() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Entry(string! Scheme, string! Identifier, AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions Permissions) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Identifier.get -> string!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Identifier.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Permissions.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Permissions.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Scheme.get -> string!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry.Scheme.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.GetEnumerator() -> System.Collections.Generic.IEnumerator<AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry>!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Size.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.this[int index].get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Write(in System.Span<byte> buffer) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.ZooKeeperAccessControlList() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.ZooKeeperAccessControlList(System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Entry>! entries) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Authentication() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Authentication(string! Scheme, System.ReadOnlyMemory<byte> Data) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Data.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Data.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Equals(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication other) -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Scheme.get -> string!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.Scheme.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentications.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication>!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentications.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ConnectionTimeout.get -> System.TimeSpan
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ConnectionTimeout.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Equals(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection? other) -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Address.get -> string!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Address.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Host() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Host(string! Address, int Port = 2181) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Port.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Port.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Hosts.get -> System.Collections.Generic.IReadOnlySet<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host>!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ReadOnly.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ReadOnly.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Root.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Root.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.SessionTimeout.get -> System.TimeSpan
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.SessionTimeout.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ZooKeeperConnection(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host host, params System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication>! authentications) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ZooKeeperConnection(params System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host>! hosts) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ZooKeeperConnection(System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host>! hosts, params System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication>! authentications) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Path.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Path.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.State.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeper.States
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.State.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Status.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Status.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Trigger.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Trigger.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Type.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Type.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types.ChildrenChanged = 4 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types.DataChanged = 3 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types.NodeCreated = 1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types.NodeDeleted = 2 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types.None = -1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.ZooKeeperEvent() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.ZooKeeperEvent(long Trigger, AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus Status, AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types Type, AdHoc.ZooKeeper.Abstractions.IZooKeeper.States State, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath Path) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperException
+AdHoc.ZooKeeper.Abstractions.ZooKeeperException.ZooKeeperException() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperException.ZooKeeperException(string? message) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperException.ZooKeeperException(string? message, System.Exception? inner) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.AccessControlListVersion.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.AccessControlListVersion.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildrenCount.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildrenCount.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildrenLastModifier.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildrenLastModifier.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildVersion.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ChildVersion.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.CreatedAt.get -> System.DateTimeOffset
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.CreatedAt.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Creator.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Creator.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.EphemeralOwner.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.EphemeralOwner.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.LastModifier.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.LastModifier.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Length.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Length.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ModifiedAt.get -> System.DateTimeOffset
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ModifiedAt.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Version.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Version.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ZooKeeperNode() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.ZooKeeperNode(long Creator = -1, long LastModifier = -1, System.DateTimeOffset CreatedAt = default(System.DateTimeOffset), System.DateTimeOffset ModifiedAt = default(System.DateTimeOffset), int Version = -1, int ChildVersion = -1, int AccessControlListVersion = -1, long EphemeralOwner = -1, int Length = -1, int ChildrenCount = -1, long ChildrenLastModifier = -1) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.AddWatch = 106 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Authentication = 100 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.CloseSession = -11 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Create = 1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.CreateContainer = 19 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.CreateWithNode = 15 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.CreateWithTimeToLive = 21 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Delete = 2 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Error = -1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Exists = 3 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.GetChildren = 8 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.GetChildrenCount = 104 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.GetChildrenWithNode = 12 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.GetData = 4 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.GetEphemerals = 103 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Notification = 0 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Ping = 11 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.ReadTransaction = 22 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.RemoveWatch = 18 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.SetData = 5 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.SetWatches = 101 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.SetWatchesWithPersistent = 105 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.Transaction = 14 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations.WhoAmI = 107 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Absolute.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Container.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Equals(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath other) -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.GetMaxBufferSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root = default(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath)) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.IsAbsolute.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.IsContainer.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.IsEmpty.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.IsRoot.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Length.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Memory.get -> System.ReadOnlyMemory<char>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Node.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Normalize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Parent.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Write(System.Span<byte> destination) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.ZooKeeperPath() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.ZooKeeperPath(string! path) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.ZooKeeperPath(System.ReadOnlyMemory<char> path) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Admin = 16 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.All = AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Read | AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Write | AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Create | AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Delete | AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Admin -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Create = 4 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Delete = 8 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.None = 0 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Read = 1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions.Write = 2 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPermissions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperProviders
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Data.get -> System.ReadOnlySpan<byte>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Request.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Root.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Slice(int start, AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations operation, AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Status.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.Watcher.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher?
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.ZooKeeperReadContext() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext.ZooKeeperReadContext(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root, AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations operation, int request, long transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status, System.ReadOnlySpan<byte> data, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher? watcher) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeepers
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.IsReadOnly.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.IsReadOnly.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.Password.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.Password.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.Session.get -> System.ReadOnlyMemory<byte>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.Session.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.SessionTimeout.get -> System.TimeSpan
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.SessionTimeout.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.ZooKeeperSession() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.ZooKeeperSession(System.ReadOnlyMemory<byte> Session, System.ReadOnlyMemory<byte> Password, System.TimeSpan SessionTimeout, bool IsReadOnly) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.APIError = -100 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.AuthenticationFailed = -115 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.BadArguments = -8 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.BadVersion = -103 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.ConnectionLoss = -4 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.DataInconsistency = -3 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.InvalidAccessControlList = -114 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.InvalidCallback = -113 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.MarshallingError = -5 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.NoAuthentication = -102 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.NoChildrenForEphemerals = -108 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.NodeExists = -110 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.NoNode = -101 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.NotEmpty = -111 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.Ok = 0 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.OperationTimeout = -7 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.RuntimeInconsistency = -2 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.SessionExpired = -112 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.SessionMoved = -118 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.SystemError = -1 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus.Unimplemented = -6 -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder.AddTransaction<TResponse>(AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction<TResponse>! transaction) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder.Builder(AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder.CommitAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response>!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Error() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Error(AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus Status, int Index, AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction! Transaction) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Index.get -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Index.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Status.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Status.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Transaction.get -> AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.GetMaxRequestSize(in AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Operation.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.ReadResponse(in AdHoc.ZooKeeper.Abstractions.ZooKeeperReadContext context, out int size) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Error.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error?
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Error.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.HasError.get -> bool
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Response() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Response(long Transaction, System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.IZooKeeperResponse!>? Responses, AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Error? Error) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Responses.get -> System.ReadOnlyMemory<AdHoc.ZooKeeper.Abstractions.IZooKeeperResponse!>?
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Responses.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Transaction.get -> long
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response.Transaction.init -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Transactions.get -> System.Collections.Generic.IReadOnlyList<AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction!>!
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.WriteRequest(in AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext context) -> int
+AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWatchers
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.Buffer.get -> System.Span<byte>
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.RegisterWatcher(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types type, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch) -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.Root.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.Slice(int start) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.ZooKeeperWriteContext() -> void
+AdHoc.ZooKeeper.Abstractions.ZooKeeperWriteContext.ZooKeeperWriteContext(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath root, System.Span<byte> buffer, System.Action<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync!>! registerWatcher) -> void
+const AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Request = -4 -> int
+const AdHoc.ZooKeeper.Abstractions.PingTransaction.Request = -2 -> int
+const AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Request = -9 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.AnyoneIdentifier = "anyone" -> string!
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.WorldScheme = "world" -> string!
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.DefaultPort = 2181 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Scheme = "zookeeper" -> string!
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Separator = '/' -> char
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.HeaderSize = 9 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.BooleanSize = 1 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.DefaultPasswordSize = 16 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.DefaultSessionResponseSize = 41 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Int32Size = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Int64Size = 8 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.LengthSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.MinimalResponseLength = 16 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.NewSessionSize = 33 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.NoRequest = -1 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.NoVersion = -1 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.OperationSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ProtocolVersionSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadOnlySize = 1 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.RequestHeaderSize = 12 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.RequestSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.SessionSize = 8 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.StatusSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.TimeoutSize = 4 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.TimeSpanSize = 8 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.TimestampSize = 8 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.TransactionSize = 8 -> int
+const AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.VersionSize = 4 -> int
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.GetHashCode() -> int
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication.ToString() -> string!
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.GetHashCode() -> int
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.ToString() -> string!
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.ToString() -> string!
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Equals(object? obj) -> bool
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.GetHashCode() -> int
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.ToString() -> string!
+override AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.ToString() -> string!
+static AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Authentication authentication) -> AdHoc.ZooKeeper.Abstractions.AddAuthenticationTransaction!
+static AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool recursive, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch) -> AdHoc.ZooKeeper.Abstractions.AddWatchTransaction!
+static AdHoc.ZooKeeper.Abstractions.CreateTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential, AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList? accessControlList = null) -> AdHoc.ZooKeeper.Abstractions.CreateTransaction!
+static AdHoc.ZooKeeper.Abstractions.CreateTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.TimeSpan timeToLive, bool sequential, AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList? accessControlList = null) -> AdHoc.ZooKeeper.Abstractions.CreateTransaction!
+static AdHoc.ZooKeeper.Abstractions.CreateTransaction.CreateContainer(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList? accessControlList = null) -> AdHoc.ZooKeeper.Abstractions.CreateTransaction!
+static AdHoc.ZooKeeper.Abstractions.CreateTransaction.CreateEphemeral(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential, AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList? accessControlList = null) -> AdHoc.ZooKeeper.Abstractions.CreateTransaction!
+static AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, int version = -1) -> AdHoc.ZooKeeper.Abstractions.DeleteTransaction!
+static AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync? watch = null) -> AdHoc.ZooKeeper.Abstractions.ExistsTransaction!
+static AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync? watch = null) -> AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction!
+static AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync? watch = null) -> AdHoc.ZooKeeper.Abstractions.GetDataTransaction!
+static AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction!
+static AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction.Create(AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher! watcher) -> AdHoc.ZooKeeper.Abstractions.RemoveWatchTransaction!
+static AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Create(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, int version = -1) -> AdHoc.ZooKeeper.Abstractions.SetDataTransaction!
+static AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction.Create(long lastTransaction, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? data = null, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? children = null, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? exists = null, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? persistent = null, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath>? recursivePersistent = null) -> AdHoc.ZooKeeper.Abstractions.SetWatchersTransaction!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList.Default.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperAccessControlList!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.DefaultConnectionTimeout.get -> System.TimeSpan
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.DefaultSessionTimeout.get -> System.TimeSpan
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host.Default.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Parse(string! connectionString) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Read(System.ReadOnlySpan<byte> source, out int size) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperException.CreateInvalidRequestSize(int length, int size) -> AdHoc.ZooKeeper.Abstractions.InvalidRequestException!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperException.CreateLostConnection(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host host, AdHoc.ZooKeeper.Abstractions.ZooKeeperSession session, long lastTransaction, long lastInteractionTimestamp, System.Exception? innerException = null) -> AdHoc.ZooKeeper.Abstractions.ConnectionLostException!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperException.CreateNoConnection(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host host, System.Exception? innerException = null) -> AdHoc.ZooKeeper.Abstractions.ConnectionException!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperException.CreateResponseError(AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status) -> AdHoc.ZooKeeper.Abstractions.ResponseException!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperException.CreateSessionExpired(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection.Host host, AdHoc.ZooKeeper.Abstractions.ZooKeeperSession session, long lastTransaction, long lastInteractionTimestamp, System.Exception? innerException = null) -> AdHoc.ZooKeeper.Abstractions.SessionExpiredException!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperNode.Read(System.ReadOnlySpan<byte> source, out int size) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperNode
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Combine(params System.ReadOnlySpan<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath> paths) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Empty.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.implicit operator AdHoc.ZooKeeper.Abstractions.ZooKeeperPath(string! path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.implicit operator AdHoc.ZooKeeper.Abstractions.ZooKeeperPath(System.ReadOnlyMemory<char> path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.implicit operator AdHoc.ZooKeeper.Abstractions.ZooKeeperPath(System.ReadOnlySpan<char> path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.operator !=(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath left, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath right) -> bool
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.operator +(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath left, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath right) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.operator ==(AdHoc.ZooKeeper.Abstractions.ZooKeeperPath left, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath right) -> bool
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Read(System.ReadOnlySpan<byte> source, out int size) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperPath.Root.get -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperProviders.GetZooKeeper(this AdHoc.ZooKeeper.Abstractions.IZooKeeperProvider! provider, string! connectionString) -> AdHoc.ZooKeeper.Abstractions.IZooKeeper!
+static AdHoc.ZooKeeper.Abstractions.ZooKeepers.Combine(this AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, params System.ReadOnlySpan<AdHoc.ZooKeeper.Abstractions.ZooKeeperPath> paths) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperPath
+static AdHoc.ZooKeeper.Abstractions.ZooKeepers.ThrowIfEmpty(this AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, string? pathExpression = null) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeepers.ThrowIfEmptyOrInvalid(this AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, string? pathExpression = null) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeepers.ThrowIfInvalid(this AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, string? pathExpression = null) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperSession.ToString(System.ReadOnlySpan<byte> session) -> string!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Create(params System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction!>! transactions) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool recursive, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool recursive, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchRecursiveAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.AddWatchRecursiveAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.AddWatchTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.TimeSpan timeToLive) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.TimeSpan timeToLive, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.TimeSpan timeToLive) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Create(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.TimeSpan timeToLive, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.TimeSpan timeToLive, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.TimeSpan timeToLive, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.TimeSpan timeToLive, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.TimeSpan timeToLive, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateContainer(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateContainer(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateContainerAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateContainerAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeral(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeral(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeral(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeral(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeralAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeralAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, bool sequential, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeralAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.CreateEphemeralAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.CreateTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Delete(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Delete(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, int version) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.DeleteAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, int version, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.DeleteAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.DeleteTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ExistsAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ExistsAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ExistsAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.ExistsTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildren(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildren(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildren(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildrenAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildrenAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetChildrenAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetChildrenTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetData(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetData(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetData(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetDataAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetDataAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync! watch, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetDataAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetDataTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetEphemeralsAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.GetEphemeralsTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.GetRequest(this AdHoc.ZooKeeper.Abstractions.ZooKeeperOperations operation, ref int previousRequest) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Ping.get -> AdHoc.ZooKeeper.Abstractions.PingTransaction!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.PingAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.PingTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadBuffer(System.ReadOnlySpan<byte> source, out int size) -> System.ReadOnlySpan<byte>
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadInt32(System.ReadOnlySpan<byte> source) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadInt64(System.ReadOnlySpan<byte> source) -> long
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadSession(in System.ReadOnlySpan<byte> data) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperSession?
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadTimeSpan(System.ReadOnlySpan<byte> source) -> System.TimeSpan
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ReadTimestamp(System.ReadOnlySpan<byte> source) -> System.DateTimeOffset
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.SetData(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.SetData(this AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder! transaction, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, int version) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.SetDataAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, int version, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.SetDataAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, AdHoc.ZooKeeper.Abstractions.ZooKeeperPath path, System.ReadOnlyMemory<byte> data, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.SetDataTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.StartTransaction(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper) -> AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Builder!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.ThrowIfError(this AdHoc.ZooKeeper.Abstractions.ZooKeeperStatus status) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.TransactAsync(this AdHoc.ZooKeeper.Abstractions.IZooKeeper! zooKeeper, System.Collections.Generic.IEnumerable<AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction!>! transactions, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<AdHoc.ZooKeeper.Abstractions.ZooKeeperTransaction.Response>!
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, bool value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, int value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, long value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, string! value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, System.ReadOnlySpan<byte> buffer) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.Write(System.Span<byte> destination, System.TimeSpan value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.WriteCloseSession(System.Buffers.IBufferWriter<byte>! writer) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.WriteNewSession(System.Buffers.IBufferWriter<byte>! writer, System.TimeSpan sessionTimeout, bool readOnly) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.WriteReconnectSession(System.Buffers.IBufferWriter<byte>! writer, AdHoc.ZooKeeper.Abstractions.ZooKeeperSession session, long lastTransaction) -> void
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperTransactions.WriteTimeout(System.Span<byte> destination, System.TimeSpan value) -> int
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperWatchers.IsHandling(this AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Types type, AdHoc.ZooKeeper.Abstractions.ZooKeeperEvent.Types eventType) -> bool
+static AdHoc.ZooKeeper.Abstractions.ZooKeeperWatchers.ToAsyncWatch(this AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.Watch! watch, string? watchExpression = null) -> AdHoc.ZooKeeper.Abstractions.IZooKeeperWatcher.WatchAsync!

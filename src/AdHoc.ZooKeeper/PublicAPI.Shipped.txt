@@ -1,1 +1,14 @@
-﻿
+#nullable enable
+AdHoc.ZooKeeper.ZooKeeper
+AdHoc.ZooKeeper.ZooKeeper.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.ZooKeeper.ExecuteAsync<TResponse>(AdHoc.ZooKeeper.Abstractions.IZooKeeperTransaction<TResponse>! transaction, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+AdHoc.ZooKeeper.ZooKeeper.ZooKeeper(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection! connection) -> void
+AdHoc.ZooKeeper.ZooKeeper.ZooKeeper(string! connectionString) -> void
+AdHoc.ZooKeeper.ZooKeeperPool
+AdHoc.ZooKeeper.ZooKeeperPool.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.ZooKeeperPool.GetZooKeeper(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection! connection) -> AdHoc.ZooKeeper.Abstractions.IZooKeeper!
+AdHoc.ZooKeeper.ZooKeeperPool.ZooKeeperPool() -> void
+AdHoc.ZooKeeper.ZooKeeperProvider
+AdHoc.ZooKeeper.ZooKeeperProvider.DisposeAsync() -> System.Threading.Tasks.ValueTask
+AdHoc.ZooKeeper.ZooKeeperProvider.GetZooKeeper(AdHoc.ZooKeeper.Abstractions.ZooKeeperConnection! connection) -> AdHoc.ZooKeeper.Abstractions.IZooKeeper!
+AdHoc.ZooKeeper.ZooKeeperProvider.ZooKeeperProvider() -> void
